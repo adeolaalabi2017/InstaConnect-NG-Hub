@@ -11,8 +11,7 @@ import {
   Legend,
   ChartOptions,
   ChartData,
-  ScriptableContext,
-  Filler
+  ScriptableContext
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -24,8 +23,7 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend,
-  Filler
+  Legend
 );
 
 interface LineChartProps {
@@ -77,12 +75,12 @@ const LineChart: React.FC<LineChartProps> = ({ data, options, className = '', ti
         displayColors: true,
         usePointStyle: true,
         callbacks: {
-          labelColor: function (context) {
+          labelColor: function(context) {
             return {
               borderColor: context.dataset.borderColor as string,
               backgroundColor: context.dataset.backgroundColor as string,
               borderWidth: 2,
-              borderDash: [0, 0],
+              borderDash: [],
               borderRadius: 2,
             };
           }
