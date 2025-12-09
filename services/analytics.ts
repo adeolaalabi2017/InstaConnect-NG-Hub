@@ -48,7 +48,7 @@ class AnalyticsService {
     // Optimization: For UI responsiveness in this demo, we optimistically update the aggregation
     // In a real system, this might wait for the cron job or a stream processor.
     this.incrementRealtimeCache(newEvent);
-    
+
     return { success: true, eventId: newEvent.id };
   }
 
@@ -72,7 +72,7 @@ class AnalyticsService {
    */
   public runDailyAggregation() {
     console.log('[Cron Job] Starting Daily Analytics Aggregation...');
-    
+
     const aggregationMap = new Map<string, {
       date: string;
       businessId: string;
@@ -115,7 +115,7 @@ class AnalyticsService {
 
     // 2. LOAD: Upsert into DailyAnalytics Table
     let updatedCount = 0;
-    
+
     aggregationMap.forEach((data, key) => {
       // Find existing record in DailyAnalytics table (Composite Key: date + businessId)
       const existingIndex = this.dailyAnalyticsTable.findIndex(
@@ -146,7 +146,7 @@ class AnalyticsService {
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const initialRawCount = this.pageViewsTable.length;
     this.pageViewsTable = this.pageViewsTable.filter(e => e.timestamp > sevenDaysAgo);
-    
+
     this.commit();
     console.log(`[Cron Job] Aggregation Complete. Updated/Inserted ${updatedCount} daily records. Archived ${initialRawCount - this.pageViewsTable.length} raw events.`);
   }
@@ -170,7 +170,7 @@ class AnalyticsService {
       if (event.type === 'view') m.views++;
       else if (event.type === 'share') m.shares++;
       else m.clicks++;
-      
+
       // Note: Accurately updating uniqueVisitors in realtime without the Set is hard, 
       // so we rely on the Cron Job for exact unique counts.
     }
@@ -179,7 +179,7 @@ class AnalyticsService {
 
   // Legacy Alias for CronService
   public aggregateEvents() {
-      this.runDailyAggregation();
+    this.runDailyAggregation();
   }
 
   // --- Reporting / Read APIs ---
@@ -190,7 +190,7 @@ class AnalyticsService {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      
+
       const metric = this.dailyAnalyticsTable.find(m => m.date === dateStr && m.businessId === businessId) || {
         date: dateStr,
         businessId,
@@ -206,12 +206,12 @@ class AnalyticsService {
 
   public getBusinessLifetimeStats(businessId: string) {
     return this.dailyAnalyticsTable
-        .filter(m => m.businessId === businessId)
-        .reduce((acc, curr) => ({
-            views: acc.views + curr.views,
-            clicks: acc.clicks + curr.clicks,
-            shares: acc.shares + curr.shares
-        }), { views: 0, clicks: 0, shares: 0 });
+      .filter(m => m.businessId === businessId)
+      .reduce((acc, curr) => ({
+        views: acc.views + curr.views,
+        clicks: acc.clicks + curr.clicks,
+        shares: acc.shares + curr.shares
+      }), { views: 0, clicks: 0, shares: 0 });
   }
 
   public getGlobalMetrics(days: number = 7) {
@@ -220,13 +220,13 @@ class AnalyticsService {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      
+
       const dayMetrics = this.dailyAnalyticsTable.filter(m => m.date === dateStr);
-      
+
       result.push({
-          date: dateStr,
-          views: dayMetrics.reduce((sum, m) => sum + m.views, 0),
-          clicks: dayMetrics.reduce((sum, m) => sum + m.clicks, 0)
+        date: dateStr,
+        views: dayMetrics.reduce((sum, m) => sum + m.views, 0),
+        clicks: dayMetrics.reduce((sum, m) => sum + m.clicks, 0)
       });
     }
     return result;
@@ -238,18 +238,18 @@ class AnalyticsService {
     if (userRole !== 'admin') throw new Error('Forbidden');
 
     const totalViews = this.dailyAnalyticsTable.reduce((acc, m) => acc + m.views, 0);
-    
+
     // Revenue Calc (Same as before)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     const monthlyRevenue = MOCK_TRANSACTIONS
-        .filter(t => t.type === 'credit_purchase' && t.status === 'success' && new Date(t.date) >= thirtyDaysAgo)
-        .reduce((sum, t) => sum + (t.amountNGN || 0), 0);
+      .filter(t => t.type === 'credit_purchase' && t.status === 'success' && new Date(t.date) >= thirtyDaysAgo)
+      .reduce((sum, t) => sum + (t.amountNGN || 0), 0);
 
     const totalRevenue = MOCK_TRANSACTIONS
-        .filter(t => t.type === 'credit_purchase' && t.status === 'success')
-        .reduce((sum, t) => sum + (t.amountNGN || 0), 0);
+      .filter(t => t.type === 'credit_purchase' && t.status === 'success')
+      .reduce((sum, t) => sum + (t.amountNGN || 0), 0);
 
     return {
       totalUsers: MOCK_USERS_LIST.length,
@@ -262,11 +262,57 @@ class AnalyticsService {
       totalRevenue,
       totalViews,
       trends: {
-          business: { value: 3.4, isPositive: true },
-          users: { value: 12.5, isPositive: true },
-          reviews: { value: 5.2, isPositive: true },
-          revenue: { value: 8.1, isPositive: true }
-      }
+        business: { value: 3.4, isPositive: true },
+        users: { value: 12.5, isPositive: true },
+        reviews: { value: 5.2, isPositive: true },
+        revenue: { value: 8.1, isPositive: true }
+      },
+      ...this.getBusinessHealthMetrics(),
+      ...this.getUserEngagementMetrics(),
+      ...this.getPlatformMetrics()
+    };
+  }
+
+  public getBusinessHealthMetrics() {
+    // Calculated over last 30 days
+    const newBusinesses = MOCK_BUSINESSES.filter(b => {
+      if (!b.createdAt) return false;
+      const date = new Date(b.createdAt);
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return date >= thirtyDaysAgo;
+    }).length;
+
+    return {
+      newBusinesses: newBusinesses || 12, // Mock fallback
+      pendingSubmissions: MOCK_BUSINESSES.filter(b => b.verificationStatus === 'pending').length || 5, // Mock
+      promotedBusinesses: MOCK_BUSINESSES.filter(b => b.isPromoted).length,
+    };
+  }
+
+  public getUserEngagementMetrics() {
+    // Mock metrics for demo
+    return {
+      userRetentionRate: { value: 72, trend: 2.5 },
+      newReviews: MOCK_REVIEWS.filter(r => {
+        const date = new Date(r.date);
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return date >= thirtyDaysAgo;
+      }).length,
+      mostViewedBusinesses: MOCK_BUSINESSES.sort((a, b) => b.viewCount - a.viewCount).slice(0, 5)
+    };
+  }
+
+  public getPlatformMetrics() {
+    return {
+      averagePageLoadTime: '0.8s',
+      serverUptime: '99.9%',
+      trafficSources: [
+        { source: 'Direct', value: 40 },
+        { source: 'Social Media', value: 35 },
+        { source: 'Organic Search', value: 25 }
+      ]
     };
   }
 
@@ -277,23 +323,23 @@ class AnalyticsService {
     const today = new Date();
 
     for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        const seed = d.getDate() + d.getMonth();
-        data.push({ date: dateStr, count: Math.floor((Math.sin(seed) + 1) * 5) + 2 });
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const seed = d.getDate() + d.getMonth();
+      data.push({ date: dateStr, count: Math.floor((Math.sin(seed) + 1) * 5) + 2 });
     }
     return data;
   }
 
   public getBusinessCategoryDistribution(userRole: string = 'admin') {
-      const distribution: Record<string, number> = {};
-      MOCK_BUSINESSES.forEach(b => {
-          distribution[b.category] = (distribution[b.category] || 0) + 1;
-      });
-      return Object.entries(distribution).map(([category, count]) => ({ 
-          name: category, category, count, value: count 
-      }));
+    const distribution: Record<string, number> = {};
+    MOCK_BUSINESSES.forEach(b => {
+      distribution[b.category] = (distribution[b.category] || 0) + 1;
+    });
+    return Object.entries(distribution).map(([category, count]) => ({
+      name: category, category, count, value: count
+    }));
   }
 
   // --- Dashboard Legacy Helpers ---
@@ -302,33 +348,33 @@ class AnalyticsService {
     const data = [];
     const today = new Date();
     let currentBusinesses = 45;
-    
-    for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        
-        // Aggregate actual data from our table if available, else mock
-        const dayMetrics = this.dailyAnalyticsTable.filter(m => m.date === dateStr);
-        const actualViews = dayMetrics.reduce((sum, m) => sum + m.views, 0); // Used for visitor proxy
 
-        const newUsers = Math.floor(Math.random() * 15) + 5;
-        const newReviews = Math.floor(Math.random() * 25) + 10;
-        if (Math.random() > 0.7) currentBusinesses++; 
-        
-        data.push({
-            date: dateStr,
-            newUsers,
-            activeBusinesses: currentBusinesses,
-            newReviews,
-            visitorOnline: actualViews > 0 ? actualViews : Math.floor(Math.random() * 100) + 50
-        });
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+
+      // Aggregate actual data from our table if available, else mock
+      const dayMetrics = this.dailyAnalyticsTable.filter(m => m.date === dateStr);
+      const actualViews = dayMetrics.reduce((sum, m) => sum + m.views, 0); // Used for visitor proxy
+
+      const newUsers = Math.floor(Math.random() * 15) + 5;
+      const newReviews = Math.floor(Math.random() * 25) + 10;
+      if (Math.random() > 0.7) currentBusinesses++;
+
+      data.push({
+        date: dateStr,
+        newUsers,
+        activeBusinesses: currentBusinesses,
+        newReviews,
+        visitorOnline: actualViews > 0 ? actualViews : Math.floor(Math.random() * 100) + 50
+      });
     }
     return data;
   }
 
   public getCategoryDistribution() { return this.getBusinessCategoryDistribution('admin'); }
-  
+
   public getRevenueAnalytics() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return days.map(day => ({ name: day, revenue: Math.floor(Math.random() * 50000) + 10000 }));
@@ -343,27 +389,27 @@ class AnalyticsService {
     console.log('[Analytics DB] Seeding initial data...');
 
     const today = new Date();
-    
-    MOCK_BUSINESSES.forEach(biz => {
-        for (let i = 0; i < 30; i++) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-            
-            const isWeekend = date.getDay() === 5 || date.getDay() === 6;
-            const baseViews = Math.floor(Math.random() * 20) + 10;
-            const multiplier = isWeekend ? 1.5 : 1;
-            const views = Math.floor(baseViews * multiplier);
 
-            this.dailyAnalyticsTable.push({
-                date: dateStr,
-                businessId: biz.id,
-                views: views,
-                clicks: Math.floor(views * 0.2),
-                shares: Math.floor(views * 0.05),
-                uniqueVisitors: Math.floor(views * 0.8)
-            });
-        }
+    MOCK_BUSINESSES.forEach(biz => {
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+
+        const isWeekend = date.getDay() === 5 || date.getDay() === 6;
+        const baseViews = Math.floor(Math.random() * 20) + 10;
+        const multiplier = isWeekend ? 1.5 : 1;
+        const views = Math.floor(baseViews * multiplier);
+
+        this.dailyAnalyticsTable.push({
+          date: dateStr,
+          businessId: biz.id,
+          views: views,
+          clicks: Math.floor(views * 0.2),
+          shares: Math.floor(views * 0.05),
+          uniqueVisitors: Math.floor(views * 0.8)
+        });
+      }
     });
     this.commit();
   }
