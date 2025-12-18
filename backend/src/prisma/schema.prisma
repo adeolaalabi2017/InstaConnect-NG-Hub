@@ -1,0 +1,131 @@
+// This is a simplified starter schema
+// See BACKEND_API_ARCHITECTURE.md for the complete schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Management
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  image     String?
+  role      UserRole @default(CONSUMER)
+
+  credits           Int      @default(0)
+  reputationPoints  Int      @default(0)
+  referralCode      String   @unique @default(cuid())
+  referralCount     Int      @default(0)
+
+  emailNotifications Boolean  @default(true)
+  inAppNotifications Boolean  @default(true)
+
+  status            UserStatus @default(ACTIVE)
+  emailVerified     Boolean    @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastActiveAt DateTime @default(now())
+
+  businesses   Business[]
+  reviews      Review[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+enum UserRole {
+  CONSUMER
+  VENDOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  SUSPENDED
+  PENDING
+}
+
+// ============================================
+// Business Management
+// ============================================
+
+model Business {
+  id          String   @id @default(uuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  category    String
+
+  location    String
+  phone       String
+  email       String
+  website     String?
+
+  logo        String?
+  coverImage  String?
+
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  viewCount   Int      @default(0)
+
+  isOpen      Boolean  @default(true)
+  isPromoted  Boolean  @default(false)
+
+  credits     Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reviews     Review[]
+
+  @@index([ownerId])
+  @@index([slug])
+  @@map("businesses")
+}
+
+// ============================================
+// Reviews & Ratings
+// ============================================
+
+model Review {
+  id         String       @id @default(uuid())
+  businessId String
+  business   Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating     Int
+  text       String       @db.Text
+
+  status     ReviewStatus @default(ACTIVE)
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([businessId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+enum ReviewStatus {
+  ACTIVE
+  FLAGGED
+  HIDDEN
+  DELETED
+}
