@@ -236,32 +236,32 @@ const BusinessDashboard: React.FC = () => {
     { 
       label: 'Edit Listing', 
       icon: Edit, 
-      color: 'text-blue-600', 
-      bg: 'bg-blue-50', 
+      color: 'text-blue-600 dark:text-blue-400', 
+      bg: 'bg-blue-50 dark:bg-blue-900/20', 
       description: 'Update info & photos',
       action: () => alert('Edit functionality coming soon!') 
     },
     { 
       label: 'Promote', 
       icon: Zap, 
-      color: 'text-purple-600', 
-      bg: 'bg-purple-50', 
+      color: 'text-purple-600 dark:text-purple-400', 
+      bg: 'bg-purple-50 dark:bg-purple-900/20', 
       description: 'Boost visibility',
       action: () => setShowPromoteModal(true) 
     },
     { 
       label: 'Reviews', 
       icon: MessageSquare, 
-      color: 'text-green-600', 
-      bg: 'bg-green-50', 
+      color: 'text-green-600 dark:text-green-400', 
+      bg: 'bg-green-50 dark:bg-green-900/20', 
       description: 'Manage feedback',
       action: () => setActiveTab('reviews') 
     },
     { 
       label: 'Analytics', 
       icon: BarChart2, 
-      color: 'text-orange-600', 
-      bg: 'bg-orange-50', 
+      color: 'text-orange-600 dark:text-orange-400', 
+      bg: 'bg-orange-50 dark:bg-orange-900/20', 
       description: 'View full report',
       action: () => alert('Full report functionality coming soon!') 
     }
@@ -278,9 +278,9 @@ const BusinessDashboard: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
         <div>
-           <h1 className="text-4xl font-extrabold text-dark tracking-tight mb-2">Dashboard</h1>
-           <p className="text-graytext text-lg">
-             Manage <span className="font-bold text-dark">{myBusiness?.name || 'your business'}</span>.
+           <h1 className="text-4xl font-extrabold text-dark dark:text-white tracking-tight mb-2">Dashboard</h1>
+           <p className="text-graytext dark:text-gray-400 text-lg">
+             Manage <span className="font-bold text-dark dark:text-white">{myBusiness?.name || 'your business'}</span>.
            </p>
         </div>
 
@@ -294,600 +294,468 @@ const BusinessDashboard: React.FC = () => {
                             setShowNotifications(!showNotifications);
                             if (!showNotifications) markNotificationsRead();
                         }}
-                        className="w-12 h-12 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-dark hover:shadow-md transition-all relative"
+                        className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative"
                     >
-                        <Bell size={20} />
-                        {notifications.some(n => !n.isRead) && (
-                            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        <Bell size={20} className="text-gray-600 dark:text-gray-300" />
+                        {notifications.filter(n => !n.isRead).length > 0 && (
+                            <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900"></span>
                         )}
                     </button>
+
                     {showNotifications && (
-                        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 p-2 animate-fade-in-up origin-top-right z-30">
-                            <div className="text-xs font-bold text-gray-400 px-3 py-2 uppercase tracking-wider">Notifications</div>
-                            {notifications.length > 0 ? (
-                                <div className="space-y-1">
-                                    {notifications.map((n, i) => (
-                                        <div key={n.id || i} className={`p-3 hover:bg-gray-50 rounded-lg cursor-pointer ${!n.isRead ? 'bg-blue-50/50' : ''}`}>
-                                            <div className="font-bold text-sm text-dark mb-1">{n.title}</div>
-                                            <p className="text-xs text-gray-500">{n.message}</p>
-                                            <span className="text-[10px] text-gray-400 mt-1 block">{new Date(n.date).toLocaleDateString()}</span>
+                        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-2 animate-fade-in-up z-30">
+                            <div className="flex justify-between items-center px-3 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
+                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Notifications</span>
+                                <button onClick={() => setShowNotifications(false)} className="text-gray-400 hover:text-dark">
+                                    <X size={14} />
+                                </button>
+                            </div>
+                            <div className="max-h-64 overflow-y-auto">
+                                {notifications.length > 0 ? (
+                                    notifications.map((n, i) => (
+                                        <div key={i} className={`p-3 rounded-lg text-sm mb-1 ${!n.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+                                            <div className="font-bold text-dark dark:text-white mb-0.5">{n.title}</div>
+                                            <p className="text-gray-600 dark:text-gray-400 text-xs mb-1">{n.message}</p>
+                                            <div className="text-[10px] text-gray-400">{new Date(n.date).toLocaleDateString()}</div>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="p-4 text-center text-sm text-gray-400">No new notifications</div>
-                            )}
+                                    ))
+                                ) : (
+                                    <div className="p-4 text-center text-sm text-gray-400">No new notifications</div>
+                                )}
+                            </div>
                         </div>
                     )}
                  </div>
 
-                 {/* Credits Widget */}
-                <div className="glass-card px-4 sm:px-6 py-3 rounded-2xl flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border-white/60 shadow-lg bg-white/80">
-                   <div className="flex flex-col items-center sm:items-start">
-                       <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Credits</span>
-                       <div className="flex items-baseline gap-1">
-                         <span className="text-2xl font-black text-dark">{myBusiness.credits}</span>
-                         <span className="text-sm font-medium text-gray-500">cr</span>
-                       </div>
-                   </div>
-                   <div className="hidden sm:block h-10 w-px bg-gray-200"></div>
-                   <div className="flex gap-2 w-full sm:w-auto">
-                       <button 
-                         onClick={() => openTopUp(false)}
-                         className="flex-1 sm:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-dark px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
-                       >
-                         <CreditCard size={16} /> Top Up
-                       </button>
-                       <button 
-                         onClick={() => setShowPromoteModal(true)}
-                         className="flex-1 sm:flex-none bg-primary hover:bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-red-500/20 flex items-center justify-center gap-2"
-                       >
-                         <Zap size={16} fill="currentColor" /> Promote
-                       </button>
-                   </div>
-                </div>
+                 {/* Credits Display */}
+                 <div className="glass-card px-4 py-2 rounded-xl flex items-center gap-3 border-none bg-gradient-to-r from-primary/10 to-primary/5">
+                     <div className="flex flex-col items-end">
+                         <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Credits</span>
+                         <span className="text-xl font-black text-primary leading-none">{myBusiness.credits}</span>
+                     </div>
+                     <button 
+                        onClick={() => openTopUp()}
+                        className="bg-primary hover:bg-red-600 text-white p-2 rounded-lg shadow-sm transition-colors"
+                        title="Top Up Credits"
+                     >
+                         <Plus size={16} />
+                     </button>
+                 </div>
             </div>
         )}
       </div>
 
       {myBusiness ? (
-        <div className="space-y-8">
-            
-            {/* Tabs Navigation */}
-            <div className="flex gap-4 border-b border-gray-200 pb-1 mb-6 overflow-x-auto">
-                <button 
-                    onClick={() => setActiveTab('overview')}
-                    className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-dark'}`}
-                >
-                    Overview
-                </button>
-                <button 
-                    onClick={() => setActiveTab('reviews')}
-                    className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${activeTab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-dark'}`}
-                >
-                    Review Management
-                    {businessReviews.filter(r => !r.reply).length > 0 && (
-                        <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{businessReviews.filter(r => !r.reply).length}</span>
-                    )}
-                </button>
-                <button 
-                    onClick={() => setActiveTab('settings')}
-                    className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${activeTab === 'settings' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-dark'}`}
-                >
-                    Settings
-                </button>
-            </div>
-            
-            {/* OVERVIEW TAB CONTENT */}
-            {activeTab === 'overview' && (
-                <>
-                    {/* 1. Key Metrics Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <>
+           {/* Tab Navigation */}
+           <div className="flex gap-2 mb-8 border-b border-gray-200 dark:border-gray-700 overflow-x-auto pb-1">
+               <button 
+                  onClick={() => setActiveTab('overview')}
+                  className={`px-4 py-2 text-sm font-bold rounded-t-lg transition-colors whitespace-nowrap ${activeTab === 'overview' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-gray-500 hover:text-dark dark:hover:text-white'}`}
+               >
+                   Overview
+               </button>
+               <button 
+                  onClick={() => setActiveTab('reviews')}
+                  className={`px-4 py-2 text-sm font-bold rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-2 ${activeTab === 'reviews' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-gray-500 hover:text-dark dark:hover:text-white'}`}
+               >
+                   Reviews
+                   {unreadReviews.length > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{unreadReviews.length}</span>}
+               </button>
+               <button 
+                  onClick={() => setActiveTab('settings')}
+                  className={`px-4 py-2 text-sm font-bold rounded-t-lg transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-gray-500 hover:text-dark dark:hover:text-white'}`}
+               >
+                   Settings
+               </button>
+           </div>
+
+           {/* Tab: Overview */}
+           {activeTab === 'overview' && (
+               <div className="animate-fade-in">
+                    {/* KPI Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <KpiCard 
                             title="Total Views" 
-                            value={lifetimeMetrics.views.toLocaleString()} 
-                            icon={TrendingUp}
-                            trend={{ value: Math.abs(trend), isPositive: trend >= 0 }}
-                            subValue="Lifetime views"
-                            className="border-t-4 border-t-blue-500"
+                            value={lifetimeMetrics.views} 
+                            icon={Users}
+                            trend={{ value: 12, isPositive: true }}
+                            subValue={`${metrics[0]?.views || 0} views today`}
                         />
                         <KpiCard 
-                            title="Total Clicks" 
-                            value={lifetimeMetrics.clicks.toLocaleString()} 
+                            title="Search Clicks" 
+                            value={lifetimeMetrics.clicks} 
                             icon={MousePointer}
-                            subValue="Website & Contact clicks"
-                            className="border-t-4 border-t-indigo-500"
+                            trend={{ value: 5, isPositive: true }}
+                            subValue={`${metrics[0]?.clicks || 0} clicks today`}
                         />
-                        <div onClick={() => setActiveTab('reviews')} className="cursor-pointer transition-transform hover:scale-[1.02]">
-                            <KpiCard 
-                                title="Total Reviews" 
-                                value={myBusiness.reviewCount.toLocaleString()} 
-                                icon={MessageSquare}
-                                subValue="Customer feedback"
-                                className="border-t-4 border-t-green-500 h-full"
-                            />
-                        </div>
                         <KpiCard 
-                            title="Average Rating" 
-                            value={myBusiness.rating} 
+                            title="Total Reviews" 
+                            value={myBusiness.reviewCount} 
                             icon={Star}
-                            subValue="/ 5.0"
-                            className="border-t-4 border-t-yellow-400"
+                            trend={{ value: 2, isPositive: true }}
+                            subValue={`${myBusiness.rating} Avg Rating`}
+                        />
+                         <KpiCard 
+                            title="Shares" 
+                            value={lifetimeMetrics.shares} 
+                            icon={ExternalLink}
+                            subValue="Social shares"
                         />
                     </div>
 
-                    {/* NEW SECTION: Unread Reviews */}
-                    {unreadReviews.length > 0 && (
-                        <div className="mt-8 animate-fade-in-up">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-dark text-lg flex items-center gap-2">
-                                    <span className="flex h-3 w-3 relative">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                                    </span>
-                                    New Reviews Pending Reply
-                                </h3>
-                                <button 
-                                    onClick={() => {
-                                        setActiveTab('reviews');
-                                        setReviewFilter('unread');
-                                    }}
-                                    className="text-sm font-bold text-primary hover:underline flex items-center gap-1"
-                                >
-                                    View All ({unreadReviews.length}) <ArrowRight size={16} />
-                                </button>
-                            </div>
-                            <div className="grid gap-6">
-                                {unreadReviews.slice(0, 2).map(review => (
-                                    <div key={review.id} className="border-l-4 border-primary bg-white rounded-r-xl shadow-sm">
-                                        <ReviewCard 
-                                            review={review} 
-                                            currentUser={user} 
-                                            isOwner={true} 
-                                            onReply={handleVendorReply}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                    {/* Main Content Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         
-                        {/* 2. Business Listing Preview (Left Column) */}
-                        <div className="lg:col-span-1">
-                            <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col shadow-lg">
-                                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                                    <h3 className="font-bold text-dark text-sm uppercase tracking-wide">My Listing</h3>
-                                    <button 
-                                        onClick={() => navigate(`/listing/${myBusiness.id}`)}
-                                        className="text-xs font-bold text-primary hover:bg-primary/5 px-2 py-1 rounded transition-colors flex items-center gap-1"
-                                    >
-                                        Preview <ExternalLink size={12} />
-                                    </button>
-                                </div>
-                                
-                                <div className="relative h-48 group cursor-pointer" onClick={() => navigate(`/listing/${myBusiness.id}`)}>
-                                    <img src={myBusiness.image} alt={myBusiness.name} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5">
-                                        <div>
-                                            <h4 className="text-white font-bold text-lg leading-tight mb-1">{myBusiness.name}</h4>
-                                            <p className="text-white/80 text-xs flex items-center gap-1"><MapPin size={10} /> {myBusiness.location}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="p-6 flex-grow flex flex-col gap-4">
-                                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                        <span className="text-sm text-gray-500">Status</span>
-                                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${myBusiness.isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                            {myBusiness.isOpen ? 'Open Now' : 'Closed'}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                        <span className="text-sm text-gray-500">Category</span>
-                                        <span className="text-sm font-bold text-dark">{myBusiness.category}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center py-2">
-                                        <span className="text-sm text-gray-500">Price Range</span>
-                                        <span className="text-sm font-bold text-dark">{myBusiness.priceRange}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. Actions & Growth (Right Column) */}
-                        <div className="lg:col-span-2 space-y-6">
-                            
-                            {/* Quick Actions Grid */}
+                        {/* Quick Actions & Tips */}
+                        <div className="space-y-6">
                             <div className="glass-card p-6 rounded-2xl">
-                                <h3 className="font-bold text-dark mb-4 text-lg flex items-center gap-2">
-                                    <Settings size={20} className="text-gray-400" /> Quick Actions
-                                </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-                                    {quickActions.map((action, idx) => (
+                                <h3 className="font-bold text-dark dark:text-white mb-4">Quick Actions</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {quickActions.map((action, i) => (
                                         <button 
-                                            key={idx} 
-                                            onClick={action.action} 
-                                            className="flex flex-col items-start p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all bg-white group text-left"
+                                            key={i} 
+                                            onClick={action.action}
+                                            className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all group bg-white dark:bg-slate-800"
                                         >
-                                            <div className={`w-10 h-10 rounded-lg ${action.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                                                <action.icon size={20} className={action.color} />
+                                            <div className={`p-3 rounded-full ${action.bg} ${action.color} mb-2 group-hover:scale-110 transition-transform`}>
+                                                <action.icon size={20} />
                                             </div>
-                                            <span className="font-bold text-dark text-sm mb-1">{action.label}</span>
-                                            <span className="text-xs text-gray-400">{action.description}</span>
+                                            <span className="font-bold text-sm text-dark dark:text-white">{action.label}</span>
+                                            <span className="text-[10px] text-gray-400 mt-1 text-center">{action.description}</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            {/* Traffic Chart (Visual using metrics) */}
-                            <div className="glass-card p-6 rounded-2xl">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="font-bold text-dark text-lg">Traffic Overview (7 Days)</h3>
-                                </div>
-                                {/* Dynamic Bar Chart */}
-                                <div className="h-40 flex items-end justify-between gap-2">
-                                    {/* Reverse metrics so earliest day is left */}
-                                    {[...metrics].reverse().map((m, i) => {
-                                        // Simple normalization for chart height
-                                        const maxVal = Math.max(...metrics.map(x => x.views)) || 1;
-                                        const height = Math.max(10, (m.views / maxVal) * 100);
-                                        const dayName = new Date(m.date).toLocaleDateString('en-US', { weekday: 'short' });
-                                        
-                                        return (
-                                            <div key={i} className="w-full bg-gray-50 rounded-t-lg relative group flex flex-col justify-end">
-                                                <div 
-                                                style={{ height: `${height}%` }} 
-                                                className="w-full bg-gradient-to-t from-primary/80 to-secondary/80 rounded-t-lg transition-all duration-500 hover:opacity-90 relative"
-                                                >
-                                                    <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-dark text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap z-10">
-                                                        {m.views} views
-                                                    </div>
-                                                </div>
-                                                <div className="w-full text-center text-xs text-gray-400 font-medium mt-2">
-                                                    {dayName}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
+                                <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><Info size={20} /> Pro Tip</h3>
+                                <p className="text-blue-100 text-sm mb-4">
+                                    Businesses with more than 5 photos get 40% more leads. Update your gallery today!
+                                </p>
+                                <button className="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
+                                    Upload Photos
+                                </button>
                             </div>
                         </div>
-                    </div>
-                </>
-            )}
 
-            {/* REVIEWS TAB CONTENT */}
-            {activeTab === 'reviews' && (
-                <div className="animate-fade-in-up space-y-8">
-                     {/* Reviews Stats Header */}
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                         <div className="glass-card p-6 rounded-2xl flex items-center gap-4 border-l-4 border-yellow-400">
-                             <div className="bg-yellow-50 p-3 rounded-full text-yellow-500"><Star size={24} /></div>
-                             <div>
-                                 <div className="text-2xl font-black text-dark">{myBusiness.rating}</div>
-                                 <div className="text-xs text-gray-500 uppercase font-bold">Overall Rating</div>
-                             </div>
-                         </div>
-                         <div className="glass-card p-6 rounded-2xl flex items-center gap-4 border-l-4 border-blue-400">
-                             <div className="bg-blue-50 p-3 rounded-full text-blue-500"><MessageSquare size={24} /></div>
-                             <div>
-                                 <div className="text-2xl font-black text-dark">{businessReviews.length}</div>
-                                 <div className="text-xs text-gray-500 uppercase font-bold">Total Reviews</div>
-                             </div>
-                         </div>
-                         <div className="glass-card p-6 rounded-2xl flex items-center gap-4 border-l-4 border-red-400">
-                             <div className="bg-red-50 p-3 rounded-full text-red-500"><AlertTriangle size={24} /></div>
-                             <div>
-                                 <div className="text-2xl font-black text-dark">{businessReviews.filter(r => !r.reply).length}</div>
-                                 <div className="text-xs text-gray-500 uppercase font-bold">Needs Reply</div>
-                             </div>
-                         </div>
-                     </div>
-
-                     {/* Filters and List */}
-                     <div className="glass-card rounded-2xl p-6">
-                         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                             <h3 className="text-lg font-bold text-dark">Customer Reviews</h3>
-                             <div className="flex bg-gray-100 p-1 rounded-xl">
-                                 <button 
-                                   onClick={() => setReviewFilter('all')}
-                                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${reviewFilter === 'all' ? 'bg-white shadow text-dark' : 'text-gray-500 hover:text-dark'}`}
-                                 >
-                                     All
-                                 </button>
-                                 <button 
-                                   onClick={() => setReviewFilter('unread')}
-                                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${reviewFilter === 'unread' ? 'bg-white shadow text-dark' : 'text-gray-500 hover:text-dark'}`}
-                                 >
-                                     Unread
-                                 </button>
-                                 <button 
-                                   onClick={() => setReviewFilter('unreplied')}
-                                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${reviewFilter === 'unreplied' ? 'bg-white shadow text-dark' : 'text-gray-500 hover:text-dark'}`}
-                                 >
-                                     Unreplied
+                        {/* Recent Activity / Reviews Preview */}
+                        <div className="lg:col-span-2 glass-card p-6 rounded-2xl">
+                             <div className="flex justify-between items-center mb-6">
+                                 <h3 className="font-bold text-dark dark:text-white text-lg">Recent Reviews</h3>
+                                 <button onClick={() => setActiveTab('reviews')} className="text-primary text-sm font-bold hover:underline flex items-center gap-1">
+                                     View All <ArrowRight size={16} />
                                  </button>
                              </div>
-                         </div>
 
-                         <div className="space-y-4">
-                             {filteredReviews.length > 0 ? (
-                                 filteredReviews.map(review => (
-                                     <div key={review.id} className={`${!review.isRead ? 'border-l-4 border-primary bg-primary/5 pl-4 -ml-4 rounded-l' : ''}`}>
-                                        <ReviewCard 
-                                            review={review} 
-                                            currentUser={user} 
-                                            isOwner={true} 
-                                            onReply={handleVendorReply}
-                                        />
+                             <div className="space-y-4">
+                                 {businessReviews.slice(0, 3).map(review => (
+                                     <div key={review.id} className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                                         <div className="flex justify-between items-start mb-2">
+                                             <div className="flex items-center gap-2">
+                                                 <img src={review.userImage} alt="" className="w-8 h-8 rounded-full" />
+                                                 <div>
+                                                     <div className="font-bold text-dark dark:text-white text-sm">{review.userName}</div>
+                                                     <div className="text-xs text-gray-500">{new Date(review.date).toLocaleDateString()}</div>
+                                                 </div>
+                                             </div>
+                                             <div className="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400 px-2 py-1 rounded">
+                                                 <Star size={12} className="fill-current" /> {review.rating}
+                                             </div>
+                                         </div>
+                                         <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{review.text}</p>
+                                         {!review.reply && (
+                                              <button onClick={() => setActiveTab('reviews')} className="mt-2 text-xs font-bold text-primary flex items-center gap-1">
+                                                  <MessageSquare size={12} /> Reply Now
+                                              </button>
+                                         )}
                                      </div>
-                                 ))
-                             ) : (
-                                 <div className="text-center py-12 text-gray-400 italic">
-                                     No reviews found matching this filter.
-                                 </div>
-                             )}
-                         </div>
-                     </div>
-                </div>
-            )}
-
-            {/* SETTINGS TAB CONTENT */}
-            {activeTab === 'settings' && (
-                <div className="animate-fade-in-up">
-                    <div className="glass-card p-8 rounded-2xl max-w-3xl">
-                        <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
-                            <Settings size={22} className="text-gray-400" /> Vendor Configuration
-                        </h3>
-
-                        <div className="space-y-6">
-                            {/* Notification Settings */}
-                            <div>
-                                <h4 className="font-bold text-dark text-sm mb-4 border-b border-gray-100 pb-2">Notifications</h4>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                        <div className="flex items-center gap-4">
-                                            <div className="bg-white p-2 rounded-lg shadow-sm text-primary">
-                                                <Mail size={20} />
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-dark text-sm">Email Notifications</div>
-                                                <div className="text-xs text-gray-500">Receive an email when you get a new review</div>
-                                            </div>
-                                        </div>
-                                        <button 
-                                            onClick={() => toggleNotificationPref('email')}
-                                            className={`text-3xl transition-colors ${user.notificationPreferences?.email ? 'text-green-500' : 'text-gray-300'}`}
-                                        >
-                                            {user.notificationPreferences?.email ? <ToggleRight size={40} fill="currentColor" className="bg-white rounded-full" /> : <ToggleLeft size={40} />}
-                                        </button>
-                                    </div>
-
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                        <div className="flex items-center gap-4">
-                                            <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500">
-                                                <Bell size={20} />
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-dark text-sm">In-App Notifications</div>
-                                                <div className="text-xs text-gray-500">Show alerts in the dashboard for new activity</div>
-                                            </div>
-                                        </div>
-                                        <button 
-                                            onClick={() => toggleNotificationPref('inApp')}
-                                            className={`text-3xl transition-colors ${user.notificationPreferences?.inApp ? 'text-green-500' : 'text-gray-300'}`}
-                                        >
-                                            {user.notificationPreferences?.inApp ? <ToggleRight size={40} fill="currentColor" className="bg-white rounded-full" /> : <ToggleLeft size={40} />}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Placeholder for future settings */}
-                            <div className="pt-4">
-                                <h4 className="font-bold text-dark text-sm mb-4 border-b border-gray-100 pb-2">Business Profile</h4>
-                                <div className="p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center">
-                                    <p className="text-xs text-gray-400">Additional business settings like operating hours and contact info editing will be available here.</p>
-                                </div>
-                            </div>
+                                 ))}
+                                 {businessReviews.length === 0 && (
+                                     <div className="text-center py-8 text-gray-400 text-sm">No reviews yet.</div>
+                                 )}
+                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+               </div>
+           )}
+
+           {/* Tab: Reviews */}
+           {activeTab === 'reviews' && (
+               <div className="animate-fade-in space-y-6">
+                   <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                       <h3 className="font-bold text-dark dark:text-white text-lg">Manage Reviews</h3>
+                       <div className="flex items-center gap-2">
+                           <span className="text-sm text-gray-500 dark:text-gray-400">Filter:</span>
+                           <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                               <button 
+                                  onClick={() => setReviewFilter('all')}
+                                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${reviewFilter === 'all' ? 'bg-white dark:bg-gray-600 shadow text-dark dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+                               >
+                                   All
+                               </button>
+                               <button 
+                                  onClick={() => setReviewFilter('unread')}
+                                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${reviewFilter === 'unread' ? 'bg-white dark:bg-gray-600 shadow text-dark dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+                               >
+                                   Unread
+                               </button>
+                               <button 
+                                  onClick={() => setReviewFilter('unreplied')}
+                                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${reviewFilter === 'unreplied' ? 'bg-white dark:bg-gray-600 shadow text-dark dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+                               >
+                                   Unreplied
+                               </button>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div className="space-y-4">
+                       {filteredReviews.length > 0 ? (
+                           filteredReviews.map(review => (
+                               <ReviewCard 
+                                   key={review.id} 
+                                   review={review} 
+                                   currentUser={user}
+                                   isOwner={true}
+                                   onReply={handleVendorReply}
+                               />
+                           ))
+                       ) : (
+                           <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-dashed border-2 border-gray-200 dark:border-gray-700 text-gray-400">
+                               No reviews found matching this filter.
+                           </div>
+                       )}
+                   </div>
+               </div>
+           )}
+
+           {/* Tab: Settings */}
+           {activeTab === 'settings' && (
+               <div className="animate-fade-in max-w-2xl mx-auto space-y-6">
+                   <div className="glass-card p-6 rounded-2xl">
+                       <h3 className="font-bold text-dark dark:text-white text-lg mb-6 border-b border-gray-100 dark:border-gray-700 pb-2">Notification Preferences</h3>
+                       
+                       <div className="space-y-4">
+                           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                               <div className="flex items-center gap-3">
+                                   <div className="bg-white dark:bg-gray-700 p-2 rounded-lg text-gray-600 dark:text-gray-300 shadow-sm"><Mail size={20} /></div>
+                                   <div>
+                                       <div className="font-bold text-dark dark:text-white text-sm">Email Notifications</div>
+                                       <div className="text-xs text-gray-500 dark:text-gray-400">Receive updates via email</div>
+                                   </div>
+                               </div>
+                               <button 
+                                  onClick={() => toggleNotificationPref('email')}
+                                  className={`transition-colors ${user.notificationPreferences?.email ? 'text-primary' : 'text-gray-300'}`}
+                               >
+                                   {user.notificationPreferences?.email ? <ToggleRight size={40} className="fill-current" /> : <ToggleLeft size={40} />}
+                               </button>
+                           </div>
+
+                           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                               <div className="flex items-center gap-3">
+                                   <div className="bg-white dark:bg-gray-700 p-2 rounded-lg text-gray-600 dark:text-gray-300 shadow-sm"><Bell size={20} /></div>
+                                   <div>
+                                       <div className="font-bold text-dark dark:text-white text-sm">In-App Notifications</div>
+                                       <div className="text-xs text-gray-500 dark:text-gray-400">Receive alerts in the dashboard</div>
+                                   </div>
+                               </div>
+                               <button 
+                                  onClick={() => toggleNotificationPref('inApp')}
+                                  className={`transition-colors ${user.notificationPreferences?.inApp ? 'text-primary' : 'text-gray-300'}`}
+                               >
+                                   {user.notificationPreferences?.inApp ? <ToggleRight size={40} className="fill-current" /> : <ToggleLeft size={40} />}
+                               </button>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div className="glass-card p-6 rounded-2xl">
+                       <h3 className="font-bold text-dark dark:text-white text-lg mb-4">Account Status</h3>
+                       <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900 rounded-xl">
+                           <div className="flex items-center gap-3">
+                               <CheckCircle className="text-green-600 dark:text-green-400" />
+                               <span className="font-bold text-green-800 dark:text-green-300">Verified Business</span>
+                           </div>
+                           <span className="text-xs text-green-600 dark:text-green-400 font-medium">Active since {new Date(myBusiness.createdAt || '').toLocaleDateString()}</span>
+                       </div>
+                   </div>
+               </div>
+           )}
+        </>
       ) : (
-        <div className="glass-card p-12 rounded-3xl text-center border-dashed border-2 border-gray-300">
-            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Plus size={32} className="text-gray-400" />
-            </div>
-            <h2 className="text-2xl font-bold text-dark mb-2">No Business Listed</h2>
-            <p className="text-graytext mb-8 max-w-md mx-auto">Get started by listing your business today. Reach thousands of local customers.</p>
-            <button 
-               onClick={() => navigate('/add-listing')}
-               className="bg-primary text-white font-bold px-8 py-3.5 rounded-xl shadow-lg hover:bg-red-600 transition-colors"
-            >
-               Create Listing
-            </button>
+        <div className="text-center py-20 glass-card rounded-2xl">
+          <AlertTriangle size={48} className="mx-auto text-yellow-500 mb-4" />
+          <h2 className="text-2xl font-bold text-dark dark:text-white mb-2">No Business Found</h2>
+          <p className="text-graytext dark:text-gray-400 mb-6">You haven't listed a business yet.</p>
+          <button 
+            onClick={() => navigate('/add-listing')}
+            className="bg-primary hover:bg-red-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg"
+          >
+            Create Listing
+          </button>
         </div>
       )}
 
-      {/* Promote Modal */}
+      {/* Promotion Modal */}
       {showPromoteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-white/20">
-                <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <div>
-                        <h3 className="font-bold text-xl text-dark">Promote My Business</h3>
-                        <p className="text-sm text-gray-500">Choose a package to boost your visibility and reach more customers.</p>
-                    </div>
-                    <button onClick={() => setShowPromoteModal(false)} className="bg-gray-100 p-2 rounded-full text-gray-500 hover:bg-gray-200 transition-colors">
-                        <X size={20} />
-                    </button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-gray-50/30">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                        {PROMOTION_PACKAGES.map((pkg) => {
-                            const isSelected = selectedPlan === pkg.id;
-                            return (
-                                <div 
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                  <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50">
+                      <div>
+                          <h3 className="font-bold text-xl text-dark dark:text-white flex items-center gap-2">
+                              <Zap className="text-yellow-500" fill="currentColor" /> Promote Your Business
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Choose a package to boost your visibility</p>
+                      </div>
+                      <button onClick={() => setShowPromoteModal(false)} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500 dark:text-gray-400">
+                          <X size={20} />
+                      </button>
+                  </div>
+                  
+                  <div className="p-6 overflow-y-auto custom-scrollbar bg-gray-50/30 dark:bg-slate-900">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                          {PROMOTION_PACKAGES.map(pkg => {
+                              const isSelected = selectedPlan === pkg.id;
+                              return (
+                                  <div 
                                     key={pkg.id}
                                     onClick={() => setSelectedPlan(pkg.id)}
-                                    className={`relative border-2 rounded-2xl p-5 cursor-pointer transition-all flex flex-col bg-white ${isSelected ? `border-primary ring-4 ring-primary/10 shadow-xl scale-[1.02] z-10` : `${pkg.borderColor} ${pkg.hoverBorder} hover:shadow-lg opacity-90 hover:opacity-100`}`}
-                                >
-                                    {(pkg as any).recommended && (
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                                            Most Popular
-                                        </div>
-                                    )}
-                                    {isSelected && <div className="absolute top-4 right-4 text-primary"><CheckCircle size={22} fill="currentColor" className="text-white" /></div>}
-                                    
-                                    <div className={`w-14 h-14 rounded-2xl ${pkg.bg} ${pkg.color} flex items-center justify-center mb-4 shadow-sm`}>
-                                        <pkg.icon size={26} />
-                                    </div>
-                                    
-                                    <h4 className="font-bold text-dark text-lg mb-1">{pkg.name}</h4>
-                                    <p className="text-xs text-gray-500 mb-4 h-8 leading-snug">{pkg.description}</p>
-                                    
-                                    <div className="flex items-baseline gap-1 mb-1">
-                                        <span className="text-3xl font-black text-dark">{pkg.cost}</span>
-                                        <span className="text-sm font-medium text-gray-500">credits</span>
-                                    </div>
-                                    <div className="text-xs text-gray-400 mb-4 font-medium">
-                                        ≈ {pkg.dailyCost} credits / day
-                                    </div>
+                                    className={`relative rounded-2xl p-6 cursor-pointer transition-all duration-300 border-2 flex flex-col h-full ${isSelected ? `bg-white dark:bg-slate-800 border-primary shadow-xl scale-105 z-10` : `bg-white dark:bg-slate-800 ${pkg.borderColor} dark:border-gray-700 ${pkg.hoverBorder} hover:shadow-lg opacity-80 hover:opacity-100`}`}
+                                  >
+                                      {pkg.recommended && (
+                                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                              Recommended
+                                          </div>
+                                      )}
+                                      
+                                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${pkg.bg} dark:bg-gray-700/50 ${pkg.color}`}>
+                                          <pkg.icon size={24} />
+                                      </div>
 
-                                    <div className="border-t border-dashed border-gray-100 my-2"></div>
-                                    
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 mt-2">Features</div>
-                                    <ul className="space-y-3 mt-auto">
-                                        {pkg.features.map((feat, i) => (
-                                            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                                                <div className="mt-0.5 bg-green-100 text-green-600 rounded-full p-0.5 shrink-0"><Check size={10} strokeWidth={3} /></div>
-                                                <span className="leading-tight">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
+                                      <h4 className="font-bold text-lg text-dark dark:text-white mb-1">{pkg.name}</h4>
+                                      <div className="flex items-baseline gap-1 mb-4">
+                                          <span className="text-2xl font-black text-dark dark:text-white">{pkg.cost}</span>
+                                          <span className="text-xs text-gray-500 font-bold uppercase">credits</span>
+                                      </div>
 
-                <div className="p-6 border-t border-gray-100 bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-20">
-                     {activePackage && myBusiness ? (
-                        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                            <div className="flex-grow space-y-1 w-full md:w-auto">
-                                <h4 className="font-bold text-dark text-sm flex items-center gap-2">
-                                    Cost Breakdown <Info size={14} className="text-gray-400"/>
-                                </h4>
-                                <div className="bg-gray-50 rounded-xl p-3 border border-gray-200 grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
-                                    <span className="text-gray-600">Selected Package:</span>
-                                    <span className="font-bold text-dark text-right">{activePackage.name}</span>
-                                    
-                                    <span className="text-gray-600">Cost:</span>
-                                    <span className="font-bold text-dark text-right">{activePackage.cost} credits</span>
-                                    
-                                    <div className="col-span-2 border-t border-gray-200 my-1"></div>
-                                    
-                                    <span className="text-gray-600">Business Balance:</span>
-                                    <span className={`font-bold text-right ${missingCredits > 0 ? 'text-red-500' : 'text-green-600'}`}>{myBusiness.credits} credits</span>
-                                </div>
-                            </div>
-                            
-                            <div className="w-full md:w-auto flex-shrink-0 min-w-[280px]">
-                                {missingCredits > 0 ? (
-                                    <div className="flex flex-col gap-3 animate-fade-in">
-                                        <div className="flex items-center justify-between bg-red-50 text-red-700 px-4 py-2 rounded-lg text-sm border border-red-100">
-                                            <span className="font-bold flex items-center gap-2"><AlertTriangle size={14}/> Insufficient Balance</span>
-                                            <span className="font-bold">Missing {missingCredits} cr</span>
-                                        </div>
-                                        <button 
-                                           onClick={() => openTopUp(true)}
-                                           className="w-full bg-dark text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-gray-900/10"
-                                        >
-                                            <CreditCard size={18} /> Top Up & Continue
-                                        </button>
-                                    </div>
-                                ) : (
-                                     <button 
-                                        onClick={handlePromote}
-                                        className="w-full bg-primary hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-500/20 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-1"
-                                     >
-                                         <Zap size={20} fill="currentColor" /> Activate Promotion
-                                     </button>
-                                )}
-                            </div>
-                        </div>
-                     ) : (
-                         <div className="flex items-center justify-center py-2 text-gray-400 italic">
-                             Select a package above to view details and proceed.
-                         </div>
-                     )}
-                </div>
-            </div>
-        </div>
+                                      <ul className="space-y-3 mb-6 flex-grow">
+                                          {pkg.features.map((feat, i) => (
+                                              <li key={i} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
+                                                  <Check size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                                                  <span className="leading-tight">{feat}</span>
+                                              </li>
+                                          ))}
+                                      </ul>
+
+                                      <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                                          <span className="text-xs text-gray-400 block text-center mb-2">{pkg.duration} Duration</span>
+                                          <button className={`w-full py-2 rounded-lg font-bold text-sm transition-colors ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300'}`}>
+                                              {isSelected ? 'Selected' : 'Select Plan'}
+                                          </button>
+                                      </div>
+                                  </div>
+                              );
+                          })}
+                      </div>
+
+                      {selectedPlan && (
+                          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4 animate-fade-in-up">
+                              <div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Cost</div>
+                                  <div className="flex items-center gap-2">
+                                      <span className="text-2xl font-black text-dark dark:text-white">{activePackage?.cost}</span>
+                                      <span className="text-sm font-bold text-gray-500 uppercase">credits</span>
+                                  </div>
+                                  {missingCredits > 0 ? (
+                                      <div className="text-red-500 text-xs font-bold mt-1 flex items-center gap-1">
+                                          <AlertTriangle size={12} /> You need {missingCredits} more credits
+                                      </div>
+                                  ) : (
+                                      <div className="text-green-500 text-xs font-bold mt-1 flex items-center gap-1">
+                                          <CheckCircle size={12} /> Sufficient balance
+                                      </div>
+                                  )}
+                              </div>
+
+                              {missingCredits > 0 ? (
+                                  <button 
+                                      onClick={() => openTopUp(true)}
+                                      className="bg-primary hover:bg-red-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+                                  >
+                                      <Plus size={18} /> Top Up Credits
+                                  </button>
+                              ) : (
+                                  <button 
+                                      onClick={handlePromote}
+                                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+                                  >
+                                      <Zap size={18} fill="currentColor" /> Activate Now
+                                  </button>
+                              )}
+                          </div>
+                      )}
+                  </div>
+              </div>
+          </div>
       )}
 
-      {/* Top Up Modal (Mock Paystack) */}
+      {/* Top Up Modal */}
       {showTopUpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-white/20">
-                 <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="font-bold text-xl text-dark">Buy Business Credits</h3>
-                    <button onClick={() => setShowTopUpModal(false)} className="bg-gray-100 p-2 rounded-full text-gray-500 hover:bg-gray-200 transition-colors">
-                        <X size={20} />
-                    </button>
-                </div>
-                <div className="p-6">
-                    <div className="flex items-center gap-4 mb-6 bg-green-50 p-4 rounded-xl text-green-800 text-sm">
-                        <div className="bg-white p-2 rounded-full shadow-sm">
-                            <Check size={16} />
-                        </div>
-                        Secure payment powered by Paystack
-                    </div>
-                    
-                    <div className="space-y-3">
-                         <button 
-                           onClick={() => handleTopUp(100, 5000)}
-                           disabled={isProcessing}
-                           className="w-full flex justify-between items-center p-5 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors group"
-                         >
-                             <span className="font-bold text-dark flex items-center gap-3"><CreditCard size={20} className="text-gray-300 group-hover:text-dark transition-colors"/> 100 Credits</span>
-                             <span className="font-bold text-dark">₦5,000</span>
-                         </button>
-                         <button 
-                           onClick={() => handleTopUp(300, 13500)}
-                           disabled={isProcessing}
-                           className="w-full flex justify-between items-center p-5 border-2 border-primary/10 bg-primary/5 rounded-2xl hover:bg-primary/10 transition-colors relative overflow-hidden"
-                         >
-                             <div className="flex flex-col items-start relative z-10">
-                                <span className="font-bold text-primary flex items-center gap-3"><CreditCard size={20} /> 300 Credits</span>
-                                <span className="text-[10px] text-white font-bold bg-red-500 px-1.5 py-0.5 rounded ml-8 mt-1">BEST VALUE</span>
-                             </div>
-                             <span className="font-bold text-dark text-lg relative z-10">₦13,500</span>
-                         </button>
-                         <button 
-                           onClick={() => handleTopUp(500, 22000)}
-                           disabled={isProcessing}
-                           className="w-full flex justify-between items-center p-5 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors group"
-                         >
-                             <span className="font-bold text-dark flex items-center gap-3"><CreditCard size={20} className="text-gray-300 group-hover:text-dark transition-colors"/> 500 Credits</span>
-                             <span className="font-bold text-dark">₦22,000</span>
-                         </button>
-                    </div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl p-6 relative">
+                  <button onClick={() => setShowTopUpModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-dark dark:hover:text-white">
+                      <X size={20} />
+                  </button>
+                  
+                  <div className="text-center mb-6">
+                      <div className="w-16 h-16 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
+                          <CreditCard size={32} />
+                      </div>
+                      <h3 className="font-bold text-xl text-dark dark:text-white">Top Up Credits</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Purchase credits to promote your business.</p>
+                  </div>
 
-                    {isProcessing && (
-                        <div className="mt-6 text-center text-sm text-gray-500 flex flex-col items-center">
-                            <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-2"></div>
-                            Processing secure payment...
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                  <div className="space-y-3 mb-6">
+                      {[
+                          { amount: 100, cost: 5000, label: 'Starter' },
+                          { amount: 500, cost: 22000, label: 'Value', popular: true },
+                          { amount: 1000, cost: 40000, label: 'Pro' }
+                      ].map((opt, i) => (
+                          <button 
+                              key={i}
+                              onClick={() => handleTopUp(opt.amount, opt.cost)}
+                              disabled={isProcessing}
+                              className="w-full flex justify-between items-center p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-all group"
+                          >
+                              <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center font-bold text-dark dark:text-white text-xs group-hover:bg-primary group-hover:text-white transition-colors">
+                                      {opt.amount}
+                                  </div>
+                                  <div className="text-left">
+                                      <div className="font-bold text-dark dark:text-white text-sm">{opt.label} Pack</div>
+                                      {opt.popular && <span className="text-[10px] text-green-500 font-bold uppercase">Best Value</span>}
+                                  </div>
+                              </div>
+                              <div className="font-bold text-dark dark:text-white">₦{opt.cost.toLocaleString()}</div>
+                          </button>
+                      ))}
+                  </div>
+
+                  <p className="text-xs text-center text-gray-400">
+                      Secured by Paystack. Credits are non-refundable.
+                  </p>
+
+                  {isProcessing && (
+                      <div className="absolute inset-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl z-10">
+                          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
+                          <span className="font-bold text-dark dark:text-white">Processing Payment...</span>
+                      </div>
+                  )}
+              </div>
+          </div>
       )}
 
     </div>

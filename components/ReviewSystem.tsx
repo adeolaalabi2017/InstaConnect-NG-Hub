@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Star, ThumbsUp, ThumbsDown, Camera, MessageCircle, CornerDownRight, Flag, Award, Send } from 'lucide-react';
 import * as Icons from 'lucide-react';
@@ -17,17 +18,17 @@ export const RatingBreakdown: React.FC<{ reviews: Review[] }> = ({ reviews }) =>
 
     return (
         <div className="glass-card p-6 rounded-2xl mb-8">
-            <h4 className="font-bold text-dark mb-4 text-lg">Rating Breakdown</h4>
+            <h4 className="font-bold text-dark dark:text-white mb-4 text-lg">Rating Breakdown</h4>
             <div className="space-y-3">
                 {[5, 4, 3, 2, 1].map(star => {
                     const count = counts[star as keyof typeof counts];
                     const percentage = total > 0 ? (count / total) * 100 : 0;
                     return (
                         <div key={star} className="flex items-center gap-3">
-                            <div className="flex items-center w-12 gap-1 text-sm font-medium text-gray-600">
+                            <div className="flex items-center w-12 gap-1 text-sm font-medium text-gray-600 dark:text-gray-300">
                                 {star} <Star size={12} className="fill-gray-400 text-gray-400" />
                             </div>
-                            <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="flex-1 h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div 
                                     className="h-full bg-yellow-400 rounded-full transition-all duration-500"
                                     style={{ width: `${percentage}%` }}
@@ -62,11 +63,11 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
     };
 
     return (
-        <div className="glass-card p-6 rounded-2xl mb-8 border border-primary/10 bg-primary/5">
-            <h4 className="font-bold text-dark mb-4">Write a Review</h4>
+        <div className="glass-card p-6 rounded-2xl mb-8 border border-primary/10 bg-primary/5 dark:bg-primary/10">
+            <h4 className="font-bold text-dark dark:text-white mb-4">Write a Review</h4>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rating</label>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Rating</label>
                     <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button
@@ -79,7 +80,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
                             >
                                 <Star 
                                     size={28} 
-                                    className={`${star <= (hoveredRating || rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+                                    className={`${star <= (hoveredRating || rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} 
                                 />
                             </button>
                         ))}
@@ -87,20 +88,20 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Review</label>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Review</label>
                     <textarea
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         rows={4}
                         placeholder="Share your experience with others..."
-                        className="w-full bg-white rounded-xl p-4 text-sm border border-gray-200 focus:outline-none focus:border-primary transition-colors text-dark"
+                        className="w-full bg-white dark:bg-gray-800 rounded-xl p-4 text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-primary transition-colors text-dark dark:text-white placeholder-gray-400"
                         required
                     />
                 </div>
 
                 <div className="flex justify-between items-center">
                      {/* Photo Upload Trigger (Phase 2 Feature 6) */}
-                    <button type="button" className="flex items-center gap-2 text-gray-500 hover:text-dark text-sm font-medium px-3 py-2 rounded-lg hover:bg-white transition-colors">
+                    <button type="button" className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-dark dark:hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors">
                         <Camera size={18} /> Add Photos
                     </button>
 
@@ -193,7 +194,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
     if (review.status === 'hidden' && currentUser?.role !== 'admin') return null;
 
     return (
-        <div className={`glass-card p-6 rounded-2xl mb-6 relative ${review.status === 'flagged' && currentUser?.role === 'admin' ? 'border-2 border-red-200 bg-red-50' : ''}`}>
+        <div className={`glass-card p-6 rounded-2xl mb-6 relative ${review.status === 'flagged' && currentUser?.role === 'admin' ? 'border-2 border-red-200 bg-red-50 dark:bg-red-900/10' : ''}`}>
             {/* Admin Status Indicator */}
             {currentUser?.role === 'admin' && review.status !== 'active' && (
                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded uppercase">
@@ -206,16 +207,16 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
                     <img 
                       src={review.userImage} 
                       alt={review.userName} 
-                      className="w-10 h-10 rounded-full object-cover border border-gray-100" 
+                      className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700" 
                     />
                     <div>
                         <div className="flex items-center gap-1.5 flex-wrap">
-                            <h5 className="font-bold text-dark text-sm">{review.userName}</h5>
+                            <h5 className="font-bold text-dark dark:text-white text-sm">{review.userName}</h5>
                             
                             {/* Reviewer Badges */}
                             <div className="flex items-center gap-1">
                                 {reviewUser.reputationPoints > 1500 && (
-                                    <div className="flex items-center gap-0.5 bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-purple-100" title="Top Contributor">
+                                    <div className="flex items-center gap-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded text-[10px] font-bold border border-purple-100 dark:border-purple-800" title="Top Contributor">
                                         <Award size={10} /> Top Contributor
                                     </div>
                                 )}
@@ -238,23 +239,23 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
                         <span className="text-xs text-gray-400">{new Date(review.date).toLocaleDateString()}</span>
                     </div>
                 </div>
-                <div className="flex bg-yellow-50 px-2 py-1 rounded text-yellow-600 font-bold text-xs">
-                    <Star size={12} className="fill-yellow-600 mr-1" /> {review.rating}.0
+                <div className="flex bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded text-yellow-600 dark:text-yellow-400 font-bold text-xs">
+                    <Star size={12} className="fill-yellow-600 dark:fill-yellow-400 mr-1" /> {review.rating}.0
                 </div>
             </div>
 
-            <p className="text-graytext text-sm mb-4 leading-relaxed">{review.text}</p>
+            <p className="text-graytext dark:text-gray-300 text-sm mb-4 leading-relaxed">{review.text}</p>
             
             {/* Review Photos (Phase 2) */}
             {review.photos && review.photos.length > 0 && (
                 <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
                     {review.photos.map((photo, i) => (
-                        <img key={i} src={photo} alt="Review attachment" className="h-20 w-20 object-cover rounded-lg border border-gray-100" />
+                        <img key={i} src={photo} alt="Review attachment" className="h-20 w-20 object-cover rounded-lg border border-gray-100 dark:border-gray-700" />
                     ))}
                 </div>
             )}
 
-            <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+            <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-4">
                     {/* Yes/No Voting */}
                     <div className="flex items-center gap-3">
@@ -310,19 +311,19 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
             
             {/* Vendor Reply Input Area */}
             {isReplying && (
-                <div className="mt-4 bg-gray-50 rounded-xl p-4 ml-4 border border-gray-200 animate-fade-in-up">
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Reply as Business Owner</label>
+                <div className="mt-4 bg-gray-50 dark:bg-gray-800 rounded-xl p-4 ml-4 border border-gray-200 dark:border-gray-700 animate-fade-in-up">
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Reply as Business Owner</label>
                     <textarea 
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Type your response here..."
                         rows={3}
-                        className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:border-primary mb-3"
+                        className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3 text-sm focus:outline-none focus:border-primary mb-3 text-dark dark:text-white placeholder-gray-400"
                     ></textarea>
                     <div className="flex justify-end gap-2">
                         <button 
                             onClick={() => setIsReplying(false)}
-                            className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-dark transition-colors"
+                            className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-dark dark:hover:text-white transition-colors"
                         >
                             Cancel
                         </button>
@@ -338,13 +339,13 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
 
             {/* Vendor Reply Display (Phase 3) */}
             {review.reply && (
-                <div className="mt-4 bg-gray-50 rounded-xl p-4 ml-4 border-l-2 border-primary">
+                <div className="mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 ml-4 border-l-2 border-primary">
                     <div className="flex items-center gap-2 mb-1">
                         <CornerDownRight size={14} className="text-gray-400" />
-                        <span className="text-xs font-bold text-dark">Response from Owner</span>
+                        <span className="text-xs font-bold text-dark dark:text-white">Response from Owner</span>
                         <span className="text-[10px] text-gray-400">• {new Date(review.reply.date).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-xs text-gray-600">{review.reply.text}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{review.reply.text}</p>
                 </div>
             )}
         </div>

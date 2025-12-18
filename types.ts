@@ -159,3 +159,63 @@ export interface Notification {
   isRead: boolean;
   link?: string;
 }
+
+export interface MarketingCampaign {
+  id: string;
+  name: string;
+  status: 'active' | 'paused' | 'completed' | 'draft';
+  channel: 'Google Ads' | 'Facebook' | 'Email' | 'Instagram';
+  budget: number;
+  spent: number;
+  roi: string;
+  startDate: string;
+  endDate: string;
+}
+
+export type AdStatus = 'active' | 'paused' | 'expired';
+export type AdLocation = 'Homepage Banner' | 'Listing Sidebar' | 'Search Results Top';
+
+export interface AdPlacement {
+  id: string;
+  name: string;
+  status: AdStatus;
+  location: AdLocation;
+  imageUrl: string;
+  destinationUrl: string;
+  impressions: number;
+  clicks: number;
+  startDate: string;
+  endDate: string;
+  targeting: {
+    category?: string; // e.g., 'Food', 'Hotels'
+  };
+}
+
+// --- Email Settings ---
+export interface SmtpConfig {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  encryption: 'none' | 'ssl';
+}
+
+export interface MailgunConfig {
+  apiKey: string;
+  domain: string;
+}
+
+export interface SendGridConfig {
+  apiKey: string;
+}
+
+export type EmailConfig = {
+  provider: 'smtp';
+  settings: SmtpConfig;
+} | {
+  provider: 'mailgun';
+  settings: MailgunConfig;
+} | {
+  provider: 'sendgrid';
+  settings: SendGridConfig;
+};

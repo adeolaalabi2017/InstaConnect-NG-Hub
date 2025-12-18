@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import BusinessCard from '../components/BusinessCard';
@@ -55,14 +56,14 @@ const Listings: React.FC = () => {
       
       {/* Sponsored Section */}
       {promotedBusinesses.length > 0 && (
-          <div className="mb-12 bg-gradient-to-r from-yellow-50/60 to-transparent p-6 rounded-3xl border border-yellow-100/50 relative overflow-hidden">
+          <div className="mb-12 bg-gradient-to-r from-yellow-50/60 to-transparent dark:from-yellow-900/20 p-6 rounded-3xl border border-yellow-100/50 dark:border-yellow-900/20 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-100/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
              
              <div className="flex items-center gap-2 mb-6 relative z-10">
                  <div className="bg-yellow-400 rounded-full p-1.5 text-white shadow-sm">
                      <Zap size={16} fill="currentColor" />
                  </div>
-                 <h2 className="text-xl font-bold text-dark">Sponsored Businesses</h2>
+                 <h2 className="text-xl font-bold text-dark dark:text-white">Sponsored Businesses</h2>
              </div>
              
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
@@ -76,12 +77,12 @@ const Listings: React.FC = () => {
       {/* Header & Filters */}
       <div className="flex flex-col gap-6 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-dark mb-2">All Listings</h1>
-          <p className="text-graytext">Browse all available businesses in our directory.</p>
+          <h1 className="text-3xl font-bold text-dark dark:text-white mb-2">All Listings</h1>
+          <p className="text-graytext dark:text-gray-400">Browse all available businesses in our directory.</p>
         </div>
         
         {/* Filter Bar */}
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col xl:flex-row gap-4 items-center">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col xl:flex-row gap-4 items-center">
             
              {/* Search */}
             <div className="relative flex-grow w-full xl:w-auto">
@@ -95,7 +96,7 @@ const Listings: React.FC = () => {
                     placeholder="Search by name, keyword or tag..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary w-full transition-all text-dark" 
+                    className="pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary w-full transition-all text-dark dark:text-white placeholder-gray-400" 
                 />
             </div>
 
@@ -112,7 +113,7 @@ const Listings: React.FC = () => {
                         placeholder="Location..." 
                         value={locationFilter}
                         onChange={(e) => setLocationFilter(e.target.value)}
-                        className="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary w-full transition-all text-dark" 
+                        className="pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary w-full transition-all text-dark dark:text-white placeholder-gray-400" 
                     />
                 </div>
 
@@ -126,7 +127,7 @@ const Listings: React.FC = () => {
                         id="listing-category"
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary appearance-none w-full cursor-pointer text-dark font-medium"
+                        className="pl-10 pr-8 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary appearance-none w-full cursor-pointer text-dark dark:text-white font-medium"
                     >
                         <option value="All">All Categories</option>
                         {CATEGORIES.map(cat => (
@@ -150,7 +151,7 @@ const Listings: React.FC = () => {
                         id="listing-sort"
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary appearance-none w-full cursor-pointer text-dark font-medium"
+                        className="pl-10 pr-8 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary appearance-none w-full cursor-pointer text-dark dark:text-white font-medium"
                     >
                         <option value="Recommended">Recommended</option>
                         <option value="Highest Rated">Highest Rated</option>
@@ -164,7 +165,7 @@ const Listings: React.FC = () => {
                 </div>
 
                 {/* Open Now Checkbox */}
-                <div className="flex items-center gap-2 px-2 py-2.5 bg-gray-50 rounded-xl border border-gray-200 whitespace-nowrap">
+                <div className="flex items-center gap-2 px-2 py-2.5 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 whitespace-nowrap">
                     <input 
                         id="listing-open"
                         type="checkbox"
@@ -172,7 +173,7 @@ const Listings: React.FC = () => {
                         onChange={(e) => setShowOpenOnly(e.target.checked)}
                         className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer accent-primary ml-2"
                     />
-                    <label htmlFor="listing-open" className="text-sm font-medium text-dark cursor-pointer select-none flex items-center gap-1.5 pr-2">
+                    <label htmlFor="listing-open" className="text-sm font-medium text-dark dark:text-white cursor-pointer select-none flex items-center gap-1.5 pr-2">
                         <Clock size={16} className={showOpenOnly ? "text-primary" : "text-gray-400"} />
                         Open Now
                     </label>
@@ -190,8 +191,8 @@ const Listings: React.FC = () => {
             ))}
         </div>
       ) : (
-          <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-              <p className="text-gray-500 text-lg">No listings found matching your criteria.</p>
+          <div className="text-center py-20 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+              <p className="text-gray-500 dark:text-gray-400 text-lg">No listings found matching your criteria.</p>
               <button 
                 onClick={() => {
                     setSearchTerm(''); 

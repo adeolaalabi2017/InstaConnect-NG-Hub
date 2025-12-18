@@ -1,5 +1,5 @@
 
-import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion } from './types';
+import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement } from './types';
 
 // ... (keep previous imports and constants up to MOCK_EVENT_COMMENTS)
 
@@ -32,6 +32,13 @@ const daysAgo = (days: number) => {
     d.setDate(d.getDate() - days);
     return d.toISOString();
 };
+
+const daysFromNow = (days: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString();
+};
+
 
 export const MOCK_BUSINESSES: Business[] = [
   {
@@ -329,11 +336,11 @@ export const MOCK_REVIEWS: Review[] = [
     rating: 4,
     date: '2023-10-15',
     text: 'Great place, but parking was a bit of a hassle. Otherwise, highly recommended.',
-    helpfulCount: 5,
     reply: {
         text: 'Thanks for the feedback Tunde! We are working on expanding our parking lot next month.',
         date: '2023-10-16'
     },
+    helpfulCount: 5,
     status: 'active',
     isRead: true
   },
@@ -903,4 +910,117 @@ export const MOCK_PROMOTIONS: Promotion[] = [
         endDate: '2024-11-05',
         status: 'completed'
     }
+];
+
+export const MOCK_CAMPAIGNS: MarketingCampaign[] = [
+  {
+    id: 'camp_01',
+    name: 'Lagos Food Fest Promo',
+    status: 'active',
+    channel: 'Instagram',
+    budget: 50000,
+    spent: 35000,
+    roi: '+150%',
+    startDate: daysAgo(10),
+    endDate: '2024-12-20'
+  },
+  {
+    id: 'camp_02',
+    name: 'Abuja Hotel Deals',
+    status: 'active',
+    channel: 'Google Ads',
+    budget: 80000,
+    spent: 75000,
+    roi: '+220%',
+    startDate: daysAgo(5),
+    endDate: '2024-12-25'
+  },
+  {
+    id: 'camp_03',
+    name: 'Holiday Shopping Discount',
+    status: 'paused',
+    channel: 'Facebook',
+    budget: 30000,
+    spent: 12000,
+    roi: '+80%',
+    startDate: daysAgo(15),
+    endDate: '2024-12-15'
+  },
+  {
+    id: 'camp_04',
+    name: 'New Year Newsletter',
+    status: 'completed',
+    channel: 'Email',
+    budget: 10000,
+    spent: 10000,
+    roi: '+350%',
+    startDate: daysAgo(40),
+    endDate: daysAgo(30)
+  },
+  {
+    id: 'camp_05',
+    name: 'Valentine Special (Draft)',
+    status: 'draft',
+    channel: 'Instagram',
+    budget: 60000,
+    spent: 0,
+    roi: 'N/A',
+    startDate: '2025-01-10',
+    endDate: '2025-02-14'
+  }
+];
+
+export const MOCK_ADS: AdPlacement[] = [
+  {
+    id: 'ad_01',
+    name: 'Jumia Black Friday',
+    status: 'active',
+    location: 'Homepage Banner',
+    imageUrl: 'https://picsum.photos/seed/jumia/1200/250',
+    destinationUrl: 'https://jumia.com.ng',
+    impressions: 125430,
+    clicks: 4580,
+    startDate: daysAgo(5),
+    endDate: daysFromNow(25),
+    targeting: {}
+  },
+  {
+    id: 'ad_02',
+    name: 'Mama Nkechi Lunch Special',
+    status: 'active',
+    location: 'Listing Sidebar',
+    imageUrl: 'https://picsum.photos/seed/food/300/300',
+    destinationUrl: '#/listing/2',
+    impressions: 45670,
+    clicks: 1230,
+    startDate: daysAgo(2),
+    endDate: daysFromNow(12),
+    targeting: { category: 'Food' }
+  },
+  {
+    id: 'ad_03',
+    name: 'Find Hotels in Lagos',
+    status: 'paused',
+    location: 'Search Results Top',
+    imageUrl: 'https://picsum.photos/seed/hotel/1200/150',
+    destinationUrl: '#/listings?category=Hotels',
+    impressions: 89000,
+    clicks: 2100,
+    startDate: daysAgo(10),
+    endDate: daysFromNow(20),
+    targeting: { category: 'Hotels' }
+  },
+  {
+    id: 'ad_04',
+    name: 'Old Gadget World Ad',
+    status: 'expired',
+    location: 'Homepage Banner',
+    imageUrl: 'https://picsum.photos/seed/gadget/1200/250',
+    destinationUrl: '#/listing/7',
+    impressions: 250000,
+    clicks: 8900,
+    startDate: daysAgo(40),
+    endDate: daysAgo(10),
+    targeting: { category: 'Shopping' }
+  }
 ];

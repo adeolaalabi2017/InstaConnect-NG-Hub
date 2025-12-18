@@ -1,5 +1,6 @@
+
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import BusinessDetail from './pages/BusinessDetail';
@@ -12,48 +13,75 @@ import BusinessDashboard from './pages/BusinessDashboard';
 import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import AddEvent from './pages/AddEvent';
-import AdminDashboard from './pages/AdminDashboard';
 import Leaderboard from './pages/Leaderboard';
 import UserProfile from './pages/UserProfile';
 import Contact from './pages/Contact';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { cronService } from './services/cron';
+
+// Admin Imports
+import AdminLayout from './components/admin/AdminLayout';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminMarketing from './pages/admin/AdminMarketing';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminListings from './pages/admin/AdminListings';
+import AdminCMS from './pages/admin/AdminCMS';
+import AdminSettings from './pages/admin/AdminSettings';
+
+// A wrapper for public routes to apply the main layout
+const PublicLayoutWrapper = () => (
+  <Layout>
+    <Outlet />
+  </Layout>
+);
 
 const App: React.FC = () => {
   useEffect(() => {
-    // Start the cron scheduler when the app mounts
     cronService.init();
-
-    // Cleanup on unmount
-    return () => {
-      cronService.stop();
-    };
+    return () => cronService.stop();
   }, []);
 
   return (
     <AuthProvider>
-      <Router>
-        <Layout>
+      <ThemeProvider>
+        <Router>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/listing/:id" element={<BusinessDetail />} />
-            <Route path="/listings" element={<Listings />} />
-            <Route path="/top-rated" element={<TopRated />} />
-            <Route path="/add-listing" element={<AddListing />} />
-            <Route path="/dashboard" element={<BusinessDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/event/:id" element={<EventDetail />} />
-            <Route path="/add-event" element={<AddEvent />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<div className="py-20 text-center">Page Not Found</div>} />
+            {/* Admin ERP Routes with its own dedicated layout */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="marketing" element={<AdminMarketing />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="listings" element={<AdminListings />} />
+              <Route path="cms" element={<AdminCMS />} />
+              <Route path="settings" element={<AdminSettings />} />
+              {/* Fallback for any other /admin/* route */}
+              <Route path="*" element={<AdminOverview />} />
+            </Route>
+
+            {/* Public-facing routes with the main layout */}
+            <Route element={<PublicLayoutWrapper />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/listing/:id" element={<BusinessDetail />} />
+              <Route path="/listings" element={<Listings />} />
+              <Route path="/top-rated" element={<TopRated />} />
+              <Route path="/add-listing" element={<AddListing />} />
+              <Route path="/dashboard" element={<BusinessDashboard />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/event/:id" element={<EventDetail />} />
+              <Route path="/add-event" element={<AddEvent />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="*" element={<div className="py-20 text-center">Page Not Found</div>} />
+            </Route>
           </Routes>
-        </Layout>
-      </Router>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
@@ -37,13 +38,13 @@ const Home: React.FC = () => {
       
       {/* Sponsored Section */}
       {promotedBusinesses.length > 0 && (
-          <section className="py-12 bg-gradient-to-r from-yellow-50/50 to-white">
+          <section className="py-12 bg-gradient-to-r from-yellow-50/50 to-white dark:from-yellow-900/10 dark:to-transparent">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                <div className="flex items-center gap-2 mb-6">
                    <div className="bg-yellow-400 rounded-full p-1.5 text-white">
                        <Zap size={16} fill="currentColor" />
                    </div>
-                   <h2 className="text-xl font-bold text-dark">Sponsored Businesses</h2>
+                   <h2 className="text-xl font-bold text-dark dark:text-white">Sponsored Businesses</h2>
                </div>
                
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -66,19 +67,19 @@ const Home: React.FC = () => {
                         </div>
                         <span className="text-xs font-bold text-primary tracking-wider uppercase">Editor's Pick</span>
                      </div>
-                     <h2 className="text-3xl font-bold text-dark">Featured Listings</h2>
+                     <h2 className="text-3xl font-bold text-dark dark:text-white">Featured Listings</h2>
                 </div>
                 <div className="flex gap-2">
                     <button 
                         onClick={() => scroll('left')} 
-                        className="w-10 h-10 rounded-full border border-gray-200 bg-white/50 hover:bg-white hover:shadow-md flex items-center justify-center text-dark transition-all backdrop-blur-sm"
+                        className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/30 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md flex items-center justify-center text-dark dark:text-white transition-all backdrop-blur-sm"
                         aria-label="Scroll left"
                     >
                         <ChevronLeft size={20} />
                     </button>
                     <button 
                         onClick={() => scroll('right')} 
-                        className="w-10 h-10 rounded-full border border-gray-200 bg-white/50 hover:bg-white hover:shadow-md flex items-center justify-center text-dark transition-all backdrop-blur-sm"
+                        className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/30 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md flex items-center justify-center text-dark dark:text-white transition-all backdrop-blur-sm"
                         aria-label="Scroll right"
                     >
                         <ChevronRight size={20} />
@@ -100,11 +101,11 @@ const Home: React.FC = () => {
       </section>
       
       {/* Categories Section */}
-      <section className="py-16 bg-white/50">
+      <section className="py-16 bg-white/50 dark:bg-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-dark mb-4">Browse by Category</h2>
-            <p className="text-graytext">Find exactly what you are looking for</p>
+            <h2 className="text-3xl font-bold text-dark dark:text-white mb-4">Browse by Category</h2>
+            <p className="text-graytext dark:text-gray-400">Find exactly what you are looking for</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -114,11 +115,11 @@ const Home: React.FC = () => {
               
               return (
                 <div key={cat.id} className="group cursor-pointer">
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-lg hover:border-primary/30 transition-all duration-300">
-                    <div className="w-12 h-12 bg-red-50 text-primary rounded-full flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                  <div className="glass-card rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-primary rounded-full flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
                       <IconComponent size={24} />
                     </div>
-                    <h4 className="font-semibold text-dark text-sm mb-1">{cat.name}</h4>
+                    <h4 className="font-semibold text-dark dark:text-white text-sm mb-1">{cat.name}</h4>
                     <span className="text-xs text-gray-400">{cat.count} listings</span>
                   </div>
                 </div>
@@ -133,10 +134,10 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-end mb-10">
             <div>
-              <h2 className="text-3xl font-bold text-dark mb-2 flex items-center gap-3">
+              <h2 className="text-3xl font-bold text-dark dark:text-white mb-2 flex items-center gap-3">
                  Trending Businesses <TrendingUp className="text-primary" size={28} />
               </h2>
-              <p className="text-graytext max-w-xl">
+              <p className="text-graytext dark:text-gray-400 max-w-xl">
                 Check out the most viewed and engaging businesses on InstaConnect NG this week.
               </p>
             </div>
@@ -154,7 +155,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-dark relative overflow-hidden">
+      <section className="py-20 bg-dark dark:bg-black relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/10 rounded-l-full blur-3xl"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 mb-8 md:mb-0">
