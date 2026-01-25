@@ -79,6 +79,12 @@ const BusinessDetail: React.FC = () => {
       }
   };
 
+  const handleReportReview = (reviewId: string) => {
+      setReviews(prevReviews => prevReviews.map(r => 
+          r.id === reviewId ? { ...r, status: 'flagged' } : r
+      ));
+  };
+
   const handleContactClick = (type: 'call_click' | 'email_click' | 'whatsapp_click' | 'website_click') => {
       analyticsService.trackEvent(type, business.id, user?.id);
   };
@@ -324,6 +330,7 @@ const BusinessDetail: React.FC = () => {
                             review={review} 
                             currentUser={user}
                             isOwner={user?.role === 'vendor' && user?.id === business.ownerId}
+                            onReport={handleReportReview}
                         />
                     ))
                 ) : (

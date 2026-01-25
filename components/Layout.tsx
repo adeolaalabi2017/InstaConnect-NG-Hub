@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Plus, User as UserIcon, LogOut, Settings, LayoutDashboard, Shield, Trophy, Moon, Sun } from 'lucide-react';
+import { Menu, X, ChevronDown, Plus, User as UserIcon, LogOut, Settings, LayoutDashboard, Shield, Trophy, Moon, Sun, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const isActive = (path: string) => location.pathname === path ? 'text-primary font-semibold' : 'text-graytext hover:text-dark dark:hover:text-white';
+  const isActive = (path: string) => location.pathname === path ? 'text-primary font-semibold' : 'text-graytext dark:text-gray-300 hover:text-dark dark:hover:text-white';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -40,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/listings" className={isActive('/listings')}>Listings</Link>
               <Link to="/top-rated" className={isActive('/top-rated')}>Reviews</Link>
               <Link to="/events" className={isActive('/events')}>Events</Link>
-              <Link to="/leaderboard" className={isActive('/leaderboard')}>Leaderboard</Link>
+              <Link to="/community" className={isActive('/community')}>Community</Link>
               <Link to="/contact" className={isActive('/contact')}>Contact</Link>
             </nav>
 
@@ -183,7 +183,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/listings" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">Listings</Link>
               <Link to="/top-rated" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">Reviews</Link>
               <Link to="/events" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">Events</Link>
-              <Link to="/leaderboard" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">Leaderboard</Link>
+              <Link to="/community" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">Community</Link>
               <Link to="/contact" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">Contact</Link>
             </div>
             <div className="pt-4 pb-4 border-t border-gray-200 dark:border-gray-700">

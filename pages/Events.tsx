@@ -12,6 +12,7 @@ const Events: React.FC = () => {
 
   const filteredEvents = MOCK_EVENTS.filter(event => 
     event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -110,6 +111,7 @@ const Events: React.FC = () => {
                         <div className="flex items-center gap-1"><Clock size={14} /> {event.time}</div>
                         <div className="flex items-center gap-1"><MapPin size={14} /> {event.location}</div>
                     </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">{event.description}</p>
                  </div>
                  <div className="flex flex-row md:flex-col items-center md:items-end gap-2 mt-2 md:mt-0">
                     <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">{event.category}</span>
@@ -144,7 +146,7 @@ const Events: React.FC = () => {
               </div>
               <input 
                   type="text"
-                  placeholder="Search events..."
+                  placeholder="Search events by title or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary w-full transition-all text-dark dark:text-white placeholder-gray-400" 
@@ -183,7 +185,7 @@ const Events: React.FC = () => {
 
       {filteredEvents.length === 0 && (
           <div className="text-center py-20 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-              <p className="text-gray-500 dark:text-gray-400">No events found.</p>
+              <p className="text-gray-500 dark:text-gray-400">No events found matching your search.</p>
           </div>
       )}
     </div>

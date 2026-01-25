@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -38,13 +39,13 @@ const Signup: React.FC = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="glass-card w-full max-w-md p-8 rounded-2xl shadow-xl animate-fade-in-up">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-dark">Create Account</h2>
-          <p className="text-graytext mt-2">Join our community today</p>
+          <h2 className="text-3xl font-bold text-dark dark:text-white">Create Account</h2>
+          <p className="text-graytext dark:text-gray-400 mt-2">Join our community today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-50 text-red-500 text-sm p-3 rounded-lg flex items-center justify-center gap-2">
+            <div className="bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 text-sm p-3 rounded-lg flex items-center justify-center gap-2">
               <AlertCircle size={16} /> {error}
             </div>
           )}
@@ -53,14 +54,14 @@ const Signup: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div 
               onClick={() => setRole('consumer')}
-              className={`cursor-pointer border rounded-xl p-4 flex flex-col items-center justify-center transition-all ${role === 'consumer' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+              className={`cursor-pointer border rounded-xl p-4 flex flex-col items-center justify-center transition-all ${role === 'consumer' ? 'border-primary bg-primary/5 dark:bg-primary/20 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               <ShoppingBag size={24} className="mb-2" />
               <span className="text-sm font-semibold">Consumer</span>
             </div>
             <div 
               onClick={() => setRole('vendor')}
-              className={`cursor-pointer border rounded-xl p-4 flex flex-col items-center justify-center transition-all ${role === 'vendor' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+              className={`cursor-pointer border rounded-xl p-4 flex flex-col items-center justify-center transition-all ${role === 'vendor' ? 'border-primary bg-primary/5 dark:bg-primary/20 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               <Store size={24} className="mb-2" />
               <span className="text-sm font-semibold">Business</span>
@@ -68,7 +69,7 @@ const Signup: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark mb-2">Full Name</label>
+            <label className="block text-sm font-medium text-dark dark:text-white mb-2">Full Name</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User size={18} className="text-gray-400" />
@@ -78,14 +79,14 @@ const Signup: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400"
                 placeholder="John Doe"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark mb-2">Email Address</label>
+            <label className="block text-sm font-medium text-dark dark:text-white mb-2">Email Address</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Mail size={18} className="text-gray-400" />
@@ -95,14 +96,14 @@ const Signup: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400"
                 placeholder="you@example.com"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark mb-2">Password</label>
+            <label className="block text-sm font-medium text-dark dark:text-white mb-2">Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Lock size={18} className="text-gray-400" />
@@ -113,14 +114,14 @@ const Signup: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400"
                 placeholder="••••••••"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark mb-2">Confirm Password</label>
+            <label className="block text-sm font-medium text-dark dark:text-white mb-2">Confirm Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Lock size={18} className="text-gray-400" />
@@ -130,7 +131,7 @@ const Signup: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400"
                 placeholder="••••••••"
               />
             </div>
@@ -145,7 +146,7 @@ const Signup: React.FC = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-graytext">
+        <div className="mt-6 text-center text-sm text-graytext dark:text-gray-400">
           Already have an account?{' '}
           <Link to="/login" className="text-primary font-semibold hover:underline">
             Log In

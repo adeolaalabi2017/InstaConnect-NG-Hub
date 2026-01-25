@@ -1,5 +1,5 @@
 
-import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement } from './types';
+import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement, Role, Permission } from './types';
 
 // ... (keep previous imports and constants up to MOCK_EVENT_COMMENTS)
 
@@ -17,6 +17,33 @@ export const NIGERIAN_LOCATIONS = [
   "Ilorin", "Kaduna", "Uyo", "Warri", "Abeokuta", "Akure", "Owerri", "Osogbo", "Minna", "Makurdi", 
   "Sokoto", "Onitsha", "Aba", "Bauchi", "Maiduguri", "Zaria", "Ikeja", "Lekki", "Victoria Island", "Asaba"
 ].sort();
+
+export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
+  admin: [
+    'view_admin_dashboard',
+    'manage_users', 
+    'manage_listings', 
+    'manage_content', 
+    'manage_settings', 
+    'manage_marketing',
+    'manage_orders'
+  ],
+  editor: [
+    'view_admin_dashboard',
+    'manage_listings', 
+    'manage_content', 
+    'manage_marketing'
+  ],
+  vendor: [
+    'create_review' // Vendors also act as consumers on other listings
+  ],
+  consumer: [
+    'create_review'
+  ],
+  viewer: [
+    'create_review' // 'viewer' matches 'consumer' in this context
+  ]
+};
 
 export const MOCK_BADGES: Badge[] = [
   { id: '1', name: 'Top Reviewer', icon: 'Star', color: 'bg-yellow-100 text-yellow-700', description: 'Posted 50+ helpful reviews' },
@@ -63,7 +90,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 450,
     createdAt: daysAgo(120),
     lastActiveAt: daysAgo(2),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '2',
@@ -86,7 +114,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 50,
     createdAt: daysAgo(200),
     lastActiveAt: daysAgo(5),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '3',
@@ -109,7 +138,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 1200,
     createdAt: daysAgo(300),
     lastActiveAt: daysAgo(1),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '4',
@@ -131,7 +161,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 0,
     createdAt: daysAgo(45),
     lastActiveAt: daysAgo(30),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '5',
@@ -153,7 +184,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 20,
     createdAt: daysAgo(15), // New business
     lastActiveAt: daysAgo(1),
-    verificationStatus: 'pending' // Pending approval
+    verificationStatus: 'pending',
+    status: 'inactive'
   },
   {
     id: '6',
@@ -175,7 +207,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 100,
     createdAt: daysAgo(365),
     lastActiveAt: daysAgo(10),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '7',
@@ -198,7 +231,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 800,
     createdAt: daysAgo(60),
     lastActiveAt: daysAgo(0),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '8',
@@ -221,7 +255,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 300,
     createdAt: daysAgo(90),
     lastActiveAt: daysAgo(1),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '9',
@@ -242,7 +277,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 10,
     createdAt: daysAgo(400),
     lastActiveAt: daysAgo(60),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '10',
@@ -263,7 +299,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 0,
     createdAt: daysAgo(20),
     lastActiveAt: daysAgo(18),
-    verificationStatus: 'pending'
+    verificationStatus: 'pending',
+    status: 'active'
   },
   {
     id: '11',
@@ -286,7 +323,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 75,
     createdAt: daysAgo(200),
     lastActiveAt: daysAgo(20),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   },
   {
     id: '12',
@@ -307,7 +345,8 @@ export const MOCK_BUSINESSES: Business[] = [
     credits: 200,
     createdAt: daysAgo(500),
     lastActiveAt: daysAgo(5),
-    verificationStatus: 'verified'
+    verificationStatus: 'verified',
+    status: 'active'
   }
 ];
 

@@ -13,7 +13,7 @@ import BusinessDashboard from './pages/BusinessDashboard';
 import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import AddEvent from './pages/AddEvent';
-import Leaderboard from './pages/Leaderboard';
+import Community from './pages/Community';
 import UserProfile from './pages/UserProfile';
 import Contact from './pages/Contact';
 import { AuthProvider } from './context/AuthContext';
@@ -69,7 +69,7 @@ const App: React.FC = () => {
               <Route path="/top-rated" element={<TopRated />} />
               <Route path="/add-listing" element={<AddListing />} />
               <Route path="/dashboard" element={<BusinessDashboard />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/community" element={<Community />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/events" element={<Events />} />
               <Route path="/event/:id" element={<EventDetail />} />

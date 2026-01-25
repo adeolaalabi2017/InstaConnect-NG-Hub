@@ -5,192 +5,149 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   LayoutDashboard, BarChart3, Megaphone, ShoppingCart, List, Settings, 
-  FileText, Menu, X, Sun, Moon, LogOut, ChevronDown, Bell, Search, Globe 
+  FileText, Menu, X, Sun, Moon, LogOut, ChevronDown, Bell, Search, Globe, 
+  Wallet, MessageSquare, Users
 } from 'lucide-react';
 import { Button } from './AdminComponents';
+import { Permission } from '../../types';
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, checkPermission } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Redirect if not admin (Safety check)
+  // Redirect if not authorized
   React.useEffect(() => {
-    if (user && user.role !== 'admin') {
+    if (user && !checkPermission('view_admin_dashboard')) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, navigate, checkPermission]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const navItems = [
+  interface NavItem {
+    name: string;
+    path: string;
+    icon: React.ElementType;
+    permission?: Permission;
+  }
+
+  const navItems: NavItem[] = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { name: 'Wallet', path: '/admin/orders', icon: Wallet, permission: 'manage_orders' },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
-    { name: 'Marketing', path: '/admin/marketing', icon: Megaphone },
-    { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
-    { name: 'Listings', path: '/admin/listings', icon: List },
-    { name: 'CMS', path: '/admin/cms', icon: FileText },
-    { name: 'Settings', path: '/admin/settings', icon: Settings },
+    { name: 'Messages', path: '/admin/cms', icon: MessageSquare, permission: 'manage_content' }, // CMS/Messages
+    { name: 'Listings', path: '/admin/listings', icon: List, permission: 'manage_listings' },
+    { name: 'Customers', path: '/admin/marketing', icon: Users, permission: 'manage_users' },
+    { name: 'Settings', path: '/admin/settings', icon: Settings, permission: 'manage_settings' },
   ];
 
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300 font-sans text-slate-900 dark:text-slate-50">
+    <div className="min-h-screen bg-[#F3F4F8] dark:bg-[#0B0E14] flex font-sans text-slate-900 dark:text-slate-50 transition-colors duration-300">
       
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#151923] border-r border-transparent dark:border-slate-800 transform transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:relative lg:translate-x-0`}
+        } lg:relative lg:translate-x-0 flex flex-col justify-between`}
       >
-        <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">
-                I
-              </div>
-              <span className="text-xl font-bold text-slate-900 dark:text-white">InstaAdmin</span>
-            </Link>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-            <div className="mb-4">
-              <p className="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Overview</p>
-              {navItems.slice(0, 2).map((item) => {
-                const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                      isActive 
-                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white' 
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <item.icon size={18} />
-                    {item.name}
-                  </Link>
-                );
-              })}
+        <div>
+            {/* Logo */}
+            <div className="h-24 flex items-center px-8">
+                <Link to="/" className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-600/30">
+                    I
+                </div>
+                <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">InstaAdmin</span>
+                </Link>
             </div>
 
-            <div className="mb-4">
-              <p className="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Management</p>
-              {navItems.slice(2, 6).map((item) => {
-                const isActive = location.pathname.startsWith(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                      isActive 
-                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white' 
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <item.icon size={18} />
-                    {item.name}
-                  </Link>
-                );
-              })}
+            {/* Navigation */}
+            <nav className="px-4 space-y-2">
+                {navItems.map((item) => {
+                    if (item.permission && !checkPermission(item.permission)) return null;
+                    const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
+                    return (
+                    <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${
+                        isActive 
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-white'
+                        }`}
+                    >
+                        <item.icon size={20} className={isActive ? 'text-white' : 'text-current'} />
+                        {item.name}
+                    </Link>
+                    );
+                })}
+            </nav>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="p-6 space-y-4">
+            {/* Theme Toggle Switch */}
+            <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-full p-1.5 cursor-pointer" onClick={toggleTheme}>
+                <div className={`p-2 rounded-full transition-all duration-300 ${theme === 'light' ? 'bg-white shadow-sm text-yellow-500' : 'text-gray-400'}`}>
+                    <Sun size={16} />
+                </div>
+                <div className={`p-2 rounded-full transition-all duration-300 ${theme === 'dark' ? 'bg-slate-700 shadow-sm text-indigo-400' : 'text-gray-400'}`}>
+                    <Moon size={16} />
+                </div>
             </div>
 
-            <div>
-              <p className="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Configuration</p>
-              {navItems.slice(6).map((item) => {
-                const isActive = location.pathname.startsWith(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                      isActive 
-                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white' 
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <item.icon size={18} />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </div>
-          </nav>
+            <button 
+                onClick={logout}
+                className="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 text-sm font-semibold transition-colors w-full"
+            >
+                <LogOut size={20} />
+                Sign out
+            </button>
         </div>
       </aside>
 
       {/* Main Content Wrapper */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
         
         {/* Header */}
-        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-8">
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
-                    <Menu size={20} />
-                </Button>
-                
-                <div className="hidden md:flex relative max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                    <input 
-                        type="text" 
-                        placeholder="Search anything..." 
-                        className="pl-9 pr-4 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm w-64 focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                </div>
+        <header className="h-24 bg-[#F3F4F8] dark:bg-[#0B0E14] flex items-center justify-between px-8 pt-4">
+            <div className="flex flex-col">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Hello, {user.name.split(' ')[0]}</h1>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back to your dashboard</p>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4">
-                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2" onClick={() => navigate('/')}>
-                    <Globe size={14} /> View Site
-                </Button>
+            <div className="flex items-center gap-6">
+                <div className="hidden md:flex relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        className="pl-12 pr-4 py-3 rounded-2xl border-none bg-white dark:bg-[#151923] text-sm w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                    />
+                </div>
 
-                <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                </Button>
+                <button className="relative p-3 bg-white dark:bg-[#151923] rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <Bell size={20} className="text-gray-600 dark:text-gray-300" />
+                    <span className="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#151923]"></span>
+                </button>
 
-                <Button variant="ghost" size="icon" className="relative">
-                    <Bell size={18} />
-                    <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                </Button>
-
-                <div className="relative">
-                    <button 
-                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                        <img src={user.image} alt="" className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
-                        <ChevronDown size={14} className="text-slate-500 hidden sm:block" />
-                    </button>
-                    
-                    {isUserMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-md shadow-lg border border-slate-200 dark:border-slate-800 py-1 z-50">
-                            <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800">
-                                <p className="text-sm font-medium text-slate-900 dark:text-white">Administrator</p>
-                            </div>
-                            <Link to="/profile" className="block px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">Profile</Link>
-                            <Link to="/admin/settings" className="block px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">Settings</Link>
-                            <div className="border-t border-slate-200 dark:border-slate-800 my-1"></div>
-                            <button 
-                                onClick={logout}
-                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
-                            >
-                                Sign out
-                            </button>
-                        </div>
-                    )}
+                <div className="flex items-center gap-3">
+                    <img src={user.image} alt="" className="w-12 h-12 rounded-xl object-cover shadow-sm cursor-pointer" onClick={() => navigate('/profile')} />
+                    <div className="hidden sm:block">
+                        <p className="text-sm font-bold text-slate-900 dark:text-white leading-none mb-1">{user.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                    </div>
                 </div>
             </div>
         </header>
 
-        {/* Content Area */}
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
+        {/* Content Scroll Area */}
+        <main className="flex-1 px-8 pb-8 overflow-y-auto custom-scrollbar">
           <Outlet />
         </main>
       </div>

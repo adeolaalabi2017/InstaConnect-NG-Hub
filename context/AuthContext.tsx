@@ -1,15 +1,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
-import { MOCK_USER } from '../constants';
+import { User, Role, Permission } from '../types';
+import { MOCK_USER, ROLE_PERMISSIONS } from '../constants';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
-  register: (name: string, email: string, pass: string, role: 'consumer' | 'vendor') => Promise<void>;
+  register: (name: string, email: string, pass: string, role: Role) => Promise<void>;
   logout: () => void;
   updateCredits: (amount: number) => void;
   updateUser: (data: Partial<User>) => void;
+  checkPermission: (permission: Permission) => boolean;
   isLoading: boolean;
 }
 
@@ -39,20 +40,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Determine role based on email for demo purposes
-    let role: 'consumer' | 'vendor' | 'admin' = 'consumer';
+    let role: Role = 'consumer';
     const lowerEmail = email.toLowerCase();
     
     if (lowerEmail.includes('admin')) {
         role = 'admin';
+    } else if (lowerEmail.includes('editor')) {
+        role = 'editor';
     } else if (lowerEmail.includes('vendor')) {
         role = 'vendor';
+    } else if (lowerEmail.includes('viewer')) {
+        role = 'viewer';
     }
 
     // Create user with appropriate ID mapping
     // ID '1' owns the mock business, so we give it to vendors for testing dashboard
     const newUser: User = {
         ...MOCK_USER,
-        id: role === 'vendor' ? '1' : (role === 'admin' ? 'admin-1' : Math.random().toString(36).substr(2, 9)),
+        id: role === 'vendor' ? '1' : (role === 'admin' || role === 'editor' ? 'admin-1' : Math.random().toString(36).substr(2, 9)),
         email: email,
         name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1), // Use email handle as name
         role: role,
@@ -74,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('insta_user', JSON.stringify(newUser));
   };
 
-  const register = async (name: string, email: string, pass: string, role: 'consumer' | 'vendor') => {
+  const register = async (name: string, email: string, pass: string, role: Role) => {
     // Mock register delay
     await new Promise(resolve => setTimeout(resolve, 800));
     const newUser: User = {
@@ -116,8 +121,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('insta_user');
   };
 
+  const checkPermission = (permission: Permission): boolean => {
+    if (!user) return false;
+    const permissions = ROLE_PERMISSIONS[user.role] || [];
+    return permissions.includes(permission);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateCredits, updateUser, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateCredits, updateUser, checkPermission, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

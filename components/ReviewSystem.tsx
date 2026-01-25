@@ -94,7 +94,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
                         onChange={(e) => setText(e.target.value)}
                         rows={4}
                         placeholder="Share your experience with others..."
-                        className="w-full bg-white dark:bg-gray-800 rounded-xl p-4 text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-primary transition-colors text-dark dark:text-white placeholder-gray-400"
+                        className="w-full bg-white dark:bg-slate-900 rounded-xl p-4 text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-primary transition-colors text-dark dark:text-white placeholder-gray-400"
                         required
                     />
                 </div>
@@ -124,9 +124,10 @@ interface ReviewCardProps {
     currentUser: User | null;
     isOwner: boolean;
     onReply?: (reviewId: string, text: string) => void;
+    onReport?: (reviewId: string) => void;
 }
 
-export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isOwner, onReply }) => {
+export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isOwner, onReply, onReport }) => {
     const navigate = useNavigate();
     const [vote, setVote] = useState<'yes' | 'no' | null>(null);
     const [likeCount, setLikeCount] = useState(review.helpfulCount);
@@ -174,6 +175,9 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
 
         if (window.confirm("Report this review as inappropriate?")) {
             setIsReported(true);
+            if (onReport) {
+                onReport(review.id);
+            }
             alert("Review flagged for moderation.");
         }
     };
@@ -318,7 +322,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Type your response here..."
                         rows={3}
-                        className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3 text-sm focus:outline-none focus:border-primary mb-3 text-dark dark:text-white placeholder-gray-400"
+                        className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-600 rounded-lg p-3 text-sm focus:outline-none focus:border-primary mb-3 text-dark dark:text-white placeholder-gray-400"
                     ></textarea>
                     <div className="flex justify-end gap-2">
                         <button 

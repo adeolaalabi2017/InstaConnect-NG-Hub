@@ -11,10 +11,14 @@ const Hero: React.FC = () => {
   const [category, setCategory] = useState('All');
   const [sortBy, setSortBy] = useState('Recommended');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const locationWrapperRef = useRef<HTMLDivElement>(null);
+  
+  // Refs for direct DOM manipulation (Performance Optimization)
   const containerRef = useRef<HTMLElement>(null);
+  const orb1Ref = useRef<HTMLDivElement>(null);
+  const orb2Ref = useRef<HTMLDivElement>(null);
+  const locationWrapperRef = useRef<HTMLDivElement>(null);
 
+  // Close suggestions on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (locationWrapperRef.current && !locationWrapperRef.current.contains(event.target as Node)) {
@@ -27,14 +31,54 @@ const Hero: React.FC = () => {
     };
   }, [locationWrapperRef]);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        setMousePos({ x, y });
-    }
-  };
+  // Optimized Parallax Effect
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let animationFrameId: number;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+        const rect = container.getBoundingClientRect();
+        // Calculate normalized position (-1 to 1) relative to center
+        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+        
+        targetX = x;
+        targetY = y;
+    };
+
+    const animate = () => {
+        // Linear interpolation (Lerp) for smooth movement
+        currentX += (targetX - currentX) * 0.05; // 0.05 factor for laggy/smooth follow
+        currentY += (targetY - currentY) * 0.05;
+
+        if (orb1Ref.current) {
+            // Orb 1 moves opposite to mouse
+            orb1Ref.current.style.transform = `translate3d(${currentX * -30}px, ${currentY * 30}px, 0)`;
+        }
+        if (orb2Ref.current) {
+            // Orb 2 moves with mouse
+            orb2Ref.current.style.transform = `translate3d(${currentX * 30}px, ${currentY * -30}px, 0)`;
+        }
+
+        animationFrameId = requestAnimationFrame(animate);
+    };
+
+    // Attach event listener
+    container.addEventListener('mousemove', handleMouseMove);
+    // Start animation loop
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+        container.removeEventListener('mousemove', handleMouseMove);
+        cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
   const filteredLocations = NIGERIAN_LOCATIONS.filter(loc => 
     loc.toLowerCase().includes(location.toLowerCase())
@@ -53,57 +97,65 @@ const Hero: React.FC = () => {
   return (
     <section 
         ref={containerRef}
-        onMouseMove={handleMouseMove}
         className="relative pt-20 pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex flex-col justify-center"
     >
       <style>{`
         @keyframes float {
-          0% { transform: translate(0px, 0px); }
-          50% { transform: translate(20px, -20px); }
-          100% { transform: translate(0px, 0px); }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
         }
-        @keyframes float-reverse {
-          0% { transform: translate(0px, 0px); }
-          50% { transform: translate(-20px, 20px); }
-          100% { transform: translate(0px, 0px); }
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(20px); }
         }
-        .animate-float { animation: float 8s ease-in-out infinite; }
-        .animate-float-reverse { animation: float-reverse 10s ease-in-out infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; }
+        
+        .hardware-accelerated {
+            will-change: transform;
+            transform: translateZ(0);
+        }
       `}</style>
 
-      {/* Dynamic Background Elements */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Top Right Orb */}
-        <div 
-            className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 blur-3xl animate-float opacity-60 dark:opacity-30"
-            style={{ transform: `translate(${mousePos.x * -20}px, ${mousePos.y * 20}px)` }}
-        ></div>
-        
-        {/* Bottom Left Orb */}
-        <div 
-            className="absolute -bottom-[10%] -left-[10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-blue-400/20 to-purple-500/20 blur-3xl animate-float-reverse opacity-60 dark:opacity-30"
-            style={{ transform: `translate(${mousePos.x * 20}px, ${mousePos.y * -20}px)` }}
-        ></div>
+      {/* Background Image with Blur */}
+      <div className="absolute inset-0 -z-30">
+        <img 
+          src="https://i.ytimg.com/vi/g-Q_2Y_R-X8/maxresdefault.jpg" 
+          alt="Background" 
+          className="w-full h-full object-cover"
+        />
+        {/* Overlay to ensure text readability */}
+        <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm transition-colors duration-300"></div>
+      </div>
 
-        {/* Center Accent */}
-        <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-white/40 dark:bg-white/5 blur-[100px] pointer-events-none"
-        ></div>
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none select-none">
+        {/* Top Right Orb Wrapper (Parallax) */}
+        <div ref={orb1Ref} className="absolute -top-[10%] -right-[10%] hardware-accelerated">
+            {/* Inner Orb (Floating Animation) */}
+            <div className="w-[600px] h-[600px] rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 blur-3xl animate-float opacity-70"></div>
+        </div>
+        
+        {/* Bottom Left Orb Wrapper (Parallax) */}
+        <div ref={orb2Ref} className="absolute -bottom-[10%] -left-[10%] hardware-accelerated">
+            {/* Inner Orb (Floating Animation) */}
+            <div className="w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-blue-400/20 to-purple-500/20 blur-3xl animate-float-delayed opacity-70"></div>
+        </div>
       </div>
 
       <div className="max-w-5xl mx-auto text-center relative z-10">
-        <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/50 dark:bg-white/10 border border-white/20 backdrop-blur-sm text-sm font-medium text-primary dark:text-primary animate-fade-in-down">
+        <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/50 dark:bg-white/10 border border-white/20 backdrop-blur-md text-sm font-medium text-primary dark:text-primary animate-fade-in-down shadow-sm">
             ✨ Discover Nigeria's Best Gems
         </div>
         
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-dark dark:text-white tracking-tight mb-6 leading-tight animate-fade-in-up">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-dark dark:text-white tracking-tight mb-6 leading-tight animate-fade-in-up drop-shadow-sm">
           Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary relative">
             Local Favorites
             <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary opacity-40" viewBox="0 0 200 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.00025 6.99997C18.5038 3.81345 33.285 2.00023 54.5 2.00023C131.002 2.00023 160.502 6.00005 197 7.00005" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>
           </span>
         </h1>
         
-        <p className="text-graytext dark:text-gray-300 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-100">
+        <p className="text-graytext dark:text-gray-200 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-100 font-medium">
           From top-rated restaurants to trusted local services, find everything you need in one modern directory.
         </p>
 
@@ -242,10 +294,10 @@ const Hero: React.FC = () => {
         </div>
 
         {/* Popular Tags */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2 text-sm text-graytext dark:text-gray-400 animate-fade-in-up delay-300">
+        <div className="mt-8 flex flex-wrap justify-center gap-2 text-sm text-graytext dark:text-gray-300 animate-fade-in-up delay-300">
           <span className="font-semibold text-dark dark:text-white">Popular:</span> 
           {['Hotel', 'Business', 'Wedding', 'Office', 'Healthcare', 'Lifestyle'].map((tag, i) => (
-              <span key={i} className="cursor-pointer hover:text-primary transition-colors underline decoration-dotted">{tag}</span>
+              <span key={i} className="cursor-pointer hover:text-primary transition-colors underline decoration-dotted backdrop-blur-sm px-1 rounded">{tag}</span>
           ))}
         </div>
       </div>

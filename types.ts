@@ -1,4 +1,16 @@
 
+export type Role = 'consumer' | 'vendor' | 'admin' | 'editor' | 'viewer';
+
+export type Permission = 
+  | 'view_admin_dashboard'
+  | 'manage_users' 
+  | 'manage_listings' 
+  | 'manage_content' 
+  | 'manage_settings' 
+  | 'manage_marketing'
+  | 'manage_orders'
+  | 'create_review';
+
 export interface Business {
   id: string;
   name: string;
@@ -22,6 +34,7 @@ export interface Business {
   createdAt?: string;
   lastActiveAt?: string;
   verificationStatus?: 'pending' | 'verified' | 'rejected';
+  status: 'active' | 'inactive'; // Active/Inactive status
 }
 
 export interface Category {
@@ -60,7 +73,7 @@ export interface User {
   name: string;
   email: string;
   image: string;
-  role: 'consumer' | 'vendor' | 'admin';
+  role: Role;
   credits: number; // User wallet (optional, or used for non-business transactions)
   badges: string[];
   reputationPoints: number;

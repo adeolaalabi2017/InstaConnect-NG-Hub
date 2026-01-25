@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_EVENTS, MOCK_EVENT_COMMENTS } from '../constants';
-import { Calendar, Clock, MapPin, Share2, Users, MessageSquare, CheckCircle, Send } from 'lucide-react';
+import { Calendar, Clock, MapPin, Share2, Users, MessageSquare, CheckCircle, Send, Flag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const EventDetail: React.FC = () => {
@@ -35,11 +36,21 @@ const EventDetail: React.FC = () => {
           userName: user.name,
           userImage: user.image,
           content: newComment,
-          timestamp: 'Just now'
+          timestamp: 'Just now',
+          status: 'active' as const
       };
 
       setComments([comment, ...comments]);
       setNewComment('');
+  };
+
+  const handleReportComment = (commentId: string) => {
+      if (window.confirm("Are you sure you want to report this comment as abusive?")) {
+          setComments(comments.map(c => 
+              c.id === commentId ? { ...c, status: 'flagged' } : c
+          ));
+          alert("Comment has been flagged for moderation.");
+      }
   };
 
   return (
@@ -115,12 +126,27 @@ const EventDetail: React.FC = () => {
                        {comments.map(comment => (
                            <div key={comment.id} className="flex gap-4">
                                <img src={comment.userImage} alt={comment.userName} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                               <div className="bg-gray-50 rounded-2xl rounded-tl-none p-4 flex-grow">
+                               <div className={`rounded-2xl rounded-tl-none p-4 flex-grow transition-colors ${comment.status === 'flagged' ? 'bg-red-50 border border-red-100' : 'bg-gray-50'}`}>
                                    <div className="flex justify-between items-center mb-1">
                                        <h5 className="font-bold text-dark text-sm">{comment.userName}</h5>
-                                       <span className="text-xs text-gray-400">{comment.timestamp}</span>
+                                       <div className="flex items-center gap-2">
+                                           <span className="text-xs text-gray-400">{comment.timestamp}</span>
+                                           {comment.status !== 'flagged' ? (
+                                               <button 
+                                                   onClick={() => handleReportComment(comment.id)}
+                                                   className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                                                   title="Report Abuse"
+                                               >
+                                                   <Flag size={12} />
+                                               </button>
+                                           ) : (
+                                               <span className="text-[10px] text-red-500 font-bold border border-red-200 bg-white px-2 py-0.5 rounded-full">Reported</span>
+                                           )}
+                                       </div>
                                    </div>
-                                   <p className="text-graytext text-sm">{comment.content}</p>
+                                   <p className={`text-sm ${comment.status === 'flagged' ? 'text-gray-400 italic' : 'text-graytext'}`}>
+                                       {comment.status === 'flagged' ? 'This comment has been flagged for moderation.' : comment.content}
+                                   </p>
                                </div>
                            </div>
                        ))}
