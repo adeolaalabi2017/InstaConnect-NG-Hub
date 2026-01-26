@@ -1,7 +1,10 @@
 
-import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement, Role, Permission } from './types';
+import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement, Role, Permission, CommunityThread } from './types';
 
-// ... (keep previous imports and constants up to MOCK_EVENT_COMMENTS)
+// ... (keep previous imports and constants up to MOCK_ADS)
+
+// Keep existing exports...
+// [rest of file content omitted for brevity, assume previous content exists until MOCK_ADS]
 
 export const CATEGORIES: Category[] = [
   { id: '1', name: 'Hotels', icon: 'Hotel', count: 12 },
@@ -646,6 +649,7 @@ export const MOCK_EVENTS: Event[] = [
     location: 'Landmark Centre, Victoria Island',
     image: 'https://picsum.photos/id/1/800/400',
     organizer: 'Techpoint Africa',
+    organizerId: '1',
     category: 'Tech',
     price: 'Free',
     attendees: 1250,
@@ -660,6 +664,7 @@ export const MOCK_EVENTS: Event[] = [
     location: 'Muri Okunola Park, Lagos',
     image: 'https://picsum.photos/id/493/800/400',
     organizer: 'EatDrinkLagos',
+    organizerId: '106',
     category: 'Food',
     price: '₦2,000',
     attendees: 540,
@@ -1062,4 +1067,119 @@ export const MOCK_ADS: AdPlacement[] = [
     endDate: daysAgo(10),
     targeting: { category: 'Shopping' }
   }
+];
+
+export const MOCK_COMMUNITY_THREADS: CommunityThread[] = [
+    {
+        id: '1',
+        title: 'Best place for affordable tech gear in Ikeja?',
+        content: 'I am looking for a reliable shop in Computer Village that sells genuine MacBooks at reasonable prices. Has anyone had good experiences with "Gadget World"?',
+        author: {
+            name: 'Chidinma Okafor',
+            image: 'https://picsum.photos/id/64/100/100',
+            role: 'Consumer'
+        },
+        category: 'Shopping',
+        upvotes: 45,
+        downvotes: 2,
+        commentCount: 3,
+        timestamp: '2 hours ago',
+        userVote: null,
+        comments: [
+            {
+                id: 'c1',
+                author: { name: 'David Etim', image: 'https://picsum.photos/id/77/100/100' },
+                content: 'Yes! Gadget World is solid. Bought my M1 there last month.',
+                timestamp: '1 hour ago',
+                upvotes: 12,
+                replies: [
+                    {
+                        id: 'c1-1',
+                        author: { name: 'Chidinma Okafor', image: 'https://picsum.photos/id/64/100/100' },
+                        content: 'Thanks David! Did they give you a warranty?',
+                        timestamp: '50 mins ago',
+                        upvotes: 2,
+                        replies: []
+                    }
+                ]
+            },
+            {
+                id: 'c2',
+                author: { name: 'Yusuf Sani', image: 'https://picsum.photos/id/78/100/100' },
+                content: 'Be careful with street vendors though, stick to the registered shops.',
+                timestamp: '45 mins ago',
+                upvotes: 8,
+                replies: []
+            }
+        ]
+    },
+    {
+        id: '2',
+        title: 'Hidden gems for date night in Victoria Island',
+        content: 'My anniversary is coming up and I want to take my partner somewhere special but quiet. Not the usual loud spots like... well you know. Any recommendations?',
+        author: {
+            name: 'Tunde Bakare',
+            image: 'https://picsum.photos/id/91/100/100',
+            role: 'Consumer'
+        },
+        category: 'Food & Drink',
+        upvotes: 128,
+        downvotes: 5,
+        commentCount: 1,
+        timestamp: '5 hours ago',
+        userVote: 'up',
+        comments: [
+            {
+                id: 'c3',
+                author: { name: 'Zainab Ali', image: 'https://picsum.photos/id/72/100/100' },
+                content: 'Try "The Noir". It is very intimate and the jazz music is low volume.',
+                timestamp: '3 hours ago',
+                upvotes: 25,
+                replies: []
+            }
+        ]
+    },
+    {
+        id: '3',
+        title: 'Review: Divine Hotels is overrated',
+        content: 'Stayed there last weekend. The pool was great, but the room service took forever. For the price point, I expected faster service. Thoughts?',
+        author: {
+            name: 'Emeka Ugochukwu',
+            image: 'https://picsum.photos/id/1005/100/100',
+            role: 'Admin'
+        },
+        category: 'Reviews',
+        upvotes: 12,
+        downvotes: 8,
+        commentCount: 0,
+        timestamp: '1 day ago',
+        userVote: null,
+        comments: []
+    },
+    {
+        id: '4',
+        title: 'Networking event for startups next week!',
+        content: 'Hey everyone, just a reminder about the Lagos Tech Fest coming up. Who else is going? Let\'s arrange a meetup for the community members here.',
+        author: {
+            name: 'Ahmed Musa',
+            image: 'https://picsum.photos/id/66/100/100',
+            role: 'Consumer'
+        },
+        category: 'Events',
+        upvotes: 89,
+        downvotes: 0,
+        commentCount: 1,
+        timestamp: '2 days ago',
+        userVote: null,
+        comments: [
+             {
+                id: 'c4',
+                author: { name: 'Oluwaseun Adebayo', image: 'https://picsum.photos/id/75/100/100' },
+                content: 'I will be there! Lets create a WhatsApp group.',
+                timestamp: '1 day ago',
+                upvotes: 5,
+                replies: []
+            }
+        ]
+    }
 ];

@@ -1,92 +1,10 @@
 
 import React, { useState, useRef } from 'react';
-import { MessageSquare, ArrowBigUp, ArrowBigDown, Share2, MoreHorizontal, Search, PenSquare, Filter, X, Bold, Italic, Underline, List, Image as ImageIcon } from 'lucide-react';
+import { MessageSquare, ArrowBigUp, ArrowBigDown, Share2, MoreHorizontal, Search, PenSquare, Filter, X, Bold, Italic, Underline, List, Image as ImageIcon, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-
-interface Thread {
-    id: string;
-    title: string;
-    content: string; // Can be HTML now
-    author: {
-        name: string;
-        image: string;
-        role: string;
-    };
-    category: string;
-    upvotes: number;
-    downvotes: number;
-    commentCount: number;
-    timestamp: string;
-    userVote?: 'up' | 'down' | null; // Track current user's vote
-}
-
-const MOCK_THREADS: Thread[] = [
-    {
-        id: '1',
-        title: 'Best place for affordable tech gear in Ikeja?',
-        content: 'I am looking for a reliable shop in Computer Village that sells genuine MacBooks at reasonable prices. Has anyone had good experiences with "Gadget World"?',
-        author: {
-            name: 'Chidinma Okafor',
-            image: 'https://picsum.photos/id/64/100/100',
-            role: 'Consumer'
-        },
-        category: 'Shopping',
-        upvotes: 45,
-        downvotes: 2,
-        commentCount: 12,
-        timestamp: '2 hours ago',
-        userVote: null
-    },
-    {
-        id: '2',
-        title: 'Hidden gems for date night in Victoria Island',
-        content: 'My anniversary is coming up and I want to take my partner somewhere special but quiet. Not the usual loud spots like... well you know. Any recommendations?',
-        author: {
-            name: 'Tunde Bakare',
-            image: 'https://picsum.photos/id/91/100/100',
-            role: 'Consumer'
-        },
-        category: 'Food & Drink',
-        upvotes: 128,
-        downvotes: 5,
-        commentCount: 34,
-        timestamp: '5 hours ago',
-        userVote: 'up'
-    },
-    {
-        id: '3',
-        title: 'Review: Divine Hotels is overrated',
-        content: 'Stayed there last weekend. The pool was great, but the room service took forever. For the price point, I expected faster service. Thoughts?',
-        author: {
-            name: 'Emeka Ugochukwu',
-            image: 'https://picsum.photos/id/1005/100/100',
-            role: 'Admin'
-        },
-        category: 'Reviews',
-        upvotes: 12,
-        downvotes: 8,
-        commentCount: 45,
-        timestamp: '1 day ago',
-        userVote: null
-    },
-    {
-        id: '4',
-        title: 'Networking event for startups next week!',
-        content: 'Hey everyone, just a reminder about the Lagos Tech Fest coming up. Who else is going? Let\'s arrange a meetup for the community members here.',
-        author: {
-            name: 'Ahmed Musa',
-            image: 'https://picsum.photos/id/66/100/100',
-            role: 'Consumer'
-        },
-        category: 'Events',
-        upvotes: 89,
-        downvotes: 0,
-        commentCount: 21,
-        timestamp: '2 days ago',
-        userVote: null
-    }
-];
+import { useNavigate, Link } from 'react-router-dom';
+import { MOCK_COMMUNITY_THREADS } from '../constants';
+import { CommunityThread, CommunityComment } from '../types';
 
 // --- Rich Text Editor Components ---
 
@@ -228,7 +146,7 @@ const CreateThreadModal = ({ onClose, onSubmit }: { onClose: () => void, onSubmi
 const Community: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [threads, setThreads] = useState<Thread[]>(MOCK_THREADS);
+    const [threads, setThreads] = useState<CommunityThread[]>(MOCK_COMMUNITY_THREADS);
     const [filter, setFilter] = useState('All');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -270,21 +188,22 @@ const Community: React.FC = () => {
     const handleCreateThread = (data: { title: string, category: string, content: string }) => {
         if (!user) return;
 
-        const newThread: Thread = {
+        const newThread: CommunityThread = {
             id: Date.now().toString(),
             title: data.title,
             content: data.content,
             author: {
                 name: user.name,
                 image: user.image,
-                role: user.role === 'admin' ? 'Admin' : 'Consumer' // Simplified mapping
+                role: user.role === 'admin' ? 'Admin' : 'Consumer'
             },
             category: data.category,
             upvotes: 0,
             downvotes: 0,
             commentCount: 0,
             timestamp: 'Just now',
-            userVote: null
+            userVote: null,
+            comments: []
         };
 
         setThreads([newThread, ...threads]);
@@ -365,19 +284,24 @@ const Community: React.FC = () => {
                                         <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md font-medium text-[10px] uppercase tracking-wide">{thread.category}</span>
                                     </div>
 
-                                    {/* Title & Preview */}
-                                    <h3 className="text-lg font-bold text-dark dark:text-white mb-2 leading-tight hover:text-primary cursor-pointer transition-colors">
-                                        {thread.title}
-                                    </h3>
-                                    <p className="text-sm text-graytext dark:text-gray-300 line-clamp-2 mb-4">
-                                        {stripHtml(thread.content)}
-                                    </p>
+                                    {/* Title & Preview Link */}
+                                    <Link to={`/community/${thread.id}`} className="block group">
+                                        <h3 className="text-lg font-bold text-dark dark:text-white mb-2 leading-tight group-hover:text-primary transition-colors">
+                                            {thread.title}
+                                        </h3>
+                                        <p className="text-sm text-graytext dark:text-gray-300 line-clamp-2 mb-4">
+                                            {stripHtml(thread.content)}
+                                        </p>
+                                    </Link>
 
                                     {/* Action Bar */}
                                     <div className="flex items-center gap-4">
-                                        <button className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors">
+                                        <Link 
+                                            to={`/community/${thread.id}`}
+                                            className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors"
+                                        >
                                             <MessageSquare size={16} /> {thread.commentCount} Comments
-                                        </button>
+                                        </Link>
                                         <button className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors">
                                             <Share2 size={16} /> Share
                                         </button>

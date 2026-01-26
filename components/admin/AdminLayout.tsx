@@ -1,18 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   LayoutDashboard, BarChart3, Megaphone, ShoppingCart, List, Settings, 
   FileText, Menu, X, Sun, Moon, LogOut, ChevronDown, Bell, Search, Globe, 
-  Wallet, MessageSquare, Users
+  Wallet, MessageSquare, Users, TrendingUp, Activity, File, BookOpen, Mail, HelpCircle, MessageSquareQuote, Layout
 } from 'lucide-react';
 import { Button } from './AdminComponents';
 import { Permission } from '../../types';
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const { user, logout, checkPermission } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
@@ -26,23 +27,60 @@ const AdminLayout: React.FC = () => {
   }, [user, navigate, checkPermission]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  
+  const toggleMenu = (name: string) => {
+    setOpenMenus(prev => ({ ...prev, [name]: !prev[name] }));
+  };
 
   interface NavItem {
     name: string;
     path: string;
     icon: React.ElementType;
     permission?: Permission;
+    children?: NavItem[];
   }
 
   const navItems: NavItem[] = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Wallet', path: '/admin/orders', icon: Wallet, permission: 'manage_orders' },
-    { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
-    { name: 'Messages', path: '/admin/cms', icon: MessageSquare, permission: 'manage_content' }, // CMS/Messages
+    { 
+      name: 'Analytics', 
+      path: '/admin/analytics', 
+      icon: BarChart3,
+      children: [
+        { name: 'Overview', path: '/admin/analytics', icon: LayoutDashboard },
+        { name: 'Traffic Reports', path: '/admin/analytics/traffic', icon: TrendingUp },
+        { name: 'User Insights', path: '/admin/analytics/insights', icon: Users },
+        { name: 'Real-time', path: '/admin/analytics/realtime', icon: Activity },
+        { name: 'Custom Reports', path: '/admin/analytics/custom', icon: FileText },
+      ]
+    },
+    { 
+      name: 'Content', 
+      path: '/admin/content', 
+      icon: FileText, 
+      permission: 'manage_content',
+      children: [
+        { name: 'Site Config', path: '/admin/content/config', icon: Layout },
+        { name: 'CMS Pages', path: '/admin/content/pages', icon: File },
+        { name: 'Blog', path: '/admin/content/blog', icon: BookOpen },
+        { name: 'Newsletters', path: '/admin/content/newsletters', icon: Mail },
+        { name: 'FAQ', path: '/admin/content/faq', icon: HelpCircle },
+        { name: 'Testimonials', path: '/admin/content/testimonials', icon: MessageSquareQuote },
+      ]
+    }, 
     { name: 'Listings', path: '/admin/listings', icon: List, permission: 'manage_listings' },
     { name: 'Customers', path: '/admin/marketing', icon: Users, permission: 'manage_users' },
     { name: 'Settings', path: '/admin/settings', icon: Settings, permission: 'manage_settings' },
   ];
+
+  // Auto-expand menu if child is active
+  useEffect(() => {
+    const activeParent = navItems.find(item => item.children?.some(child => location.pathname === child.path));
+    if (activeParent && !openMenus[activeParent.name]) {
+        setOpenMenus(prev => ({ ...prev, [activeParent.name]: true }));
+    }
+  }, [location.pathname]);
 
   if (!user) return null;
 
@@ -55,9 +93,9 @@ const AdminLayout: React.FC = () => {
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:relative lg:translate-x-0 flex flex-col justify-between`}
       >
-        <div>
+        <div className="overflow-y-auto custom-scrollbar flex-1">
             {/* Logo */}
-            <div className="h-24 flex items-center px-8">
+            <div className="h-24 flex items-center px-8 sticky top-0 bg-white dark:bg-[#151923] z-10">
                 <Link to="/" className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-600/30">
                     I
@@ -67,30 +105,64 @@ const AdminLayout: React.FC = () => {
             </div>
 
             {/* Navigation */}
-            <nav className="px-4 space-y-2">
+            <nav className="px-4 space-y-2 mb-6">
                 {navItems.map((item) => {
                     if (item.permission && !checkPermission(item.permission)) return null;
-                    const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
+                    
+                    const hasChildren = item.children && item.children.length > 0;
+                    const isChildActive = item.children?.some(child => location.pathname === child.path);
+                    const isActive = location.pathname === item.path || isChildActive;
+                    const isOpen = openMenus[item.name];
+
                     return (
-                    <Link
-                        key={item.path}
-                        to={item.path}
-                        className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${
-                        isActive 
-                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
-                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-white'
-                        }`}
-                    >
-                        <item.icon size={20} className={isActive ? 'text-white' : 'text-current'} />
-                        {item.name}
-                    </Link>
+                    <div key={item.name}>
+                        <div
+                            onClick={() => hasChildren ? toggleMenu(item.name) : navigate(item.path)}
+                            className={`flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                            isActive && !hasChildren
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-white'
+                            }`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <item.icon size={20} className={isActive && !hasChildren ? 'text-white' : 'text-current'} />
+                                {item.name}
+                            </div>
+                            {hasChildren && (
+                                <ChevronDown size={16} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                            )}
+                        </div>
+
+                        {/* Dropdown Items */}
+                        {hasChildren && isOpen && (
+                            <div className="mt-1 ml-4 space-y-1 border-l-2 border-indigo-100 dark:border-gray-800 pl-3">
+                                {item.children?.map(child => {
+                                    const isChildLinkActive = location.pathname === child.path;
+                                    return (
+                                        <Link
+                                            key={child.path}
+                                            to={child.path}
+                                            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                                                isChildLinkActive 
+                                                ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300' 
+                                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                                            }`}
+                                        >
+                                            {/* Optional: Add icon for sub-items too if needed, here keeping it simple */}
+                                            {child.name}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                     );
                 })}
             </nav>
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 bg-white dark:bg-[#151923]">
             {/* Theme Toggle Switch */}
             <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-full p-1.5 cursor-pointer" onClick={toggleTheme}>
                 <div className={`p-2 rounded-full transition-all duration-300 ${theme === 'light' ? 'bg-white shadow-sm text-yellow-500' : 'text-gray-400'}`}>

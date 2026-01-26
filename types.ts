@@ -204,6 +204,45 @@ export interface AdPlacement {
   };
 }
 
+// --- CMS Configuration Types ---
+
+export interface HeaderConfig {
+  isVisible: boolean;
+  logoText: string;
+  showAuthButtons: boolean;
+  navLinks: {
+    home: string;
+    listings: string;
+    reviews: string;
+    events: string;
+    community: string;
+    contact: string;
+  };
+}
+
+export interface HeroConfig {
+  isVisible: boolean;
+  title: string;
+  highlightText: string;
+  subtitle: string;
+  backgroundImage: string;
+  showSearchBar: boolean;
+  tags: string[];
+}
+
+export interface FooterConfig {
+  isVisible: boolean;
+  aboutText: string;
+  showSocialLinks: boolean;
+  copyrightText: string;
+}
+
+export interface SiteConfig {
+  header: HeaderConfig;
+  hero: HeroConfig;
+  footer: FooterConfig;
+}
+
 // --- Email Settings ---
 export interface SmtpConfig {
   host: string;
@@ -232,3 +271,35 @@ export type EmailConfig = {
   provider: 'sendgrid';
   settings: SendGridConfig;
 };
+
+// --- Community Types ---
+
+export interface CommunityComment {
+  id: string;
+  author: {
+      name: string;
+      image: string;
+  };
+  content: string;
+  timestamp: string;
+  upvotes: number;
+  replies: CommunityComment[];
+}
+
+export interface CommunityThread {
+  id: string;
+  title: string;
+  content: string; // HTML content
+  author: {
+      name: string;
+      image: string;
+      role: string;
+  };
+  category: string;
+  upvotes: number;
+  downvotes: number;
+  commentCount: number;
+  timestamp: string;
+  userVote?: 'up' | 'down' | null;
+  comments: CommunityComment[];
+}

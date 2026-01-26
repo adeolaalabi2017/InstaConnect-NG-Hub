@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_BUSINESSES, MOCK_REVIEWS } from '../constants';
-import { Business, DailyMetric, Review, Notification } from '../types';
+import { MOCK_BUSINESSES, MOCK_REVIEWS, MOCK_EVENTS } from '../constants';
+import { Business, DailyMetric, Review, Notification, Event } from '../types';
 import { 
   TrendingUp, Users, Star, CreditCard, Zap, Plus, X, Check, MapPin, 
   ExternalLink, Calendar, BarChart2, Edit, MessageSquare, Settings, ArrowRight,
-  AlertTriangle, CheckCircle, Search, Info, MousePointer, Bell, Filter, ToggleLeft, ToggleRight, Mail
+  AlertTriangle, CheckCircle, Search, Info, MousePointer, Bell, Filter, ToggleLeft, ToggleRight, Mail, Ticket
 } from 'lucide-react';
 import { analyticsService } from '../services/analytics';
 import { notificationService } from '../services/notification';
@@ -87,11 +87,14 @@ const BusinessDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   
   // New States for Review Management
-  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'events' | 'settings'>('overview');
   const [businessReviews, setBusinessReviews] = useState<Review[]>([]);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'unread' | 'unreplied'>('all');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Event Analytics State
+  const [myEvents, setMyEvents] = useState<Event[]>([]);
 
   // To restore promote modal after topup
   const [returnToPromote, setReturnToPromote] = useState(false);
@@ -118,6 +121,10 @@ const BusinessDashboard: React.FC = () => {
             // Load Reviews
             const reviews = MOCK_REVIEWS.filter(r => r.businessId === business.id);
             setBusinessReviews(reviews);
+
+            // Load Hosted Events
+            const hostedEvents = MOCK_EVENTS.filter(e => e.organizerId === user.id);
+            setMyEvents(hostedEvents);
 
             // Load Notifications from Service
             const userNotifs = notificationService.getNotifications(user.id);
@@ -231,6 +238,14 @@ const BusinessDashboard: React.FC = () => {
   };
   const filteredReviews = getFilteredReviews();
   const unreadReviews = businessReviews.filter(r => !r.isRead);
+
+  // --- Event Analytics Calculation ---
+  const totalEventAttendees = myEvents.reduce((acc, event) => acc + event.attendees, 0);
+  // Estimate revenue if price is numeric string, else 0
+  const estimatedEventRevenue = myEvents.reduce((acc, event) => {
+      const priceNum = parseInt(event.price.replace(/[^0-9]/g, '')) || 0;
+      return acc + (priceNum * event.attendees);
+  }, 0);
 
   const quickActions = [
     { 
@@ -362,6 +377,14 @@ const BusinessDashboard: React.FC = () => {
                    Reviews
                    {unreadReviews.length > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{unreadReviews.length}</span>}
                </button>
+               {myEvents.length > 0 && (
+                   <button 
+                      onClick={() => setActiveTab('events')}
+                      className={`px-4 py-2 text-sm font-bold rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-2 ${activeTab === 'events' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-gray-500 hover:text-dark dark:hover:text-white'}`}
+                   >
+                       Event Reports
+                   </button>
+               )}
                <button 
                   onClick={() => setActiveTab('settings')}
                   className={`px-4 py-2 text-sm font-bold rounded-t-lg transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-gray-500 hover:text-dark dark:hover:text-white'}`}
@@ -478,6 +501,83 @@ const BusinessDashboard: React.FC = () => {
                              </div>
                         </div>
                     </div>
+               </div>
+           )}
+
+           {/* Tab: Event Reports */}
+           {activeTab === 'events' && myEvents.length > 0 && (
+               <div className="animate-fade-in space-y-8">
+                   {/* Event KPIs */}
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <KpiCard 
+                            title="Hosted Events" 
+                            value={myEvents.length} 
+                            icon={Calendar}
+                            subValue="Total events created"
+                        />
+                        <KpiCard 
+                            title="Total Attendees" 
+                            value={totalEventAttendees.toLocaleString()} 
+                            icon={Users}
+                            subValue="Registered RSVPs"
+                            trend={{ value: 8.5, isPositive: true }}
+                        />
+                        <KpiCard 
+                            title="Est. Revenue" 
+                            value={`₦${estimatedEventRevenue.toLocaleString()}`} 
+                            icon={Ticket}
+                            subValue="Based on ticket prices"
+                            trend={{ value: 12.0, isPositive: true }}
+                        />
+                   </div>
+
+                   {/* Detailed Event Table */}
+                   <div className="glass-card p-6 rounded-2xl overflow-hidden">
+                       <h3 className="font-bold text-dark dark:text-white text-lg mb-6">Event Details</h3>
+                       <div className="overflow-x-auto">
+                           <table className="w-full text-left border-collapse">
+                               <thead>
+                                   <tr className="border-b border-gray-100 dark:border-gray-700 text-xs text-gray-500 uppercase">
+                                       <th className="p-4 font-semibold">Event Name</th>
+                                       <th className="p-4 font-semibold">Date</th>
+                                       <th className="p-4 font-semibold">Category</th>
+                                       <th className="p-4 font-semibold">Price</th>
+                                       <th className="p-4 font-semibold">Attendees</th>
+                                       <th className="p-4 font-semibold">Status</th>
+                                       <th className="p-4 font-semibold text-right">Actions</th>
+                                   </tr>
+                               </thead>
+                               <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-700">
+                                   {myEvents.map(event => {
+                                       const eventDate = new Date(event.date);
+                                       const isPast = eventDate < new Date();
+                                       return (
+                                           <tr key={event.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                               <td className="p-4 font-medium text-dark dark:text-white flex items-center gap-3">
+                                                   <img src={event.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                                                   {event.title}
+                                               </td>
+                                               <td className="p-4 text-gray-600 dark:text-gray-300">{eventDate.toLocaleDateString()}</td>
+                                               <td className="p-4 text-gray-600 dark:text-gray-300">
+                                                   <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">{event.category}</span>
+                                               </td>
+                                               <td className="p-4 text-gray-600 dark:text-gray-300">{event.price}</td>
+                                               <td className="p-4 text-gray-600 dark:text-gray-300 font-bold">{event.attendees}</td>
+                                               <td className="p-4">
+                                                   <span className={`px-2 py-1 rounded text-xs font-bold ${isPast ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-600'}`}>
+                                                       {isPast ? 'Past' : 'Upcoming'}
+                                                   </span>
+                                               </td>
+                                               <td className="p-4 text-right">
+                                                   <button className="text-primary font-bold text-xs hover:underline">Manage</button>
+                                               </td>
+                                           </tr>
+                                       );
+                                   })}
+                               </tbody>
+                           </table>
+                       </div>
+                   </div>
                </div>
            )}
 

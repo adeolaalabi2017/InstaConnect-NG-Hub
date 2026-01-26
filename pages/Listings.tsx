@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import BusinessCard from '../components/BusinessCard';
-import { MOCK_BUSINESSES, CATEGORIES } from '../constants';
-import { Search, Filter, MapPin, ArrowUpDown, Clock, Zap } from 'lucide-react';
+import { MOCK_BUSINESSES, CATEGORIES, NIGERIAN_LOCATIONS } from '../constants';
+import { Search, Filter, MapPin, ArrowUpDown, Clock, Zap, X } from 'lucide-react';
 
 const Listings: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -14,6 +14,9 @@ const Listings: React.FC = () => {
   const [locationFilter, setLocationFilter] = useState(searchParams.get('location') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'Recommended');
   const [showOpenOnly, setShowOpenOnly] = useState(false);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  
+  const locationWrapperRef = useRef<HTMLDivElement>(null);
 
   // Update state when URL params change (e.g. navigation from Hero)
   useEffect(() => {
@@ -27,6 +30,19 @@ const Listings: React.FC = () => {
     if (loc) setLocationFilter(loc);
     if (sort) setSortBy(sort);
   }, [searchParams]);
+
+  // Click outside to close suggestions
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (locationWrapperRef.current && !locationWrapperRef.current.contains(event.target as Node)) {
+        setShowLocationSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [locationWrapperRef]);
 
   // Filtering Logic
   const filteredBusinesses = MOCK_BUSINESSES.filter(business => {
@@ -50,6 +66,20 @@ const Listings: React.FC = () => {
   });
 
   const promotedBusinesses = MOCK_BUSINESSES.filter(b => b.isPromoted);
+
+  const locationSuggestions = NIGERIAN_LOCATIONS.filter(loc => 
+    loc.toLowerCase().includes(locationFilter.toLowerCase())
+  );
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('All');
+    setLocationFilter('');
+    setSortBy('Recommended');
+    setShowOpenOnly(false);
+  };
+
+  const hasActiveFilters = searchTerm !== '' || selectedCategory !== 'All' || locationFilter !== '' || sortBy !== 'Recommended' || showOpenOnly;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -82,7 +112,7 @@ const Listings: React.FC = () => {
         </div>
         
         {/* Filter Bar */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col xl:flex-row gap-4 items-center">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col xl:flex-row gap-4 items-center transition-all">
             
              {/* Search */}
             <div className="relative flex-grow w-full xl:w-auto">
@@ -100,9 +130,9 @@ const Listings: React.FC = () => {
                 />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
-                {/* Location Filter */}
-                <div className="relative w-full md:w-48 lg:w-64">
+            <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto items-center">
+                {/* Location Filter with Suggestions */}
+                <div ref={locationWrapperRef} className="relative w-full md:w-48 lg:w-64">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <MapPin size={18} className="text-gray-400" />
                     </div>
@@ -112,9 +142,32 @@ const Listings: React.FC = () => {
                         type="text" 
                         placeholder="Location..." 
                         value={locationFilter}
-                        onChange={(e) => setLocationFilter(e.target.value)}
+                        onChange={(e) => {
+                            setLocationFilter(e.target.value);
+                            setShowLocationSuggestions(true);
+                        }}
+                        onFocus={() => setShowLocationSuggestions(true)}
                         className="pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary w-full transition-all text-dark dark:text-white placeholder-gray-400" 
                     />
+                    
+                    {/* Suggestions Dropdown */}
+                    {showLocationSuggestions && locationSuggestions.length > 0 && (
+                        <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 max-h-60 overflow-y-auto z-50">
+                            {locationSuggestions.map((loc, index) => (
+                                <div 
+                                    key={index}
+                                    onClick={() => {
+                                        setLocationFilter(loc);
+                                        setShowLocationSuggestions(false);
+                                    }}
+                                    className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-dark dark:text-gray-200 flex items-center gap-2 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0"
+                                >
+                                    <MapPin size={14} className="text-gray-400" />
+                                    {loc}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Category Filter */}
@@ -165,19 +218,30 @@ const Listings: React.FC = () => {
                 </div>
 
                 {/* Open Now Checkbox */}
-                <div className="flex items-center gap-2 px-2 py-2.5 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 whitespace-nowrap">
+                <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 whitespace-nowrap h-full">
                     <input 
                         id="listing-open"
                         type="checkbox"
                         checked={showOpenOnly}
                         onChange={(e) => setShowOpenOnly(e.target.checked)}
-                        className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer accent-primary ml-2"
+                        className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer accent-primary ml-1"
                     />
-                    <label htmlFor="listing-open" className="text-sm font-medium text-dark dark:text-white cursor-pointer select-none flex items-center gap-1.5 pr-2">
+                    <label htmlFor="listing-open" className="text-sm font-medium text-dark dark:text-white cursor-pointer select-none flex items-center gap-1.5">
                         <Clock size={16} className={showOpenOnly ? "text-primary" : "text-gray-400"} />
                         Open Now
                     </label>
                 </div>
+
+                {/* Clear All Filters */}
+                {hasActiveFilters && (
+                    <button
+                        onClick={clearFilters}
+                        className="flex items-center gap-1 text-sm font-semibold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 whitespace-nowrap px-2 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors animate-fade-in"
+                    >
+                        <X size={16} />
+                        Clear All
+                    </button>
+                )}
             </div>
 
         </div>
@@ -194,13 +258,7 @@ const Listings: React.FC = () => {
           <div className="text-center py-20 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
               <p className="text-gray-500 dark:text-gray-400 text-lg">No listings found matching your criteria.</p>
               <button 
-                onClick={() => {
-                    setSearchTerm(''); 
-                    setSelectedCategory('All');
-                    setLocationFilter('');
-                    setSortBy('Recommended');
-                    setShowOpenOnly(false);
-                }}
+                onClick={clearFilters}
                 className="mt-4 text-primary font-medium hover:underline"
               >
                   Clear all filters
