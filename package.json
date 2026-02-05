@@ -1,5 +1,5 @@
 {
-  "name": "instaconnect-ng---business-directory",
+  "name": "vendors-hub---business-directory",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,7 +15,8 @@
     "lucide-react": "^0.556.0",
     "recharts": "2.12.7",
     "chart.js": "4.4.1",
-    "react-chartjs-2": "5.2.0"
+    "react-chartjs-2": "5.2.0",
+    "@lottiefiles/react-lottie-player": "3.5.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

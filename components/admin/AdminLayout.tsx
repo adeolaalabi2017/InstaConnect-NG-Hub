@@ -98,9 +98,9 @@ const AdminLayout: React.FC = () => {
             <div className="h-24 flex items-center px-8 sticky top-0 bg-white dark:bg-[#151923] z-10">
                 <Link to="/" className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-600/30">
-                    I
+                    V
                 </div>
-                <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">InstaAdmin</span>
+                <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Hub Admin</span>
                 </Link>
             </div>
 

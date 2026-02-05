@@ -64,8 +64,8 @@ const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-dark dark:text-white text-lg">Email Us</h4>
-                  <p className="text-graytext dark:text-gray-400">support@instaconnect.ng</p>
-                  <p className="text-graytext dark:text-gray-400">partnerships@instaconnect.ng</p>
+                  <p className="text-graytext dark:text-gray-400">support@vendorshub.ng</p>
+                  <p className="text-graytext dark:text-gray-400">partnerships@vendorshub.ng</p>
                 </div>
               </div>
 

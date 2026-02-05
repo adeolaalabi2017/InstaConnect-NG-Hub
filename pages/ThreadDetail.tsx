@@ -147,6 +147,9 @@ const ThreadDetail: React.FC = () => {
     const initialThread = MOCK_COMMUNITY_THREADS.find(t => t.id === id);
     const [thread, setThread] = useState(initialThread);
     const [mainComment, setMainComment] = useState('');
+    
+    // Pagination State
+    const [visibleComments, setVisibleComments] = useState(20);
 
     if (!thread) {
         return (
@@ -228,6 +231,9 @@ const ThreadDetail: React.FC = () => {
             return { ...prev, upvotes: newUp, downvotes: newDown, userVote: newVote };
         });
     };
+
+    const displayedComments = thread.comments.slice(0, visibleComments);
+    const hasMoreComments = thread.comments.length > visibleComments;
 
     return (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
@@ -322,12 +328,25 @@ const ThreadDetail: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Comments Tree */}
+                    {/* Comments Tree with Pagination */}
                     <div className="space-y-6">
                         {thread.comments.length > 0 ? (
-                            thread.comments.map(comment => (
-                                <CommentNode key={comment.id} comment={comment} onReply={handleReply} />
-                            ))
+                            <>
+                                {displayedComments.map(comment => (
+                                    <CommentNode key={comment.id} comment={comment} onReply={handleReply} />
+                                ))}
+                                
+                                {hasMoreComments && (
+                                    <div className="text-center pt-6 pb-4">
+                                        <button 
+                                            onClick={() => setVisibleComments(prev => prev + 20)}
+                                            className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:border-primary dark:hover:border-primary transition-all shadow-sm"
+                                        >
+                                            Load more comments ({thread.comments.length - visibleComments} remaining)
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-center py-12 opacity-50">
                                 <MessageSquare size={48} className="mx-auto mb-2 text-gray-300" />

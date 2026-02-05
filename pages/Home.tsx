@@ -1,11 +1,95 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import BusinessCard from '../components/BusinessCard';
 import { MOCK_BUSINESSES, CATEGORIES } from '../constants';
 import * as Icons from 'lucide-react';
 import { TrendingUp, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const SponsoredCarousel: React.FC<{ businesses: any[] }> = ({ businesses }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  
+  // Adjust items per page based on window size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) setItemsPerPage(1);
+      else if (window.innerWidth < 1024) setItemsPerPage(2);
+      else setItemsPerPage(3);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const totalPages = Math.ceil(businesses.length / itemsPerPage);
+
+  if (businesses.length === 0) return null;
+
+  return (
+    <section className="py-12 bg-gradient-to-r from-yellow-50/50 to-white dark:from-yellow-900/10 dark:to-transparent overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <div className="bg-yellow-400 rounded-full p-1.5 text-white shadow-lg">
+              <Zap size={16} fill="currentColor" />
+            </div>
+            <h2 className="text-2xl font-bold text-dark dark:text-white tracking-tight">Sponsored Gems</h2>
+          </div>
+          
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setActiveIndex((prev) => (prev - 1 + totalPages) % totalPages)}
+              className="p-2 rounded-full glass border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-primary transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button 
+              onClick={() => setActiveIndex((prev) => (prev + 1) % totalPages)}
+              className="p-2 rounded-full glass border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-primary transition-colors"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+        
+        <div className="relative">
+          <div 
+            className="flex transition-transform duration-700 ease-in-out gap-6"
+            style={{ 
+              transform: `translateX(-${activeIndex * (100 + (6 * 100 / (itemsPerPage * 100)))}%)`, // Adjusting for gaps
+              width: `${(businesses.length / itemsPerPage) * 100}%` 
+            }}
+          >
+            {businesses.map((business) => (
+              <div 
+                key={business.id} 
+                className="px-1"
+                style={{ width: `${100 / businesses.length}%` }}
+              >
+                <BusinessCard business={business} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pagination Dots */}
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIndex(i)}
+              className={`h-1.5 rounded-full transition-all duration-300 ${activeIndex === i ? 'w-8 bg-primary' : 'w-2 bg-gray-300 dark:bg-gray-700'}`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const Home: React.FC = () => {
   // Sort businesses by viewCount descending to determine trending
@@ -36,25 +120,8 @@ const Home: React.FC = () => {
     <>
       <Hero />
       
-      {/* Sponsored Section */}
-      {promotedBusinesses.length > 0 && (
-          <section className="py-12 bg-gradient-to-r from-yellow-50/50 to-white dark:from-yellow-900/10 dark:to-transparent">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-               <div className="flex items-center gap-2 mb-6">
-                   <div className="bg-yellow-400 rounded-full p-1.5 text-white">
-                       <Zap size={16} fill="currentColor" />
-                   </div>
-                   <h2 className="text-xl font-bold text-dark dark:text-white">Sponsored Businesses</h2>
-               </div>
-               
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                   {promotedBusinesses.map((business) => (
-                       <BusinessCard key={business.id} business={business} />
-                   ))}
-               </div>
-            </div>
-          </section>
-      )}
+      {/* Sponsored Section without Auto-Carousel */}
+      <SponsoredCarousel businesses={promotedBusinesses} />
 
       {/* Featured Listings Carousel */}
       <section className="py-12 relative">
@@ -115,7 +182,7 @@ const Home: React.FC = () => {
               
               return (
                 <div key={cat.id} className="group cursor-pointer">
-                  <div className="glass-card rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+                  <div className="glass-card rounded-2xl p-6 shadow-xl shadow-gray-200/60 dark:shadow-none border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
                     <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-primary rounded-full flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
                       <IconComponent size={24} />
                     </div>
@@ -138,7 +205,7 @@ const Home: React.FC = () => {
                  Trending Businesses <TrendingUp className="text-primary" size={28} />
               </h2>
               <p className="text-graytext dark:text-gray-400 max-w-xl">
-                Check out the most viewed and engaging businesses on InstaConnect NG this week.
+                Check out the most viewed and engaging businesses on Vendors Hub this week.
               </p>
             </div>
             <Link to="/listings" className="text-primary font-semibold hover:text-red-700 mt-4 md:mt-0 flex items-center gap-1">

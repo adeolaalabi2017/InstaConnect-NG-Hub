@@ -17,7 +17,7 @@ const UserProfile: React.FC = () => {
     }
 
     const copyReferral = () => {
-        navigator.clipboard.writeText(`https://instaconnect.ng/signup?ref=${user.referralCode}`);
+        navigator.clipboard.writeText(`https://vendorshub.ng/signup?ref=${user.referralCode}`);
         alert("Referral link copied!");
     };
 
@@ -152,7 +152,7 @@ const UserProfile: React.FC = () => {
                             <Share2 size={20} className="text-purple-600 dark:text-purple-400" /> Refer & Earn
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-                            Invite friends to InstaConnect. Earn <strong>50 points</strong> for every friend who joins!
+                            Invite friends to Vendors Hub. Earn <strong>50 points</strong> for every friend who joins!
                         </p>
 
                         <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-xl p-3 flex items-center justify-between mb-4">

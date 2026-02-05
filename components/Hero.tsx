@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Grid, ArrowUpDown, X } from 'lucide-react';
+import { Player } from '@lottiefiles/react-lottie-player';
 import { NIGERIAN_LOCATIONS } from '../constants';
 import { contentService } from '../services/content';
 import { HeroConfig } from '../types';
@@ -20,6 +21,7 @@ const Hero: React.FC = () => {
   const bgImageRef = useRef<HTMLDivElement>(null);
   const orb1Ref = useRef<HTMLDivElement>(null);
   const orb2Ref = useRef<HTMLDivElement>(null);
+  const lottieRef = useRef<HTMLDivElement>(null);
   const locationWrapperRef = useRef<HTMLDivElement>(null);
 
   // Listen for config changes
@@ -82,6 +84,11 @@ const Hero: React.FC = () => {
         }
         if (orb2Ref.current) {
             orb2Ref.current.style.transform = `translate3d(${currentX * 30}px, ${currentY * -30}px, 0)`;
+        }
+
+        // Parallax for Lottie Vendor (Opposite direction for depth)
+        if (lottieRef.current) {
+            lottieRef.current.style.transform = `translate3d(${currentX * -20}px, ${currentY * 20}px, 0)`;
         }
 
         animationFrameId = requestAnimationFrame(animate);
@@ -185,6 +192,16 @@ const Hero: React.FC = () => {
           ))}
       </div>
 
+      {/* Lottie Animation Layer */}
+      <div ref={lottieRef} className="absolute bottom-[-50px] right-[-50px] w-[400px] md:w-[600px] h-[400px] md:h-[600px] z-0 opacity-100 dark:opacity-80 pointer-events-none hidden lg:block hardware-accelerated filter drop-shadow-xl">
+          <Player
+            autoplay
+            loop
+            src="https://assets8.lottiefiles.com/packages/lf20_47pyyfcf.json"
+            style={{ height: '100%', width: '100%' }}
+          />
+      </div>
+
       {/* Dynamic Background Orbs */}
       <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none select-none">
         {/* Top Right Orb Wrapper (Parallax) */}
@@ -218,7 +235,7 @@ const Hero: React.FC = () => {
 
         {/* Improved Search Bar */}
         {config.showSearchBar && (
-            <div className="glass-card p-2 rounded-3xl shadow-2xl shadow-primary/5 max-w-5xl mx-auto transform transition-all hover:scale-[1.005] animate-fade-in-up delay-200 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/50 dark:border-white/10">
+            <div className="glass-card p-2 rounded-3xl shadow-2xl shadow-black/20 dark:shadow-primary/5 max-w-5xl mx-auto transform transition-all hover:scale-[1.005] animate-fade-in-up delay-200 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/50 dark:border-white/10">
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-0">
                 
                 {/* Keyword Search */}

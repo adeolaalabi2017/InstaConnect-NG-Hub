@@ -31,7 +31,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => window.removeEventListener('site-config-updated', handleConfigUpdate);
   }, []);
 
-  const isActive = (path: string) => location.pathname === path ? 'text-primary font-semibold' : 'text-graytext dark:text-gray-300 hover:text-dark dark:hover:text-white';
+  // Increased font size to text-xl for better readability
+  const isActive = (path: string) => location.pathname === path ? 'text-primary font-semibold text-xl' : 'text-graytext dark:text-gray-300 hover:text-dark dark:hover:text-white text-xl';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,12 +53,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex space-x-6">
-                  <Link to="/" className={isActive('/')}>{headerConfig.navLinks.home}</Link>
-                  <Link to="/listings" className={isActive('/listings')}>{headerConfig.navLinks.listings}</Link>
-                  <Link to="/top-rated" className={isActive('/top-rated')}>{headerConfig.navLinks.reviews}</Link>
-                  <Link to="/events" className={isActive('/events')}>{headerConfig.navLinks.events}</Link>
-                  <Link to="/community" className={isActive('/community')}>{headerConfig.navLinks.community}</Link>
-                  <Link to="/contact" className={isActive('/contact')}>{headerConfig.navLinks.contact}</Link>
+                  {headerConfig.navLinks.map((link) => (
+                    <Link key={link.id} to={link.path} className={isActive(link.path)}>{link.label}</Link>
+                  ))}
                 </nav>
 
                 {/* User Profile & Actions */}
@@ -197,12 +195,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {isMobileMenuOpen && (
               <div className="md:hidden glass border-t border-white/20 dark:border-gray-700">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                  <Link to="/" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{headerConfig.navLinks.home}</Link>
-                  <Link to="/listings" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{headerConfig.navLinks.listings}</Link>
-                  <Link to="/top-rated" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{headerConfig.navLinks.reviews}</Link>
-                  <Link to="/events" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{headerConfig.navLinks.events}</Link>
-                  <Link to="/community" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{headerConfig.navLinks.community}</Link>
-                  <Link to="/contact" className="block px-3 py-2 rounded-md text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{headerConfig.navLinks.contact}</Link>
+                  {headerConfig.navLinks.map((link) => (
+                    // Increased mobile font size to text-lg
+                    <Link key={link.id} to={link.path} className="block px-3 py-2 rounded-md text-lg font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-white/10">{link.label}</Link>
+                  ))}
                 </div>
                 <div className="pt-4 pb-4 border-t border-gray-200 dark:border-gray-700">
                   {user ? (

@@ -1,21 +1,21 @@
 
 import { SiteConfig } from '../types';
 
-const CONFIG_KEY = 'insta_site_config';
+const CONFIG_KEY = 'vendors_hub_site_config';
 
 const DEFAULT_CONFIG: SiteConfig = {
   header: {
     isVisible: true,
-    logoText: 'InstaConnect NG',
+    logoText: 'Vendors Hub',
     showAuthButtons: true,
-    navLinks: {
-      home: 'Home',
-      listings: 'Listings',
-      reviews: 'Reviews',
-      events: 'Events',
-      community: 'Community',
-      contact: 'Contact'
-    }
+    navLinks: [
+      { id: '1', label: 'Home', path: '/' },
+      { id: '2', label: 'Listings', path: '/listings' },
+      { id: '3', label: 'Reviews', path: '/top-rated' },
+      { id: '4', label: 'Events', path: '/events' },
+      { id: '5', label: 'Community', path: '/community' },
+      { id: '6', label: 'Contact', path: '/contact' }
+    ]
   },
   hero: {
     isVisible: true,
@@ -30,7 +30,7 @@ const DEFAULT_CONFIG: SiteConfig = {
     isVisible: true,
     aboutText: 'Discover the best local businesses in your area. Your ultimate guide to dining, shopping, and services.',
     showSocialLinks: true,
-    copyrightText: '© 2024 InstaConnect NG. All rights reserved.'
+    copyrightText: '© 2024 Vendors Hub. All rights reserved.'
   }
 };
 
@@ -40,7 +40,14 @@ class ContentService {
   constructor() {
     const stored = localStorage.getItem(CONFIG_KEY);
     if (stored) {
-      this.config = JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Migration check: if navLinks is object (old format), reset to default or transform
+      if (parsed.header && parsed.header.navLinks && !Array.isArray(parsed.header.navLinks)) {
+          this.config = DEFAULT_CONFIG;
+          this.saveConfig(DEFAULT_CONFIG);
+      } else {
+          this.config = parsed;
+      }
     } else {
       this.config = DEFAULT_CONFIG;
       this.saveConfig(DEFAULT_CONFIG);
@@ -50,7 +57,14 @@ class ContentService {
   public getConfig(): SiteConfig {
     // Re-fetch to ensure we have latest if multiple tabs open (basic sync)
     const stored = localStorage.getItem(CONFIG_KEY);
-    return stored ? JSON.parse(stored) : this.config;
+    if (!stored) return this.config;
+    
+    const parsed = JSON.parse(stored);
+    // Safety check for old format on read
+    if (parsed.header && parsed.header.navLinks && !Array.isArray(parsed.header.navLinks)) {
+        return DEFAULT_CONFIG;
+    }
+    return parsed;
   }
 
   public saveConfig(newConfig: SiteConfig) {

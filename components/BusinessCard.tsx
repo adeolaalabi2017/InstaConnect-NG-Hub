@@ -15,7 +15,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
     
     const shareData = {
         title: business.name,
-        text: `Check out ${business.name} on InstaConnect NG!`,
+        text: `Check out ${business.name} on Vendors Hub!`,
         url: `${window.location.origin}/#/listing/${business.id}`,
     };
 

@@ -8,8 +8,8 @@ const AdminSettings: React.FC = () => {
     
     // --- State Management (Simulated) ---
     const [general, setGeneral] = useState({
-        siteName: 'InstaConnect NG',
-        supportEmail: 'support@instaconnect.ng',
+        siteName: 'Vendors Hub',
+        supportEmail: 'support@vendorshub.ng',
         maintenanceMode: false
     });
 
@@ -29,9 +29,9 @@ const AdminSettings: React.FC = () => {
     });
 
     const [seo, setSeo] = useState({
-        metaTitleSuffix: '| InstaConnect NG',
+        metaTitleSuffix: '| Vendors Hub',
         metaDescription: 'Discover the best local businesses in Nigeria.',
-        keywords: 'business directory, nigeria, lagos, abuja, listings',
+        keywords: 'business directory, nigeria, lagos, abuja, listings, vendors',
         enableSchema: true,
         generateSitemap: true
     });
@@ -309,7 +309,7 @@ const AdminSettings: React.FC = () => {
                                         onChange={(e) => setSeo({...seo, metaTitleSuffix: e.target.value})}
                                         placeholder="| Site Name"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">Appended to page titles (e.g., "Home | InstaConnect NG")</p>
+                                    <p className="text-xs text-gray-500 mt-1">Appended to page titles (e.g., "Home | Vendors Hub")</p>
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block">Default Meta Description</label>
@@ -331,6 +331,8 @@ const AdminSettings: React.FC = () => {
 
                             <div className="border-t border-slate-100 dark:border-slate-800 pt-6 space-y-4">
                                 <h4 className="font-bold text-sm text-slate-900 dark:text-white">Technical SEO</h4>
+                                
+                                {/* Schema Markup Toggle */}
                                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
                                     <div className="flex items-center gap-3">
                                         <Code className="text-blue-500" size={20} />
@@ -345,6 +347,7 @@ const AdminSettings: React.FC = () => {
                                     </label>
                                 </div>
 
+                                {/* Sitemap Generation Toggle */}
                                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
                                     <div className="flex items-center gap-3">
                                         <Search className="text-green-500" size={20} />
@@ -353,9 +356,10 @@ const AdminSettings: React.FC = () => {
                                             <div className="text-xs text-gray-500">Auto-update sitemap.xml when listings change.</div>
                                         </div>
                                     </div>
-                                    <Button size="sm" variant="outline" onClick={() => alert("Sitemap generated successfully!")}>
-                                        Generate Now
-                                    </Button>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" checked={seo.generateSitemap} onChange={(e) => setSeo({...seo, generateSitemap: e.target.checked})} />
+                                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                                    </label>
                                 </div>
                             </div>
 

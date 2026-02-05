@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock } from 'lucide-react';
+import { Player } from '@lottiefiles/react-lottie-player';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -28,8 +29,19 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="glass-card w-full max-w-md p-8 rounded-2xl shadow-xl animate-fade-in-up">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 relative overflow-hidden">
+      
+      {/* Subtle Background Animation */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px] opacity-[0.03] dark:opacity-[0.05] pointer-events-none z-0">
+          <Player
+            autoplay
+            loop
+            src="https://assets8.lottiefiles.com/packages/lf20_47pyyfcf.json"
+            style={{ height: '100%', width: '100%' }}
+          />
+      </div>
+
+      <div className="glass-card w-full max-w-md p-8 rounded-2xl shadow-xl animate-fade-in-up relative z-10">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-dark dark:text-white">Welcome Back</h2>
           <p className="text-graytext dark:text-gray-400 mt-2">Enter your credentials to access your account</p>

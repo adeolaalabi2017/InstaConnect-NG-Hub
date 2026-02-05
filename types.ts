@@ -11,12 +11,21 @@ export type Permission =
   | 'manage_orders'
   | 'create_review';
 
+export interface Product {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+}
+
 export interface Business {
   id: string;
   name: string;
   category: string;
   location: string;
   image: string;
+  logo?: string;
   rating: number;
   reviewCount: number;
   priceRange: string;
@@ -30,11 +39,13 @@ export interface Business {
   viewCount: number;
   ownerId?: string;
   isPromoted?: boolean;
-  credits: number; // Added credit field specific to the business profile
+  isFeatured?: boolean;
+  credits: number;
   createdAt?: string;
   lastActiveAt?: string;
   verificationStatus?: 'pending' | 'verified' | 'rejected';
-  status: 'active' | 'inactive'; // Active/Inactive status
+  status: 'active' | 'inactive';
+  products?: Product[]; // New field for vendor products
 }
 
 export interface Category {
@@ -50,7 +61,7 @@ export interface Review {
   userId: string;
   userName: string;
   userImage: string;
-  rating: number; // 1-5
+  rating: number;
   date: string;
   text: string;
   helpfulCount: number;
@@ -60,7 +71,7 @@ export interface Review {
     date: string;
   };
   status: 'active' | 'flagged' | 'hidden';
-  isRead?: boolean; // New field for vendor dashboard
+  isRead?: boolean;
 }
 
 export interface NotificationPreferences {
@@ -74,7 +85,7 @@ export interface User {
   email: string;
   image: string;
   role: Role;
-  credits: number; // User wallet (optional, or used for non-business transactions)
+  credits: number;
   badges: string[];
   reputationPoints: number;
   referralCode: string;
@@ -99,9 +110,9 @@ export interface Promotion {
   businessName: string;
   planId: string;
   planName: string;
-  cost: number; // Cost in credits
-  startDate: string; // ISO String
-  endDate: string; // ISO String
+  cost: number;
+  startDate: string;
+  endDate: string;
   status: 'active' | 'completed' | 'scheduled';
 }
 
@@ -110,8 +121,8 @@ export interface Transaction {
   businessId: string;
   businessName: string;
   type: 'credit_purchase' | 'promotion_spend';
-  amount: number; // Credits
-  amountNGN?: number; // Real currency cost (only for purchases)
+  amount: number;
+  amountNGN?: number;
   description: string;
   date: string;
   status: 'success' | 'failed' | 'pending';
@@ -121,7 +132,7 @@ export interface Event {
   id: string;
   title: string;
   description: string;
-  date: string; // ISO string YYYY-MM-DD
+  date: string;
   time: string;
   location: string;
   image: string;
@@ -143,23 +154,21 @@ export interface EventComment {
   status?: 'active' | 'flagged' | 'hidden';
 }
 
-// Table: PageView / EventLog
 export interface AnalyticsEvent {
   id: string;
   businessId: string;
-  type: 'view' | 'website_click' | 'call_click' | 'email_click' | 'whatsapp_click' | 'share';
+  type: 'view' | 'website_click' | 'call_click' | 'email_click' | 'whatsapp_click' | 'share' | 'instagram_click';
   timestamp: number;
   userId?: string;
 }
 
-// Table: DailyAnalytics
 export interface DailyMetric {
-  date: string; // Primary Key Part 1 (YYYY-MM-DD)
-  businessId: string; // Primary Key Part 2
+  date: string;
+  businessId: string;
   views: number;
   clicks: number;
   shares: number;
-  uniqueVisitors: number; // Count of distinct userIds
+  uniqueVisitors: number;
 }
 
 export interface Notification {
@@ -200,24 +209,21 @@ export interface AdPlacement {
   startDate: string;
   endDate: string;
   targeting: {
-    category?: string; // e.g., 'Food', 'Hotels'
+    category?: string;
   };
 }
 
-// --- CMS Configuration Types ---
+export interface NavLink {
+  id: string;
+  label: string;
+  path: string;
+}
 
 export interface HeaderConfig {
   isVisible: boolean;
   logoText: string;
   showAuthButtons: boolean;
-  navLinks: {
-    home: string;
-    listings: string;
-    reviews: string;
-    events: string;
-    community: string;
-    contact: string;
-  };
+  navLinks: NavLink[];
 }
 
 export interface HeroConfig {
@@ -243,7 +249,6 @@ export interface SiteConfig {
   footer: FooterConfig;
 }
 
-// --- Email Settings ---
 export interface SmtpConfig {
   host: string;
   port: number;
@@ -272,8 +277,6 @@ export type EmailConfig = {
   settings: SendGridConfig;
 };
 
-// --- Community Types ---
-
 export interface CommunityComment {
   id: string;
   author: {
@@ -289,7 +292,7 @@ export interface CommunityComment {
 export interface CommunityThread {
   id: string;
   title: string;
-  content: string; // HTML content
+  content: string;
   author: {
       name: string;
       image: string;

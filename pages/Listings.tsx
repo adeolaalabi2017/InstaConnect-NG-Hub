@@ -151,21 +151,25 @@ const Listings: React.FC = () => {
                     />
                     
                     {/* Suggestions Dropdown */}
-                    {showLocationSuggestions && locationSuggestions.length > 0 && (
-                        <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 max-h-60 overflow-y-auto z-50">
-                            {locationSuggestions.map((loc, index) => (
-                                <div 
-                                    key={index}
-                                    onClick={() => {
-                                        setLocationFilter(loc);
-                                        setShowLocationSuggestions(false);
-                                    }}
-                                    className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-dark dark:text-gray-200 flex items-center gap-2 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0"
-                                >
-                                    <MapPin size={14} className="text-gray-400" />
-                                    {loc}
-                                </div>
-                            ))}
+                    {showLocationSuggestions && (
+                        <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 max-h-60 overflow-y-auto z-50 animate-fade-in-up">
+                            {locationSuggestions.length > 0 ? (
+                                locationSuggestions.map((loc, index) => (
+                                    <div 
+                                        key={index}
+                                        onClick={() => {
+                                            setLocationFilter(loc);
+                                            setShowLocationSuggestions(false);
+                                        }}
+                                        className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-dark dark:text-gray-200 flex items-center gap-2 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0"
+                                    >
+                                        <MapPin size={14} className="text-gray-400" />
+                                        {loc}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="px-4 py-3 text-sm text-gray-400 italic">No locations found</div>
+                            )}
                         </div>
                     )}
                 </div>
