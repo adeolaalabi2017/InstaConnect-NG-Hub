@@ -3,6 +3,9 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import BusinessCard from '../components/BusinessCard';
+import StoryTray from '../components/StoryTray';
+import AiConcierge from '../components/AiConcierge';
+import ComparisonDrawer from '../components/ComparisonDrawer';
 import { MOCK_BUSINESSES, CATEGORIES } from '../constants';
 import * as Icons from 'lucide-react';
 import { TrendingUp, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,7 +14,6 @@ const SponsoredCarousel: React.FC<{ businesses: any[] }> = ({ businesses }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(3);
   
-  // Adjust items per page based on window size
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) setItemsPerPage(1);
@@ -59,7 +61,7 @@ const SponsoredCarousel: React.FC<{ businesses: any[] }> = ({ businesses }) => {
           <div 
             className="flex transition-transform duration-700 ease-in-out gap-6"
             style={{ 
-              transform: `translateX(-${activeIndex * (100 + (6 * 100 / (itemsPerPage * 100)))}%)`, // Adjusting for gaps
+              transform: `translateX(-${activeIndex * (100 + (6 * 100 / (itemsPerPage * 100)))}%)`,
               width: `${(businesses.length / itemsPerPage) * 100}%` 
             }}
           >
@@ -74,40 +76,24 @@ const SponsoredCarousel: React.FC<{ businesses: any[] }> = ({ businesses }) => {
             ))}
           </div>
         </div>
-
-        {/* Pagination Dots */}
-        <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveIndex(i)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${activeIndex === i ? 'w-8 bg-primary' : 'w-2 bg-gray-300 dark:bg-gray-700'}`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );
 };
 
 const Home: React.FC = () => {
-  // Sort businesses by viewCount descending to determine trending
   const trendingBusinesses = [...MOCK_BUSINESSES]
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, 3);
   
-  // Filter for promoted businesses
   const promotedBusinesses = MOCK_BUSINESSES.filter(b => b.isPromoted);
-
-  // Featured Listings (High rated)
   const featuredListings = MOCK_BUSINESSES.filter(b => b.rating >= 4.5).slice(0, 6);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
         const { current } = scrollContainerRef;
-        const scrollAmount = 350; // Approx card width
+        const scrollAmount = 350;
         if (direction === 'left') {
             current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
         } else {
@@ -118,12 +104,10 @@ const Home: React.FC = () => {
 
   return (
     <>
+      <StoryTray />
       <Hero />
-      
-      {/* Sponsored Section without Auto-Carousel */}
       <SponsoredCarousel businesses={promotedBusinesses} />
 
-      {/* Featured Listings Carousel */}
       <section className="py-12 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-end mb-6">
@@ -137,27 +121,12 @@ const Home: React.FC = () => {
                      <h2 className="text-3xl font-bold text-dark dark:text-white">Featured Listings</h2>
                 </div>
                 <div className="flex gap-2">
-                    <button 
-                        onClick={() => scroll('left')} 
-                        className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/30 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md flex items-center justify-center text-dark dark:text-white transition-all backdrop-blur-sm"
-                        aria-label="Scroll left"
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                    <button 
-                        onClick={() => scroll('right')} 
-                        className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/30 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md flex items-center justify-center text-dark dark:text-white transition-all backdrop-blur-sm"
-                        aria-label="Scroll right"
-                    >
-                        <ChevronRight size={20} />
-                    </button>
+                    <button onClick={() => scroll('left')} className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/30 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md flex items-center justify-center text-dark dark:text-white transition-all backdrop-blur-sm"><ChevronLeft size={20} /></button>
+                    <button onClick={() => scroll('right')} className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/30 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md flex items-center justify-center text-dark dark:text-white transition-all backdrop-blur-sm"><ChevronRight size={20} /></button>
                 </div>
             </div>
 
-            <div 
-                ref={scrollContainerRef}
-                className="flex gap-6 overflow-x-auto pb-8 pt-2 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth"
-            >
+            <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto pb-8 pt-2 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
                 {featuredListings.map(business => (
                     <div key={business.id} className="min-w-[85vw] sm:min-w-[340px] md:min-w-[380px] snap-center">
                         <BusinessCard business={business} />
@@ -167,27 +136,24 @@ const Home: React.FC = () => {
         </div>
       </section>
       
-      {/* Categories Section */}
       <section className="py-16 bg-white/50 dark:bg-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-dark dark:text-white mb-4">Browse by Category</h2>
-            <p className="text-graytext dark:text-gray-400">Find exactly what you are looking for</p>
+            <h2 className="text-3xl font-bold text-dark dark:text-white mb-4 uppercase tracking-widest font-black">Categories</h2>
+            <p className="text-graytext dark:text-gray-400 font-medium">What's on your mind today?</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {CATEGORIES.map((cat) => {
-              // Dynamically resolve icon component
               const IconComponent = (Icons as any)[cat.icon] || Icons.HelpCircle;
-              
               return (
                 <div key={cat.id} className="group cursor-pointer">
-                  <div className="glass-card rounded-2xl p-6 shadow-xl shadow-gray-200/60 dark:shadow-none border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
-                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-primary rounded-full flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                      <IconComponent size={24} />
+                  <div className="glass-card rounded-[2rem] p-8 shadow-xl shadow-gray-200/60 dark:shadow-none border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center hover:shadow-2xl hover:border-primary transition-all duration-300">
+                    <div className="w-14 h-14 bg-red-50 dark:bg-red-900/20 text-primary rounded-2xl flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                      <IconComponent size={28} />
                     </div>
-                    <h4 className="font-semibold text-dark dark:text-white text-sm mb-1">{cat.name}</h4>
-                    <span className="text-xs text-gray-400">{cat.count} listings</span>
+                    <h4 className="font-bold text-dark dark:text-white text-sm mb-1 uppercase tracking-tight">{cat.name}</h4>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{cat.count} Listings</span>
                   </div>
                 </div>
               );
@@ -196,20 +162,19 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Trending Businesses Grid */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-end mb-10">
             <div>
-              <h2 className="text-3xl font-bold text-dark dark:text-white mb-2 flex items-center gap-3">
-                 Trending Businesses <TrendingUp className="text-primary" size={28} />
+              <h2 className="text-3xl font-black text-dark dark:text-white mb-2 flex items-center gap-3 uppercase tracking-tighter">
+                 Trending Now <TrendingUp className="text-primary" size={32} />
               </h2>
-              <p className="text-graytext dark:text-gray-400 max-w-xl">
-                Check out the most viewed and engaging businesses on Vendors Hub this week.
+              <p className="text-slate-500 dark:text-slate-400 max-w-xl font-medium">
+                The hottest spots in Nigeria, ranked by real user engagement.
               </p>
             </div>
-            <Link to="/listings" className="text-primary font-semibold hover:text-red-700 mt-4 md:mt-0 flex items-center gap-1">
-              View All Listings &rarr;
+            <Link to="/listings" className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black px-6 py-3 rounded-2xl text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-md">
+              View All Listings
             </Link>
           </div>
 
@@ -221,27 +186,34 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-dark dark:bg-black relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/10 rounded-l-full blur-3xl"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between">
-          <div className="md:w-1/2 mb-8 md:mb-0">
-             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Get Our Monthly Newsletter</h2>
-             <p className="text-gray-400 mb-8">Select a category that best suits your interest. Use filters to customize your search and to find exactly what you want.</p>
-             <div className="flex gap-2 max-w-md">
-               <input type="email" placeholder="Your email address" className="flex-1 bg-white/10 backdrop-blur border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-primary" />
-               <button className="bg-white text-dark font-bold rounded-lg px-6 py-3 hover:bg-gray-100 transition-colors">Subscribe</button>
-             </div>
-          </div>
-          <div className="md:w-1/3">
-             {/* Abstract Graphic Placeholder */}
-             <div className="w-full aspect-square bg-gradient-to-tr from-primary to-secondary rounded-2xl opacity-20 rotate-6 transform translate-y-4"></div>
-             <div className="w-full aspect-square bg-gradient-to-tr from-primary to-secondary rounded-2xl opacity-40 -rotate-6 transform -translate-y-full border-4 border-white/10"></div>
-          </div>
-        </div>
-      </section>
+      <CTASection />
+      <AiConcierge />
+      <ComparisonDrawer />
     </>
   );
 };
+
+const CTASection = () => (
+    <section className="py-20 bg-dark dark:bg-black relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/10 rounded-l-full blur-3xl"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between">
+          <div className="md:w-1/2 mb-8 md:mb-0">
+             <h2 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight">Elevate your business visibility.</h2>
+             <p className="text-slate-400 mb-10 text-lg font-medium">Join thousands of verified vendors and connect with local customers in real-time.</p>
+             <div className="flex gap-4 max-w-md">
+               <input type="email" placeholder="Email address" className="flex-1 bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all" />
+               <button className="bg-primary text-white font-black rounded-2xl px-8 py-4 hover:bg-red-600 transition-all shadow-xl shadow-red-500/20 active:scale-95 uppercase text-xs tracking-widest">Join</button>
+             </div>
+          </div>
+          <div className="md:w-1/3 flex justify-center relative">
+             <div className="w-64 h-64 bg-primary/20 rounded-full blur-[100px] absolute"></div>
+             <div className="relative glass-card p-10 rounded-[3rem] border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700">
+                <Icons.Store size={80} className="text-primary mb-4" />
+                <h3 className="text-white font-black text-xl uppercase tracking-tighter">Become a Gold Vendor</h3>
+             </div>
+          </div>
+        </div>
+      </section>
+);
 
 export default Home;

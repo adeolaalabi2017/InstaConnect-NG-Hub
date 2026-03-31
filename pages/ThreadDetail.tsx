@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowBigUp, ArrowBigDown, MessageSquare, Share2, MoreHorizontal, Send, CornerDownRight } from 'lucide-react';
+import { ArrowLeft, ArrowBigUp, ArrowBigDown, MessageSquare, Share2, MoreHorizontal, Send, CornerDownRight, ListFilter } from 'lucide-react';
 import { MOCK_COMMUNITY_THREADS } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { CommunityComment } from '../types';
@@ -138,6 +138,8 @@ const CommentNode: React.FC<CommentNodeProps> = ({
     );
 };
 
+type CommentSort = 'Newest' | 'Oldest' | 'Upvoted' | 'Controversial';
+
 const ThreadDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
@@ -147,6 +149,7 @@ const ThreadDetail: React.FC = () => {
     const initialThread = MOCK_COMMUNITY_THREADS.find(t => t.id === id);
     const [thread, setThread] = useState(initialThread);
     const [mainComment, setMainComment] = useState('');
+    const [sortBy, setSortBy] = useState<CommentSort>('Newest');
     
     // Pagination State
     const [visibleComments, setVisibleComments] = useState(20);
@@ -232,7 +235,26 @@ const ThreadDetail: React.FC = () => {
         });
     };
 
-    const displayedComments = thread.comments.slice(0, visibleComments);
+    // Sort comments based on selected criteria
+    const sortedComments = useMemo(() => {
+        const comments = [...thread.comments];
+        switch (sortBy) {
+            case 'Newest':
+                // Assuming IDs for new comments are higher or they were added later in the array
+                return comments.reverse();
+            case 'Oldest':
+                return comments;
+            case 'Upvoted':
+                return comments.sort((a, b) => b.upvotes - a.upvotes);
+            case 'Controversial':
+                // Defined as comments with the most replies in this mock context
+                return comments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
+            default:
+                return comments;
+        }
+    }, [thread.comments, sortBy]);
+
+    const displayedComments = sortedComments.slice(0, visibleComments);
     const hasMoreComments = thread.comments.length > visibleComments;
 
     return (
@@ -327,6 +349,26 @@ const ThreadDetail: React.FC = () => {
                             </div>
                         </div>
                     )}
+
+                    {/* Sort Options */}
+                    <div className="flex items-center justify-between mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
+                        <h3 className="font-bold text-dark dark:text-white text-lg flex items-center gap-2">
+                            Discussions <span className="text-gray-400 font-medium">({thread.commentCount})</span>
+                        </h3>
+                        <div className="flex items-center gap-2">
+                            <ListFilter size={16} className="text-gray-400" />
+                            <select 
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value as CommentSort)}
+                                className="bg-transparent border-none text-sm font-bold text-gray-500 dark:text-gray-400 focus:outline-none cursor-pointer hover:text-primary dark:hover:text-white transition-colors"
+                            >
+                                <option value="Newest">Newest First</option>
+                                <option value="Oldest">Oldest First</option>
+                                <option value="Upvoted">Most Upvoted</option>
+                                <option value="Controversial">Most Controversial</option>
+                            </select>
+                        </div>
+                    </div>
 
                     {/* Comments Tree with Pagination */}
                     <div className="space-y-6">

@@ -16,7 +16,8 @@
     "recharts": "2.12.7",
     "chart.js": "4.4.1",
     "react-chartjs-2": "5.2.0",
-    "@lottiefiles/react-lottie-player": "3.5.4"
+    "@lottiefiles/react-lottie-player": "3.5.4",
+    "@google/genai": "^1.41.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

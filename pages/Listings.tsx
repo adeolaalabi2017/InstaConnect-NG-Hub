@@ -221,19 +221,30 @@ const Listings: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Open Now Checkbox */}
-                <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 whitespace-nowrap h-full">
-                    <input 
-                        id="listing-open"
-                        type="checkbox"
-                        checked={showOpenOnly}
-                        onChange={(e) => setShowOpenOnly(e.target.checked)}
-                        className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer accent-primary ml-1"
-                    />
-                    <label htmlFor="listing-open" className="text-sm font-medium text-dark dark:text-white cursor-pointer select-none flex items-center gap-1.5">
+                {/* Open Now Toggle */}
+                <div 
+                    className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 whitespace-nowrap h-full cursor-pointer"
+                    onClick={() => setShowOpenOnly(!showOpenOnly)}
+                >
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showOpenOnly}
+                        className={`${
+                            showOpenOnly ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                        } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+                    >
+                        <span
+                            aria-hidden="true"
+                            className={`${
+                                showOpenOnly ? 'translate-x-5' : 'translate-x-0'
+                            } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+                        />
+                    </button>
+                    <span className="text-sm font-medium text-dark dark:text-white cursor-pointer select-none flex items-center gap-1.5 pointer-events-none">
                         <Clock size={16} className={showOpenOnly ? "text-primary" : "text-gray-400"} />
                         Open Now
-                    </label>
+                    </span>
                 </div>
 
                 {/* Clear All Filters */}

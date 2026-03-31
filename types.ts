@@ -1,6 +1,7 @@
 
 export type Role = 'consumer' | 'vendor' | 'admin' | 'editor' | 'viewer';
 
+// Define Permission type for role-based access control
 export type Permission = 
   | 'view_admin_dashboard'
   | 'manage_users' 
@@ -10,6 +11,28 @@ export type Permission =
   | 'manage_marketing'
   | 'manage_orders'
   | 'create_review';
+
+export type VerificationLevel = 'none' | 'silver' | 'gold';
+
+// Define Badge interface for user reputation system
+export interface Badge {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  description: string;
+}
+
+export interface Story {
+  id: string;
+  businessId: string;
+  businessName: string;
+  businessLogo: string;
+  image: string;
+  caption: string;
+  timestamp: string;
+  isViewed?: boolean;
+}
 
 export interface Product {
   id: string;
@@ -44,8 +67,10 @@ export interface Business {
   createdAt?: string;
   lastActiveAt?: string;
   verificationStatus?: 'pending' | 'verified' | 'rejected';
+  verificationLevel?: VerificationLevel;
   status: 'active' | 'inactive';
-  products?: Product[]; // New field for vendor products
+  products?: Product[];
+  amenities?: string[];
 }
 
 export interface Category {
@@ -94,14 +119,7 @@ export interface User {
   status?: 'active' | 'banned';
   createdAt?: string;
   lastActiveAt?: string;
-}
-
-export interface Badge {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-  description: string;
+  mayorTitles?: string[];
 }
 
 export interface Promotion {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_BUSINESSES, MOCK_REVIEWS } from '../constants';
-import { Star, MapPin, Phone, Mail, Globe, Share2, Heart, Clock, CheckCircle, Instagram, MessageCircle, Facebook, Twitter, Link as LinkIcon, Check, Filter, ArrowUpDown, ShieldCheck, ToggleLeft, ToggleRight, ChevronLeft, ChevronRight, Package, ShoppingCart } from 'lucide-react';
+import { Star, MapPin, Phone, Mail, Globe, Share2, Heart, Clock, CheckCircle, Instagram, MessageCircle, Facebook, Twitter, Link as LinkIcon, Check, Filter, ArrowUpDown, ShieldCheck, ToggleLeft, ToggleRight, ChevronLeft, ChevronRight, Package, ShoppingCart, Plus, Edit3, Trash2, X, UploadCloud, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import BusinessCard from '../components/BusinessCard';
 import { ReviewForm, RatingBreakdown, ReviewCard } from '../components/ReviewSystem';
@@ -10,7 +10,12 @@ import { Review, Product } from '../types';
 import { analyticsService } from '../services/analytics';
 import { notificationService } from '../services/notification';
 
-const ProductCarousel: React.FC<{ products: Product[] }> = ({ products }) => {
+const ProductCarousel: React.FC<{ 
+    products: Product[], 
+    isOwner: boolean, 
+    onEdit: (p: Product) => void, 
+    onAdd: () => void 
+}> = ({ products, isOwner, onEdit, onAdd }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: 'left' | 'right') => {
@@ -25,49 +30,83 @@ const ProductCarousel: React.FC<{ products: Product[] }> = ({ products }) => {
         }
     };
 
-    if (products.length === 0) return null;
-
     return (
-        <div className="glass-card p-6 rounded-2xl mb-8 relative">
+        <div className="glass-card p-6 rounded-2xl mb-8 relative border-white/40 dark:border-white/5 shadow-xl">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-dark dark:text-white flex items-center gap-2">
-                    <Package className="text-primary" size={24} />
-                    Featured Products & Services
-                </h3>
+                <div className="flex items-center gap-2">
+                    <div className="bg-primary/10 p-2 rounded-lg text-primary">
+                        <Package size={20} />
+                    </div>
+                    <h3 className="text-xl font-bold text-dark dark:text-white">
+                        Featured Selection
+                    </h3>
+                </div>
                 <div className="flex gap-2">
+                    {isOwner && products.length < 5 && (
+                        <button 
+                            onClick={onAdd}
+                            className="mr-2 flex items-center gap-1.5 text-xs font-bold bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all shadow-md shadow-red-500/20"
+                        >
+                            <Plus size={14} /> Add Product
+                        </button>
+                    )}
                     <button onClick={() => scroll('left')} className="p-2 rounded-full border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={20} className="text-gray-400" />
                     </button>
                     <button onClick={() => scroll('right')} className="p-2 rounded-full border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <ChevronRight size={20} />
+                        <ChevronRight size={20} className="text-gray-400" />
                     </button>
                 </div>
             </div>
 
-            <div 
-                ref={scrollRef}
-                className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
-            >
-                {products.map((product) => (
-                    <div key={product.id} className="min-w-[240px] max-w-[240px] bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 snap-center shadow-sm hover:shadow-md transition-all group">
-                        <div className="h-40 relative overflow-hidden">
-                            <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            <div className="absolute top-2 right-2 bg-white/90 dark:bg-black/80 px-2 py-0.5 rounded text-[10px] font-bold text-dark dark:text-white shadow-sm border border-white/20">
-                                {product.quantity} in stock
+            {products.length > 0 ? (
+                <div 
+                    ref={scrollRef}
+                    className="flex gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
+                >
+                    {products.map((product) => (
+                        <div key={product.id} className="min-w-[260px] max-w-[260px] glass-card rounded-2xl overflow-hidden border-white/50 dark:border-white/5 snap-center shadow-lg hover:shadow-2xl transition-all duration-300 group relative">
+                            <div className="h-44 relative overflow-hidden">
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                                    <div className="bg-white/90 dark:bg-black/80 backdrop-blur px-2.5 py-1 rounded-lg text-[11px] font-black text-dark dark:text-white shadow-sm border border-white/20">
+                                        ₦{product.price.toLocaleString()}
+                                    </div>
+                                    {product.quantity <= 3 && (
+                                        <div className="bg-orange-500/90 backdrop-blur px-2.5 py-1 rounded-lg text-[9px] font-black text-white uppercase tracking-wider animate-pulse">
+                                            Only {product.quantity} Left
+                                        </div>
+                                    )}
+                                </div>
+                                {isOwner && (
+                                    <button 
+                                        onClick={() => onEdit(product)}
+                                        className="absolute top-3 right-3 p-2 bg-white/90 dark:bg-slate-800/90 rounded-full text-primary opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                    >
+                                        <Edit3 size={14} />
+                                    </button>
+                                )}
                             </div>
-                        </div>
-                        <div className="p-4">
-                            <h4 className="font-bold text-dark dark:text-white text-sm mb-1 truncate">{product.name}</h4>
-                            <div className="flex justify-between items-center mt-3">
-                                <span className="text-primary font-black">₦{product.price.toLocaleString()}</span>
-                                <button className="bg-gray-50 dark:bg-gray-700 p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors">
-                                    <ShoppingCart size={16} />
+                            <div className="p-4 bg-white/50 dark:bg-transparent">
+                                <h4 className="font-bold text-dark dark:text-white text-sm mb-3 truncate">{product.name}</h4>
+                                <button className="w-full bg-dark dark:bg-white dark:text-dark text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary dark:hover:bg-primary dark:hover:text-white transition-all transform active:scale-95">
+                                    <ShoppingCart size={14} /> Contact to Buy
                                 </button>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="py-12 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl">
+                    <Package className="mx-auto text-gray-200 dark:text-gray-700 mb-2" size={48} />
+                    <p className="text-gray-400 text-sm font-medium">No products showcased yet.</p>
+                    {isOwner && (
+                        <button onClick={onAdd} className="mt-4 text-primary font-bold hover:underline flex items-center gap-1 mx-auto">
+                            <Plus size={16} /> Click here to add your first product
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
@@ -84,10 +123,17 @@ const BusinessDetail: React.FC = () => {
   const business = MOCK_BUSINESSES.find(b => b.id === id);
   const [isActiveListing, setIsActiveListing] = useState(false);
 
+  // Product Modal State
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productFormData, setProductFormData] = useState({ name: '', price: '', quantity: '', image: '' });
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
+
   useEffect(() => {
       if (business) {
           analyticsService.trackEvent('view', business.id, user?.id);
           setIsActiveListing(business.status === 'active');
+          setLocalProducts(business.products || []);
       }
   }, [business, user]);
 
@@ -96,8 +142,49 @@ const BusinessDetail: React.FC = () => {
   );
 
   if (!business) {
-    return <div className="text-center py-20 text-dark dark:text-white">Business not found</div>;
+    return <div className="text-center py-20 text-dark dark:text-white font-bold">Business not found</div>;
   }
+
+  const handleOpenProductModal = (product?: Product) => {
+      if (product) {
+          setEditingProduct(product);
+          setProductFormData({ 
+              name: product.name, 
+              price: product.price.toString(), 
+              quantity: product.quantity.toString(), 
+              image: product.image 
+          });
+      } else {
+          setEditingProduct(null);
+          setProductFormData({ name: '', price: '', quantity: '', image: '' });
+      }
+      setIsProductModalOpen(true);
+  };
+
+  const handleSaveProduct = (e: React.FormEvent) => {
+      e.preventDefault();
+      const productData: Product = {
+          id: editingProduct?.id || Date.now().toString(),
+          name: productFormData.name,
+          price: parseInt(productFormData.price),
+          quantity: parseInt(productFormData.quantity),
+          image: productFormData.image || 'https://picsum.photos/seed/prod/400/300'
+      };
+
+      if (editingProduct) {
+          setLocalProducts(localProducts.map(p => p.id === productData.id ? productData : p));
+      } else {
+          setLocalProducts([...localProducts, productData]);
+      }
+      setIsProductModalOpen(false);
+  };
+
+  const handleDeleteProduct = () => {
+      if (editingProduct && window.confirm('Permanently delete this product?')) {
+          setLocalProducts(localProducts.filter(p => p.id !== editingProduct.id));
+          setIsProductModalOpen(false);
+      }
+  };
 
   const getProcessedReviews = () => {
       let filtered = reviews;
@@ -134,53 +221,23 @@ const BusinessDetail: React.FC = () => {
       }
   };
 
+  const handleVendorReply = (reviewId: string, text: string) => {
+      setReviews(prevReviews => prevReviews.map(r => 
+          r.id === reviewId ? { ...r, reply: { text, date: new Date().toISOString() }, isRead: true } : r
+      ));
+  };
+
   const handleReportReview = (reviewId: string) => {
       setReviews(prevReviews => prevReviews.map(r => 
           r.id === reviewId ? { ...r, status: 'flagged' } : r
       ));
   };
 
-  const handleContactClick = (type: 'call_click' | 'email_click' | 'whatsapp_click' | 'website_click' | 'instagram_click') => {
-      analyticsService.trackEvent(type, business.id, user?.id);
-  };
-
-  const handleShare = () => {
-      analyticsService.trackEvent('share', business.id, user?.id);
-  };
-
-  const handleClaimListing = () => {
-      if (window.confirm(`Are you the owner of ${business.name}? Click OK to request verification.`)) {
-          alert("Verification request submitted! Our team will contact you shortly.");
-      }
-  };
-
-  const relatedBusinesses = MOCK_BUSINESSES
-    .filter(b => b.category === business.category && b.id !== business.id)
-    .slice(0, 4);
-
-  const shareUrl = window.location.href;
-  const shareText = `Check out ${business.name} on Vendors Hub!`;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    handleShare();
-    setTimeout(() => {
-        setCopied(false);
-        setShowShareMenu(false);
-    }, 2000);
-  };
-
-  const handleToggleStatus = () => {
-      if (window.confirm(`Are you sure you want to ${isActiveListing ? 'deactivate' : 'activate'} this listing? This will affect its visibility on the platform.`)) {
-          setIsActiveListing(!isActiveListing);
-      }
-  };
-
-  const canManage = user?.role === 'admin' || (user?.role === 'vendor' && user?.id === business.ownerId);
+  const isOwner = user?.id === business.ownerId || user?.role === 'admin';
 
   return (
     <div className="pb-20" onClick={() => showShareMenu && setShowShareMenu(false)}>
+      {/* Header Profile Section */}
       <div className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-gray-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -196,7 +253,7 @@ const BusinessDetail: React.FC = () => {
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h1 className="text-2xl md:text-3xl font-bold text-dark dark:text-white">{business.name}</h1>
                         <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-md">{business.rating}</span>
-                        {!isActiveListing && canManage && (
+                        {!isActiveListing && isOwner && (
                             <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded-md border border-red-200">Inactive</span>
                         )}
                     </div>
@@ -218,49 +275,14 @@ const BusinessDetail: React.FC = () => {
                 </div>
              </div>
              <div className="flex gap-3 relative z-20 w-full md:w-auto mt-4 md:mt-0 flex-wrap">
-                {canManage && (
-                    <button 
-                        onClick={handleToggleStatus}
-                        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border rounded-lg font-medium transition-colors ${isActiveListing ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-gray-50 border-gray-200 text-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'}`}
-                        title={isActiveListing ? "Deactivate Listing" : "Activate Listing"}
-                    >
-                        {isActiveListing ? <ToggleRight size={24} className="fill-current" /> : <ToggleLeft size={24} />}
-                        {isActiveListing ? 'Active' : 'Inactive'}
+                {isOwner && (
+                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-red-600 font-medium transition-colors shadow-lg shadow-red-500/20">
+                        <Edit3 size={18} /> Manage Business
                     </button>
                 )}
                 <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-dark dark:text-white font-medium transition-colors">
                     <Heart size={18} /> Save
                 </button>
-                <div className="relative flex-1 md:flex-none">
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setShowShareMenu(!showShareMenu);
-                        }}
-                        className={`w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 border rounded-lg font-medium transition-colors ${showShareMenu ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                    >
-                        <Share2 size={18} /> Share
-                    </button>
-                    {showShareMenu && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-2 animate-fade-in-up origin-top-right z-30">
-                            <div className="text-xs font-semibold text-gray-400 px-3 py-2 uppercase tracking-wider">Share via</div>
-                            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" onClick={handleShare} className="flex items-center gap-3 px-3 py-2 text-dark dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors text-sm font-medium">
-                                <Facebook size={18} className="text-blue-600" /> Facebook
-                            </a>
-                            <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" onClick={handleShare} className="flex items-center gap-3 px-3 py-2 text-dark dark:text-gray-200 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-lg transition-colors text-sm font-medium">
-                                <Twitter size={18} className="text-sky-500" /> Twitter
-                            </a>
-                            <a href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} target="_blank" rel="noopener noreferrer" onClick={handleShare} className="flex items-center gap-3 px-3 py-2 text-dark dark:text-gray-200 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors text-sm font-medium">
-                                <MessageCircle size={18} className="text-green-500" /> WhatsApp
-                            </a>
-                            <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
-                            <button onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="w-full flex items-center gap-3 px-3 py-2 text-dark dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left text-sm font-medium">
-                                {copied ? <Check size={18} className="text-green-600" /> : <LinkIcon size={18} className="text-gray-400" />}
-                                {copied ? 'Copied!' : 'Copy Link'}
-                            </button>
-                        </div>
-                    )}
-                </div>
              </div>
           </div>
         </div>
@@ -268,19 +290,13 @@ const BusinessDetail: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
+            {/* Cover Image */}
             <div className="rounded-2xl overflow-hidden shadow-lg h-64 sm:h-96 relative group">
-                <img src={business.image} alt={business.name} loading="lazy" className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ${!isActiveListing ? 'grayscale' : ''}`} />
-                {!isActiveListing && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-lg">Listing Inactive</span>
-                    </div>
-                )}
+                <img src={business.image} alt={business.name} loading="lazy" className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700`} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute bottom-4 right-4">
-                    <button className="bg-white/90 dark:bg-black/80 backdrop-blur px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white dark:hover:bg-black text-dark dark:text-white shadow-sm transition-all">View All Photos</button>
-                </div>
             </div>
 
+            {/* About Section */}
             <div className="glass-card p-6 rounded-2xl">
                 <h3 className="text-xl font-bold text-dark dark:text-white mb-4">About Business</h3>
                 <p className="text-graytext dark:text-gray-300 leading-relaxed mb-6 text-sm sm:text-base">
@@ -297,11 +313,15 @@ const BusinessDetail: React.FC = () => {
                 </div>
             </div>
 
-            {/* Product Carousel Section */}
-            {business.products && business.products.length > 0 && (
-                <ProductCarousel products={business.products} />
-            )}
+            {/* PRODUCT CAROUSEL INTEGRATION */}
+            <ProductCarousel 
+                products={localProducts} 
+                isOwner={isOwner} 
+                onEdit={handleOpenProductModal}
+                onAdd={() => handleOpenProductModal()}
+            />
 
+            {/* Reviews Section */}
             <div id="reviews">
                 <h3 className="text-2xl font-bold text-dark dark:text-white mb-6 flex items-center gap-2">
                     Reviews <span className="text-gray-400 text-lg font-medium">({reviews.length})</span>
@@ -328,83 +348,118 @@ const BusinessDetail: React.FC = () => {
                         </Link>
                     </div>
                 )}
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                         <div className="relative w-full sm:w-auto">
-                            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="w-full sm:w-auto appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-dark dark:text-white text-sm font-medium rounded-lg pl-9 pr-8 py-2 focus:outline-none focus:border-primary cursor-pointer">
-                                <option value="recent">Most Recent</option>
-                                <option value="helpful">Most Helpful</option>
-                                <option value="highest">Highest Rated</option>
-                                <option value="lowest">Lowest Rated</option>
-                            </select>
-                            <ArrowUpDown size={14} className="absolute left-3 top-2.5 text-gray-400" />
-                         </div>
-                    </div>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto no-scrollbar">
-                        <span className="text-sm text-gray-400 font-medium whitespace-nowrap">Filter by:</span>
-                        <button onClick={() => setFilterRating('all')} className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${filterRating === 'all' ? 'bg-dark dark:bg-white text-white dark:text-dark' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>All</button>
-                        {[5, 4, 3, 2, 1].map(star => (
-                            <button key={star} onClick={() => setFilterRating(star)} className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1 ${filterRating === star ? 'bg-yellow-400 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>{star} <Star size={10} className="fill-current" /></button>
-                        ))}
-                    </div>
-                </div>
-                {processedReviews.length > 0 ? (
-                    processedReviews.map(review => (
-                        <ReviewCard key={review.id} review={review} currentUser={user} isOwner={user?.role === 'vendor' && user?.id === business.ownerId} onReport={handleReportReview} />
-                    ))
-                ) : (
-                    <div className="text-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-dashed border-2 border-gray-200 dark:border-gray-700 text-gray-400">No reviews found matching your criteria.</div>
-                )}
+                {processedReviews.map(review => (
+                    <ReviewCard key={review.id} review={review} currentUser={user} isOwner={isOwner} onReport={handleReportReview} onReply={handleVendorReply} />
+                ))}
             </div>
         </div>
 
+        {/* Sidebar Info */}
         <div className="space-y-6">
             <div className="glass-card p-6 rounded-2xl sticky top-24">
                 <h3 className="text-lg font-bold text-dark dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">Contact Info</h3>
                 <div className="space-y-4 mb-6">
                     <div className="flex items-start gap-3 text-graytext dark:text-gray-300"><MapPin className="mt-1 text-primary shrink-0" size={18} /><span className="text-sm">{business.location}</span></div>
-                    <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><Phone className="text-primary shrink-0" size={18} /><a href={`tel:${business.phone}`} onClick={() => handleContactClick('call_click')} className="text-sm hover:text-primary transition-colors">{business.phone}</a></div>
-                    <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><Mail className="text-primary shrink-0" size={18} /><a href={`mailto:${business.email}`} onClick={() => handleContactClick('email_click')} className="text-sm hover:text-primary transition-colors">{business.email}</a></div>
-                    {business.instagramHandle && (
-                      <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><Instagram className="text-primary shrink-0" size={18} /><a href={`https://instagram.com/${business.instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-primary transition-colors" onClick={() => handleContactClick('instagram_click')}>@{business.instagramHandle}</a></div>
-                    )}
-                    {business.whatsapp && (
-                      <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><MessageCircle className="text-primary shrink-0" size={18} /><a href={`https://wa.me/${business.whatsapp.replace(/\+/g, '')}`} onClick={() => handleContactClick('whatsapp_click')} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-primary transition-colors">Chat on WhatsApp</a></div>
-                    )}
-                    <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><Globe className="text-primary shrink-0" size={18} /><a href="#" onClick={() => handleContactClick('website_click')} className="text-sm hover:text-primary transition-colors">www.website.com</a></div>
-                </div>
-                <div className="mb-6">
-                    <h4 className="font-semibold text-dark dark:text-white mb-2 text-sm flex items-center gap-2"><Clock size={16} /> Opening Hours</h4>
-                    <div className="flex justify-between text-sm text-graytext dark:text-gray-400 mb-1"><span>Monday - Friday</span><span>09:00 - 20:00</span></div>
-                    <div className="flex justify-between text-sm text-graytext dark:text-gray-400"><span>Saturday - Sunday</span><span>10:00 - 22:00</span></div>
+                    <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><Phone className="text-primary shrink-0" size={18} /><a href={`tel:${business.phone}`} className="text-sm hover:text-primary transition-colors">{business.phone}</a></div>
+                    <div className="flex items-center gap-3 text-graytext dark:text-gray-300"><Mail className="text-primary shrink-0" size={18} /><a href={`mailto:${business.email}`} className="text-sm hover:text-primary transition-colors">{business.email}</a></div>
                 </div>
                 {business.whatsapp && (
-                   <a href={`https://wa.me/${business.whatsapp.replace(/\+/g, '')}`} onClick={() => handleContactClick('whatsapp_click')} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-500/30 transition-all mb-3 flex items-center justify-center gap-2"><MessageCircle size={20} /> WhatsApp Us</a>
+                   <a href={`https://wa.me/${business.whatsapp.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-500/30 transition-all mb-3 flex items-center justify-center gap-2"><MessageCircle size={20} /> WhatsApp Us</a>
                 )}
                 {business.instagramHandle && (
-                   <a href={`https://instagram.com/${business.instagramHandle}`} onClick={() => handleContactClick('instagram_click')} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-gradient-to-tr from-purple-600 via-pink-600 to-yellow-500 hover:opacity-90 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-500/30 transition-all mb-3 flex items-center justify-center gap-2"><Instagram size={20} /> Instagram</a>
+                   <a href={`https://instagram.com/${business.instagramHandle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] hover:opacity-90 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-500/20 transition-all mb-3 flex items-center justify-center gap-2">
+                       <Instagram size={20} /> Follow on Instagram
+                   </a>
                 )}
-                {!business.whatsapp && !business.instagramHandle && (
-                  <button className="w-full bg-primary hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-500/30 transition-all mb-3">Send Message</button>
-                )}
-                <a href={`tel:${business.phone}`} onClick={() => handleContactClick('call_click')} className="block w-full text-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-dark dark:text-white font-bold py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">Call Now</a>
-                {user?.role === 'vendor' && user?.id !== business.ownerId && (
-                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
-                        <button onClick={handleClaimListing} className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-dark dark:hover:text-white font-medium transition-colors"><ShieldCheck size={16} /> Claim this listing</button>
-                    </div>
-                )}
+                <a href={`tel:${business.phone}`} className="block w-full text-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-dark dark:text-white font-bold py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">Call Now</a>
             </div>
         </div>
       </div>
-      {relatedBusinesses.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 border-t border-gray-100 dark:border-gray-800 pt-12">
-           <h3 className="text-2xl font-bold text-dark dark:text-white mb-6">You Might Also Like</h3>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               {relatedBusinesses.map(b => (
-                   <BusinessCard key={b.id} business={b} />
-               ))}
-           </div>
-        </div>
+
+      {/* PRODUCT MANAGEMENT MODAL (Only for Owners) */}
+      {isProductModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-white/20">
+                  <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">
+                      <h3 className="font-bold text-xl text-dark dark:text-white flex items-center gap-2">
+                          <Package className="text-primary" /> {editingProduct ? 'Update Item' : 'New Showcase Item'}
+                      </h3>
+                      <button onClick={() => setIsProductModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400">
+                          <X size={20} />
+                      </button>
+                  </div>
+                  <form onSubmit={handleSaveProduct} className="p-6 space-y-5">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl flex items-start gap-2 mb-2">
+                          <AlertCircle size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                          <p className="text-[11px] text-blue-700 dark:text-blue-300 font-medium">Showcase items are the first thing customers see. You can add up to 5 items to your digital storefront.</p>
+                      </div>
+
+                      <div>
+                          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Product Name</label>
+                          <input 
+                            value={productFormData.name} 
+                            onChange={(e) => setProductFormData({...productFormData, name: e.target.value})} 
+                            required 
+                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none dark:text-white" 
+                            placeholder="e.g. Luxury Penthouse Suite" 
+                          />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                          <div>
+                              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Price (₦)</label>
+                              <input 
+                                type="number" 
+                                value={productFormData.price} 
+                                onChange={(e) => setProductFormData({...productFormData, price: e.target.value})} 
+                                required 
+                                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none dark:text-white" 
+                                placeholder="0" 
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Stock Level</label>
+                              <input 
+                                type="number" 
+                                value={productFormData.quantity} 
+                                onChange={(e) => setProductFormData({...productFormData, quantity: e.target.value})} 
+                                required 
+                                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none dark:text-white" 
+                                placeholder="1" 
+                              />
+                          </div>
+                      </div>
+
+                      <div>
+                          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Item Image URL</label>
+                          <div className="flex gap-2">
+                             <input 
+                                type="url"
+                                value={productFormData.image} 
+                                onChange={(e) => setProductFormData({...productFormData, image: e.target.value})} 
+                                className="flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none dark:text-white text-sm" 
+                                placeholder="Paste image link here..." 
+                             />
+                             <button type="button" className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-500 hover:text-primary transition-colors">
+                                 <UploadCloud size={20} />
+                             </button>
+                          </div>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
+                          {editingProduct ? (
+                             <button type="button" onClick={handleDeleteProduct} className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">
+                                 <Trash2 size={14} /> Remove Item
+                             </button>
+                          ) : <div></div>}
+                          <div className="flex gap-3">
+                              <button type="button" onClick={() => setIsProductModalOpen(false)} className="px-5 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Cancel</button>
+                              <button type="submit" className="bg-primary hover:bg-red-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-red-500/30 transition-all transform active:scale-95">Save Product</button>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
       )}
     </div>
   );

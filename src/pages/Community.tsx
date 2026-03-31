@@ -150,8 +150,8 @@ const Community: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    // Get unique categories from mock data
-    const categories = useMemo(() => {
+    // Explicitly type categories as string array to avoid unknown inference
+    const categories: string[] = useMemo(() => {
         const cats = new Set(MOCK_COMMUNITY_THREADS.map(t => t.category));
         return ['All', ...Array.from(cats)].sort();
     }, []);
@@ -263,7 +263,8 @@ const Community: React.FC = () => {
                                 <Filter size={16} className="text-gray-400" />
                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort:</span>
                             </div>
-                            {['All', 'Hot', 'New', 'Top'].map((f) => (
+                            {/* Add explicit typing for f in the map callback */}
+                            {(['All', 'Hot', 'New', 'Top'] as string[]).map((f: string) => (
                                 <button 
                                     key={f}
                                     onClick={() => setSortBy(f)}
@@ -279,7 +280,8 @@ const Community: React.FC = () => {
                                 <ImageIcon size={16} className="text-gray-400" />
                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Topics:</span>
                             </div>
-                            {categories.map((cat) => (
+                            {/* Add explicit typing for cat in the map callback */}
+                            {categories.map((cat: string) => (
                                 <button 
                                     key={cat}
                                     onClick={() => setSelectedCategory(cat)}
@@ -389,7 +391,8 @@ const Community: React.FC = () => {
                     <div className="glass-card p-6 rounded-2xl">
                         <h3 className="font-bold text-dark dark:text-white mb-4 text-sm uppercase tracking-wide">Top Categories</h3>
                         <div className="space-y-3">
-                            {categories.filter(c => c !== 'All').slice(0, 5).map(cat => (
+                            {/* Add explicit typing for c and cat in callback functions */}
+                            {categories.filter((c: string) => c !== 'All').slice(0, 5).map((cat: string) => (
                                 <button 
                                     key={cat}
                                     onClick={() => setSelectedCategory(cat)}

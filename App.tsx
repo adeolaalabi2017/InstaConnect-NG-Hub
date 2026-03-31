@@ -16,9 +16,11 @@ import AddEvent from './pages/AddEvent';
 import Community from './pages/Community';
 import ThreadDetail from './pages/ThreadDetail';
 import UserProfile from './pages/UserProfile';
+import Settings from './pages/Settings';
 import Contact from './pages/Contact';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ComparisonProvider } from './components/ComparisonContext';
 import { cronService } from './services/cron';
 
 // Admin Imports
@@ -35,7 +37,6 @@ import AdminListings from './pages/admin/AdminListings';
 import AdminCMS from './pages/admin/AdminCMS';
 import AdminSettings from './pages/admin/AdminSettings';
 
-// A wrapper for public routes to apply the main layout
 const PublicLayoutWrapper = () => (
   <Layout>
     <Outlet />
@@ -51,54 +52,51 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <Routes>
-            {/* Admin ERP Routes with its own dedicated layout */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminOverview />} />
-              {/* Analytics Module */}
-              <Route path="analytics" element={<AdminAnalytics />} />
-              <Route path="analytics/traffic" element={<AdminAnalyticsTraffic />} />
-              <Route path="analytics/insights" element={<AdminAnalyticsInsights />} />
-              <Route path="analytics/realtime" element={<AdminAnalyticsRealtime />} />
-              <Route path="analytics/custom" element={<AdminAnalyticsCustom />} />
-              
-              <Route path="marketing" element={<AdminMarketing />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="listings" element={<AdminListings />} />
-              
-              {/* Content Management Module */}
-              <Route path="content" element={<AdminCMS />}>
-                <Route path=":section" element={<AdminCMS />} />
+        <ComparisonProvider>
+          <Router>
+            <Routes>
+              {/* Admin ERP Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminOverview />} />
+                <Route path="analytics" element={<AdminAnalytics />} />
+                <Route path="analytics/traffic" element={<AdminAnalyticsTraffic />} />
+                <Route path="analytics/insights" element={<AdminAnalyticsInsights />} />
+                <Route path="analytics/realtime" element={<AdminAnalyticsRealtime />} />
+                <Route path="analytics/custom" element={<AdminAnalyticsCustom />} />
+                <Route path="marketing" element={<AdminMarketing />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="listings" element={<AdminListings />} />
+                <Route path="content" element={<AdminCMS />}>
+                  <Route path=":section" element={<AdminCMS />} />
+                </Route>
+                <Route path="cms" element={<AdminCMS />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="*" element={<AdminOverview />} />
               </Route>
 
-              <Route path="cms" element={<AdminCMS />} /> {/* Legacy/Fallback */}
-              <Route path="settings" element={<AdminSettings />} />
-              {/* Fallback for any other /admin/* route */}
-              <Route path="*" element={<AdminOverview />} />
-            </Route>
-
-            {/* Public-facing routes with the main layout */}
-            <Route element={<PublicLayoutWrapper />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/listing/:id" element={<BusinessDetail />} />
-              <Route path="/listings" element={<Listings />} />
-              <Route path="/top-rated" element={<TopRated />} />
-              <Route path="/add-listing" element={<AddListing />} />
-              <Route path="/dashboard" element={<BusinessDashboard />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/community/:id" element={<ThreadDetail />} />
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/event/:id" element={<EventDetail />} />
-              <Route path="/add-event" element={<AddEvent />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="*" element={<div className="py-20 text-center">Page Not Found</div>} />
-            </Route>
-          </Routes>
-        </Router>
+              {/* Public-facing routes */}
+              <Route element={<PublicLayoutWrapper />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/listing/:id" element={<BusinessDetail />} />
+                <Route path="/listings" element={<Listings />} />
+                <Route path="/top-rated" element={<TopRated />} />
+                <Route path="/add-listing" element={<AddListing />} />
+                <Route path="/dashboard" element={<BusinessDashboard />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/:id" element={<ThreadDetail />} />
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/event/:id" element={<EventDetail />} />
+                <Route path="/add-event" element={<AddEvent />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="*" element={<div className="py-20 text-center">Page Not Found</div>} />
+              </Route>
+            </Routes>
+          </Router>
+        </ComparisonProvider>
       </ThemeProvider>
     </AuthProvider>
   );

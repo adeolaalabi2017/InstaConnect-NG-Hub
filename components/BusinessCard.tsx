@@ -1,14 +1,18 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, MapPin, Phone, Share2, Zap } from 'lucide-react';
+import { Star, MapPin, Share2, Zap, ShieldCheck, Layers } from 'lucide-react';
 import { Business } from '../types';
+import { useComparison } from './ComparisonContext';
 
 interface BusinessCardProps {
   business: Business;
 }
 
 const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
+  const { addToCompare, selectedBusinesses } = useComparison();
+  const isSelectedForCompare = selectedBusinesses.some(b => b.id === business.id);
+
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -28,7 +32,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
   };
 
   return (
-    <div className={`group glass-card rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 ${business.isPromoted ? 'border-2 border-yellow-400 shadow-yellow-100 dark:shadow-yellow-900/20' : ''}`}>
+    <div className={`group glass-card rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 ${business.isPromoted ? 'border-2 border-yellow-400' : 'border-transparent'}`}>
       {/* Image Container */}
       <div className="relative h-48 sm:h-56 overflow-hidden">
         <img 
@@ -38,46 +42,57 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
         />
         
-        {/* Badges */}
-        <div className="absolute top-4 left-4 flex gap-2">
-            <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-dark dark:text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+        {/* Verification Tiers */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-dark dark:text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg shadow-sm border border-white/20">
                 {business.category}
             </span>
-            {business.isPromoted && (
-                <span className="bg-yellow-400 text-dark text-xs font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                    <Zap size={10} fill="currentColor" /> Promoted
-                </span>
+            {business.verificationLevel === 'gold' && (
+                <div className="flex items-center gap-1 bg-yellow-400 text-dark px-2.5 py-1 rounded-lg shadow-xl border-2 border-white animate-shimmer bg-[length:200%_100%]">
+                    <ShieldCheck size={12} className="fill-dark/20" />
+                    <span className="text-[9px] font-black uppercase">Verified Gold</span>
+                </div>
+            )}
+            {business.verificationLevel === 'silver' && (
+                <div className="flex items-center gap-1 bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg shadow-md border-2 border-white">
+                    <ShieldCheck size={12} />
+                    <span className="text-[9px] font-black uppercase">Verified Silver</span>
+                </div>
             )}
         </div>
 
-        <div className="absolute top-4 right-4 flex gap-2">
+        <div className="absolute top-4 right-4 flex flex-col gap-2">
             <button 
                 onClick={handleShare}
-                className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm bg-white/20 hover:bg-white/40 text-white transition-colors shadow-sm"
+                className="w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-md bg-white/20 hover:bg-primary hover:text-white text-white transition-all shadow-xl"
                 title="Share"
             >
-                <Share2 size={16} />
+                <Share2 size={18} />
             </button>
-            <button className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm shadow-sm transition-colors ${business.isOpen ? 'bg-green-500/90 text-white' : 'bg-red-500/90 text-white'}`}>
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            <button 
+                onClick={(e) => { e.preventDefault(); addToCompare(business); }}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-md transition-all shadow-xl ${isSelectedForCompare ? 'bg-primary text-white' : 'bg-white/20 hover:bg-dark text-white'}`}
+                title="Compare"
+            >
+                <Layers size={18} />
             </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5">
+      <div className="p-6">
         <div className="flex justify-between items-start mb-2">
           <div>
-            <h3 className="text-lg font-bold text-dark dark:text-white mb-1 group-hover:text-primary transition-colors">
+            <h3 className="text-xl font-black text-slate-950 dark:text-white mb-1 tracking-tight">
               <Link to={`/listing/${business.id}`}>{business.name}</Link>
             </h3>
-            <div className="flex items-center text-graytext dark:text-gray-400 text-xs mb-3">
+            <div className="flex items-center text-slate-500 dark:text-slate-400 text-xs mb-3 font-medium">
               <MapPin size={12} className="mr-1 text-primary" />
               {business.location}
             </div>
           </div>
           <div className="flex flex-col items-end">
-             <span className="text-primary font-bold text-sm bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg">{business.priceRange}</span>
+             <span className="text-primary font-black text-sm bg-primary/5 dark:bg-primary/20 px-3 py-1 rounded-xl">{business.priceRange}</span>
           </div>
         </div>
 
@@ -86,20 +101,20 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
             <Star 
               key={i} 
               size={14} 
-              className={`${i < Math.floor(business.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} 
+              className={`${i < Math.floor(business.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 dark:text-gray-700'}`} 
             />
           ))}
-          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-1">({business.reviewCount} reviews)</span>
+          <span className="text-xs text-slate-400 font-black ml-1 tracking-wider uppercase">({business.reviewCount} Reviews)</span>
         </div>
 
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex items-center justify-between">
+        <div className="border-t border-slate-100 dark:border-slate-800 pt-5 flex items-center justify-between">
            <div className="flex gap-2">
                 {business.tags.slice(0, 2).map((tag, i) => (
-                    <span key={i} className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 px-2 py-1 rounded-md">{tag}</span>
+                    <span key={i} className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800">{tag}</span>
                 ))}
            </div>
-           <Link to={`/listing/${business.id}`} className="text-sm font-semibold text-dark dark:text-white hover:text-primary transition-colors">
-             View Details &rarr;
+           <Link to={`/listing/${business.id}`} className="p-3 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-2xl group-hover:bg-primary group-hover:text-white transition-all shadow-lg active:scale-95">
+             <Zap size={16} />
            </Link>
         </div>
       </div>

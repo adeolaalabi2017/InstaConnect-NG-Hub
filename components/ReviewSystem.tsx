@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { Star, ThumbsUp, ThumbsDown, Camera, MessageCircle, CornerDownRight, Flag, Award, Send } from 'lucide-react';
+import { Star, ThumbsUp, ThumbsDown, Camera, MessageCircle, CornerDownRight, Flag, Award, Send, X } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { Review, User } from '../types';
 import { MOCK_BADGES, MOCK_USERS_LIST } from '../constants';
 import { useNavigate } from 'react-router-dom';
 
-// --- Rating Breakdown Component (Phase 2 Feature 5) ---
+// --- Rating Breakdown Component ---
 export const RatingBreakdown: React.FC<{ reviews: Review[] }> = ({ reviews }) => {
     const total = reviews.length;
     const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -43,7 +43,7 @@ export const RatingBreakdown: React.FC<{ reviews: Review[] }> = ({ reviews }) =>
     );
 };
 
-// --- Review Form Component (Phase 1 Feature 2) ---
+// --- Review Form Component ---
 interface ReviewFormProps {
     onSubmit: (rating: number, text: string, photos: File[]) => void;
     user: User;
@@ -57,7 +57,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (rating === 0) return alert('Please select a rating');
-        onSubmit(rating, text, []); // Mocking photo upload as empty array for now
+        onSubmit(rating, text, []);
         setRating(0);
         setText('');
     };
@@ -100,7 +100,6 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
                 </div>
 
                 <div className="flex justify-between items-center">
-                     {/* Photo Upload Trigger (Phase 2 Feature 6) */}
                     <button type="button" className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-dark dark:hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors">
                         <Camera size={18} /> Add Photos
                     </button>
@@ -108,7 +107,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
                     <button 
                         type="submit" 
                         disabled={!text || rating === 0}
-                        className="bg-primary text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-red-500/20 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="bg-primary text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-red-500/30 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                         Post Review
                     </button>
@@ -118,7 +117,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit, user }) => {
     );
 };
 
-// --- Review Card Component (Phase 1, 3, 4) ---
+// --- Review Card Component ---
 interface ReviewCardProps {
     review: Review;
     currentUser: User | null;
@@ -137,7 +136,6 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState('');
 
-    // Mock finding user to get badges
     const reviewUser = MOCK_USERS_LIST.find(u => u.id === review.userId) || { badges: [], reputationPoints: 0 };
     const isReviewAuthor = currentUser?.id === review.userId;
 
@@ -149,19 +147,15 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
             return;
         }
 
-        if (isReviewAuthor) {
-             return;
-        }
+        if (isReviewAuthor) return;
 
         if (vote === type) {
-            // Toggle off
             setVote(null);
             if (type === 'yes') setLikeCount(prev => prev - 1);
         } else {
-            // Switch vote or new vote
-            if (vote === 'yes') setLikeCount(prev => prev - 1); // remove previous yes
+            if (vote === 'yes') setLikeCount(prev => prev - 1);
             setVote(type);
-            if (type === 'yes') setLikeCount(prev => prev + 1); // add new yes
+            if (type === 'yes') setLikeCount(prev => prev + 1);
         }
     };
 
@@ -175,9 +169,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
 
         if (window.confirm("Report this review as inappropriate?")) {
             setIsReported(true);
-            if (onReport) {
-                onReport(review.id);
-            }
+            if (onReport) onReport(review.id);
             alert("Review flagged for moderation.");
         }
     };
@@ -189,8 +181,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
             setIsReplying(false);
             setReplyText('');
         } else {
-            // Fallback for demo if no callback provided
-            alert("Reply submitted! (Demo)");
+            alert("Reply submitted! (Demo mode)");
             setIsReplying(false);
         }
     }
@@ -198,8 +189,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
     if (review.status === 'hidden' && currentUser?.role !== 'admin') return null;
 
     return (
-        <div className={`glass-card p-6 rounded-2xl mb-6 relative ${review.status === 'flagged' && currentUser?.role === 'admin' ? 'border-2 border-red-200 bg-red-50 dark:bg-red-900/10' : ''}`}>
-            {/* Admin Status Indicator */}
+        <div className={`glass-card p-6 rounded-2xl mb-6 relative transition-all hover:shadow-lg ${review.status === 'flagged' && currentUser?.role === 'admin' ? 'border-2 border-red-200 bg-red-50 dark:bg-red-900/10' : ''}`}>
             {currentUser?.role === 'admin' && review.status !== 'active' && (
                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded uppercase">
                      {review.status}
@@ -216,23 +206,19 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
                     <div>
                         <div className="flex items-center gap-1.5 flex-wrap">
                             <h5 className="font-bold text-dark dark:text-white text-sm">{review.userName}</h5>
-                            
-                            {/* Reviewer Badges */}
                             <div className="flex items-center gap-1">
                                 {reviewUser.reputationPoints > 1500 && (
-                                    <div className="flex items-center gap-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded text-[10px] font-bold border border-purple-100 dark:border-purple-800" title="Top Contributor">
-                                        <Award size={10} /> Top Contributor
+                                    <div className="flex items-center gap-0.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-1.5 py-0.5 rounded-[4px] text-[9px] font-black uppercase tracking-tighter" title="Top Contributor">
+                                        <Award size={10} /> Pro
                                     </div>
                                 )}
                                 {reviewUser.badges && reviewUser.badges.length > 0 && (
                                     reviewUser.badges.map(bid => {
                                         const badge = MOCK_BADGES.find(b => b.id === bid);
                                         if (!badge) return null;
-                                        // Dynamic Icon Rendering
                                         const BadgeIcon = (Icons as any)[badge.icon] || Icons.Shield;
-                                        
                                         return (
-                                            <div key={bid} title={badge.name} className={`w-4 h-4 rounded-full flex items-center justify-center ${badge.color.replace('text-', 'bg-').replace('100', '200')} text-white`}>
+                                            <div key={bid} title={badge.name} className="w-4 h-4 rounded-md flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
                                                 <BadgeIcon size={10} />
                                             </div>
                                         );
@@ -250,7 +236,6 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
 
             <p className="text-graytext dark:text-gray-300 text-sm mb-4 leading-relaxed">{review.text}</p>
             
-            {/* Review Photos (Phase 2) */}
             {review.photos && review.photos.length > 0 && (
                 <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
                     {review.photos.map((photo, i) => (
@@ -261,51 +246,38 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
 
             <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-4">
-                    {/* Yes/No Voting */}
                     <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-400 font-medium">Was this review helpful?</span>
-                        
+                        <span className="text-xs text-gray-400 font-medium hidden sm:inline">Was this review helpful?</span>
                         <button 
                             onClick={() => handleVote('yes')}
                             disabled={isReviewAuthor}
-                            className={`flex items-center gap-1 text-xs font-bold transition-colors ${
-                                vote === 'yes' ? 'text-green-600' : 'text-gray-400 hover:text-green-600'
-                            } ${isReviewAuthor ? 'cursor-not-allowed opacity-50' : ''}`}
-                            title="Yes, it was helpful"
+                            className={`flex items-center gap-1 text-xs font-bold transition-colors ${vote === 'yes' ? 'text-green-600' : 'text-gray-400 hover:text-green-600'} ${isReviewAuthor ? 'cursor-not-allowed opacity-50' : ''}`}
+                            title="Yes"
                         >
                             <ThumbsUp size={14} className={vote === 'yes' ? 'fill-green-600' : ''} /> {likeCount > 0 ? likeCount : ''}
                         </button>
-
                         <button 
                             onClick={() => handleVote('no')}
                             disabled={isReviewAuthor}
-                            className={`flex items-center gap-1 text-xs font-bold transition-colors ${
-                                vote === 'no' ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
-                            } ${isReviewAuthor ? 'cursor-not-allowed opacity-50' : ''}`}
-                             title="No, it wasn't helpful"
+                            className={`flex items-center gap-1 text-xs font-bold transition-colors ${vote === 'no' ? 'text-red-500' : 'text-gray-400 hover:text-red-500'} ${isReviewAuthor ? 'cursor-not-allowed opacity-50' : ''}`}
+                             title="No"
                         >
                             <ThumbsDown size={14} className={vote === 'no' ? 'fill-red-500' : ''} />
                         </button>
                     </div>
                     
-                    {/* Vendor Reply Trigger */}
                     {isOwner && !review.reply && !isReplying && (
                         <button 
                             onClick={() => setIsReplying(true)}
-                            className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-primary transition-colors ml-2"
+                            className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-red-700 transition-colors bg-primary/5 px-2 py-1 rounded-md"
                         >
                             <MessageCircle size={14} /> Reply
                         </button>
                     )}
                 </div>
 
-                {/* Report Button */}
                 {!isReported ? (
-                    <button 
-                        onClick={handleReport} 
-                        className="text-gray-300 hover:text-red-500 transition-colors"
-                        title="Report abuse"
-                    >
+                    <button onClick={handleReport} className="text-gray-300 hover:text-red-500 transition-colors" title="Report">
                         <Flag size={14} />
                     </button>
                 ) : (
@@ -315,41 +287,53 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUser, isO
             
             {/* Vendor Reply Input Area */}
             {isReplying && (
-                <div className="mt-4 bg-gray-50 dark:bg-gray-800 rounded-xl p-4 ml-4 border border-gray-200 dark:border-gray-700 animate-fade-in-up">
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Reply as Business Owner</label>
+                <div className="mt-4 bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 ml-2 sm:ml-6 border border-gray-200 dark:border-gray-700 animate-fade-in-up shadow-inner relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                    <div className="flex justify-between items-center mb-3">
+                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reply as Business Owner</label>
+                        <button onClick={() => setIsReplying(false)} className="text-gray-400 hover:text-dark dark:hover:text-white transition-colors">
+                            <X size={16} />
+                        </button>
+                    </div>
                     <textarea 
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Type your response here..."
+                        placeholder="Thank the customer or address their concerns..."
                         rows={3}
-                        className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-600 rounded-lg p-3 text-sm focus:outline-none focus:border-primary mb-3 text-dark dark:text-white placeholder-gray-400"
+                        className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-600 rounded-xl p-4 text-sm focus:outline-none focus:border-primary mb-4 text-dark dark:text-white placeholder-gray-400 shadow-sm"
+                        autoFocus
                     ></textarea>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-3">
                         <button 
                             onClick={() => setIsReplying(false)}
-                            className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-dark dark:hover:text-white transition-colors"
+                            className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all"
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={submitReply}
-                            className="bg-primary text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-red-600 transition-colors flex items-center gap-1"
+                            disabled={!replyText.trim()}
+                            className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all flex items-center gap-2 disabled:opacity-50"
                         >
-                           <Send size={12} /> Post Reply
+                           <Send size={14} /> Post Reply
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* Vendor Reply Display (Phase 3) */}
+            {/* Vendor Reply Display */}
             {review.reply && (
-                <div className="mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 ml-4 border-l-2 border-primary">
-                    <div className="flex items-center gap-2 mb-1">
-                        <CornerDownRight size={14} className="text-gray-400" />
-                        <span className="text-xs font-bold text-dark dark:text-white">Response from Owner</span>
-                        <span className="text-[10px] text-gray-400">• {new Date(review.reply.date).toLocaleDateString()}</span>
+                <div className="mt-4 bg-primary/5 dark:bg-white/5 rounded-2xl p-5 ml-2 sm:ml-6 border-l-4 border-primary relative">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                            <div className="bg-primary rounded-full p-1 text-white">
+                                <CornerDownRight size={10} />
+                            </div>
+                            <span className="text-xs font-bold text-dark dark:text-white uppercase tracking-tight">Response from Owner</span>
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-medium">{new Date(review.reply.date).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">{review.reply.text}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed italic">"{review.reply.text}"</p>
                 </div>
             )}
         </div>
