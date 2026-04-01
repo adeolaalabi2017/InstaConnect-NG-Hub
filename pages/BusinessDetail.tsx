@@ -6,9 +6,37 @@ import { Star, MapPin, Phone, Mail, Globe, Share2, Heart, Clock, CheckCircle, In
 import { useAuth } from '../context/AuthContext';
 import BusinessCard from '../components/BusinessCard';
 import { ReviewForm, RatingBreakdown, ReviewCard } from '../components/ReviewSystem';
-import { Review, Product } from '../types';
+import { Business, Review, Product } from '../types';
 import { analyticsService } from '../services/analytics';
 import { notificationService } from '../services/notification';
+import { fetchBusinessById, fetchReviewsByBusinessId } from '../services/api';
+
+const BusinessDetailSkeleton = () => (
+  <div className="pb-20 animate-pulse">
+    <div className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-4 md:gap-6 w-full">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+            <div className="w-full max-w-md">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4 mb-3"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
+        <div className="rounded-2xl bg-gray-200 dark:bg-gray-700 h-64 sm:h-96 w-full"></div>
+        <div className="glass-card p-6 rounded-2xl h-48 bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+      <div className="space-y-6">
+        <div className="glass-card p-6 rounded-2xl h-64 bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+    </div>
+  </div>
+);
 
 const ProductCarousel: React.FC<{ 
     products: Product[], 
@@ -120,7 +148,8 @@ const BusinessDetail: React.FC = () => {
   const [sortBy, setSortBy] = useState<'recent' | 'highest' | 'lowest' | 'helpful'>('recent');
   const [filterRating, setFilterRating] = useState<number | 'all'>('all');
   
-  const business = MOCK_BUSINESSES.find(b => b.id === id);
+  const [business, setBusiness] = useState<Business | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isActiveListing, setIsActiveListing] = useState(false);
 
   // Product Modal State
@@ -128,18 +157,36 @@ const BusinessDetail: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productFormData, setProductFormData] = useState({ name: '', price: '', quantity: '', image: '' });
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-      if (business) {
-          analyticsService.trackEvent('view', business.id, user?.id);
-          setIsActiveListing(business.status === 'active');
-          setLocalProducts(business.products || []);
-      }
-  }, [business, user]);
+      const loadData = async () => {
+          if (!id) return;
+          setIsLoading(true);
+          try {
+              const [businessData, reviewsData] = await Promise.all([
+                  fetchBusinessById(id),
+                  fetchReviewsByBusinessId(id)
+              ]);
+              if (businessData) {
+                  setBusiness(businessData);
+                  setIsActiveListing(businessData.status === 'active');
+                  setLocalProducts(businessData.products || []);
+                  analyticsService.trackEvent('view', businessData.id, user?.id);
+              }
+              setReviews(reviewsData);
+          } catch (error) {
+              console.error("Failed to fetch business details", error);
+          } finally {
+              setIsLoading(false);
+          }
+      };
+      loadData();
+  }, [id, user]);
 
-  const [reviews, setReviews] = useState<Review[]>(
-      MOCK_REVIEWS.filter(r => r.businessId === id)
-  );
+  if (isLoading) {
+      return <BusinessDetailSkeleton />;
+  }
 
   if (!business) {
     return <div className="text-center py-20 text-dark dark:text-white font-bold">Business not found</div>;

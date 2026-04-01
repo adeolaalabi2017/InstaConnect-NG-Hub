@@ -12,6 +12,7 @@ import { analyticsService } from '../services/analytics';
 import { notificationService } from '../services/notification';
 import { ReviewCard } from '../components/ReviewSystem';
 import KpiCard from '../components/KpiCard';
+import { fetchBusinessByOwnerId, fetchReviewsByBusinessId } from '../services/api';
 
 const PROMOTION_PACKAGES = [
     {
@@ -117,46 +118,59 @@ const BusinessDashboard: React.FC = () => {
   const [currentAd, setCurrentAd] = useState<Partial<AdPlacement>>({});
 
   const [returnToPromote, setReturnToPromote] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!user) {
-        navigate('/login');
-      } else if (user.role !== 'vendor') {
-        navigate('/');
-      } else {
-        const business = MOCK_BUSINESSES.find(b => b.ownerId === user.id);
-        setMyBusiness(business);
-        
-        if (business) {
-            const stats = analyticsService.getBusinessMetrics(business.id, 7);
-            setMetrics(stats);
-            const lifetime = analyticsService.getBusinessLifetimeStats(business.id);
-            setLifetimeMetrics(lifetime);
-            const reviews = MOCK_REVIEWS.filter(r => r.businessId === business.id);
-            setBusinessReviews(reviews);
-            const hostedEvents = MOCK_EVENTS.filter(e => e.organizerId === user.id);
-            setMyEvents(hostedEvents);
-            setProducts(business.products || []);
+    const loadDashboardData = async () => {
+      if (!isLoading) {
+        if (!user) {
+          navigate('/login');
+        } else if (user.role !== 'vendor') {
+          navigate('/');
+        } else {
+          setIsDataLoading(true);
+          try {
+            const business = await fetchBusinessByOwnerId(user.id);
+            setMyBusiness(business);
+            
+            if (business) {
+                const stats = analyticsService.getBusinessMetrics(business.id, 7);
+                setMetrics(stats);
+                const lifetime = analyticsService.getBusinessLifetimeStats(business.id);
+                setLifetimeMetrics(lifetime);
+                
+                const reviews = await fetchReviewsByBusinessId(business.id);
+                setBusinessReviews(reviews);
+                
+                const hostedEvents = MOCK_EVENTS.filter(e => e.organizerId === user.id);
+                setMyEvents(hostedEvents);
+                setProducts(business.products || []);
 
-            const userNotifs = notificationService.getNotifications(user.id);
-            const unreadCount = reviews.filter(r => !r.isRead).length;
-            let displayNotifs = [...userNotifs];
-            if (unreadCount > 0 && !displayNotifs.some(n => n.type === 'review' && !n.isRead)) {
-                 displayNotifs.push({
-                    id: 'sys-1',
-                    userId: user.id,
-                    type: 'review',
-                    title: 'Unread Reviews',
-                    message: `You have ${unreadCount} reviews waiting for your response.`,
-                    date: new Date().toISOString(),
-                    isRead: false
-                });
+                const userNotifs = notificationService.getNotifications(user.id);
+                const unreadCount = reviews.filter(r => !r.isRead).length;
+                let displayNotifs = [...userNotifs];
+                if (unreadCount > 0 && !displayNotifs.some(n => n.type === 'review' && !n.isRead)) {
+                     displayNotifs.push({
+                        id: 'sys-1',
+                        userId: user.id,
+                        type: 'review',
+                        title: 'Unread Reviews',
+                        message: `You have ${unreadCount} reviews waiting for your response.`,
+                        date: new Date().toISOString(),
+                        isRead: false
+                    });
+                }
+                setNotifications(displayNotifs);
             }
-            setNotifications(displayNotifs);
+          } catch (error) {
+            console.error("Failed to load dashboard data", error);
+          } finally {
+            setIsDataLoading(false);
+          }
         }
       }
-    }
+    };
+    loadDashboardData();
   }, [user, isLoading, navigate]);
 
   const handleTopUp = (amount: number, cost: number) => {
@@ -307,7 +321,18 @@ const BusinessDashboard: React.FC = () => {
     { label: 'Reviews', icon: MessageSquare, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', description: 'Manage feedback', action: () => setActiveTab('reviews') },
   ];
 
-  if (isLoading || !user) return <div className="py-20 text-center">Loading Dashboard...</div>;
+  if (isLoading || isDataLoading || !user) return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-10"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+        ))}
+      </div>
+      <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -2,8 +2,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import BusinessCard from '../components/BusinessCard';
-import { MOCK_BUSINESSES, CATEGORIES, NIGERIAN_LOCATIONS } from '../constants';
+import BusinessCardSkeleton from '../components/BusinessCardSkeleton';
+import { CATEGORIES, NIGERIAN_LOCATIONS } from '../constants';
 import { Search, Filter, MapPin, ArrowUpDown, Clock, Zap, X } from 'lucide-react';
+import { fetchBusinesses } from '../services/api';
+import { Business } from '../types';
 
 const Listings: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -16,7 +19,25 @@ const Listings: React.FC = () => {
   const [showOpenOnly, setShowOpenOnly] = useState(false);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const locationWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchBusinesses();
+        setBusinesses(data);
+      } catch (error) {
+        console.error("Failed to fetch businesses", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   // Update state when URL params change (e.g. navigation from Hero)
   useEffect(() => {
@@ -45,7 +66,7 @@ const Listings: React.FC = () => {
   }, [locationWrapperRef]);
 
   // Filtering Logic
-  const filteredBusinesses = MOCK_BUSINESSES.filter(business => {
+  const filteredBusinesses = businesses.filter(business => {
     const term = searchTerm.toLowerCase();
     const matchesSearch = business.name.toLowerCase().includes(term) || 
                           business.description.toLowerCase().includes(term) ||
@@ -65,7 +86,7 @@ const Listings: React.FC = () => {
     return 0; // Recommended (original order)
   });
 
-  const promotedBusinesses = MOCK_BUSINESSES.filter(b => b.isPromoted);
+  const promotedBusinesses = businesses.filter(b => b.isPromoted);
 
   const locationSuggestions = NIGERIAN_LOCATIONS.filter(loc => 
     loc.toLowerCase().includes(locationFilter.toLowerCase())
@@ -263,7 +284,13 @@ const Listings: React.FC = () => {
       </div>
 
       {/* Grid */}
-      {filteredBusinesses.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
+                <BusinessCardSkeleton key={i} />
+            ))}
+        </div>
+      ) : filteredBusinesses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredBusinesses.map((business) => (
             <BusinessCard key={business.id} business={business} />

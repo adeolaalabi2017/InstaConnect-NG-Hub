@@ -2,14 +2,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Badge, Button, Input, Modal, Select, Textarea } from '../../components/admin/AdminComponents';
 import { Megaphone, Plus, Percent, Mail, Edit, Trash2, Play, Pause, BarChart, ExternalLink, UploadCloud, Send, CheckCircle } from 'lucide-react';
-import { MOCK_CAMPAIGNS, MOCK_ADS, CATEGORIES } from '../../constants';
+import { CATEGORIES } from '../../constants';
 import { MarketingCampaign, AdPlacement, AdStatus } from '../../types';
+import { fetchMarketingCampaigns, fetchAds } from '../../services/api';
 
 // --- Ads Manager Component ---
 const AdsManager: React.FC = () => {
-    const [ads, setAds] = useState<AdPlacement[]>(MOCK_ADS);
+    const [ads, setAds] = useState<AdPlacement[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingAd, setEditingAd] = useState<AdPlacement | null>(null);
+
+    useEffect(() => {
+        const loadAds = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchAds();
+                setAds(data);
+            } catch (error) {
+                console.error("Failed to fetch ads", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadAds();
+    }, []);
 
     const handleOpenModal = (ad: AdPlacement | null = null) => {
         setEditingAd(ad);
@@ -64,19 +81,27 @@ const AdsManager: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <CardHeader><CardTitle className="text-sm font-medium">Total Impressions</CardTitle></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{totalImpressions.toLocaleString()}</div></CardContent>
+                    <CardContent>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold">{totalImpressions.toLocaleString()}</div>}
+                    </CardContent>
                 </Card>
                  <Card>
                     <CardHeader><CardTitle className="text-sm font-medium">Total Clicks</CardTitle></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{totalClicks.toLocaleString()}</div></CardContent>
+                    <CardContent>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold">{totalClicks.toLocaleString()}</div>}
+                    </CardContent>
                 </Card>
                  <Card>
                     <CardHeader><CardTitle className="text-sm font-medium">Average CTR</CardTitle></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{averageCTR}%</div></CardContent>
+                    <CardContent>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold">{averageCTR}%</div>}
+                    </CardContent>
                 </Card>
                  <Card>
                     <CardHeader><CardTitle className="text-sm font-medium">Active Ads</CardTitle></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{activeAdsCount}</div></CardContent>
+                    <CardContent>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold">{activeAdsCount}</div>}
+                    </CardContent>
                 </Card>
             </div>
 
@@ -88,45 +113,51 @@ const AdsManager: React.FC = () => {
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Creative</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Placement</TableHead>
-                                <TableHead>Impressions</TableHead>
-                                <TableHead>Clicks</TableHead>
-                                <TableHead>CTR</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {ads.map(ad => (
-                                <TableRow key={ad.id}>
-                                    <TableCell className="font-medium flex items-center gap-3">
-                                        <img src={ad.imageUrl} alt={ad.name} className="w-20 h-10 object-cover rounded-md bg-slate-100 dark:bg-slate-800" />
-                                        {ad.name}
-                                    </TableCell>
-                                    <TableCell>{getStatusBadge(ad.status)}</TableCell>
-                                    <TableCell>{ad.location}</TableCell>
-                                    <TableCell>{ad.impressions.toLocaleString()}</TableCell>
-                                    <TableCell>{ad.clicks.toLocaleString()}</TableCell>
-                                    <TableCell>{(ad.impressions > 0 ? (ad.clicks / ad.impressions * 100) : 0).toFixed(2)}%</TableCell>
-                                    <TableCell className="flex gap-1">
-                                        <Button variant="ghost" size="icon" onClick={() => handleToggleStatus(ad.id)} title={ad.status === 'active' ? 'Pause' : 'Activate'}>
-                                            {ad.status === 'active' ? <Pause size={14} /> : <Play size={14} />}
-                                        </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => handleOpenModal(ad)} title="Edit">
-                                            <Edit size={14} />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => handleDeleteAd(ad.id)} className="text-red-500" title="Delete">
-                                            <Trash2 size={14} />
-                                        </Button>
-                                    </TableCell>
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            {[1, 2, 3].map(i => <div key={i} className="h-16 w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>)}
+                        </div>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Creative</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Placement</TableHead>
+                                    <TableHead>Impressions</TableHead>
+                                    <TableHead>Clicks</TableHead>
+                                    <TableHead>CTR</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {ads.map(ad => (
+                                    <TableRow key={ad.id}>
+                                        <TableCell className="font-medium flex items-center gap-3">
+                                            <img src={ad.imageUrl} alt={ad.name} className="w-20 h-10 object-cover rounded-md bg-slate-100 dark:bg-slate-800" />
+                                            {ad.name}
+                                        </TableCell>
+                                        <TableCell>{getStatusBadge(ad.status)}</TableCell>
+                                        <TableCell>{ad.location}</TableCell>
+                                        <TableCell>{ad.impressions.toLocaleString()}</TableCell>
+                                        <TableCell>{ad.clicks.toLocaleString()}</TableCell>
+                                        <TableCell>{(ad.impressions > 0 ? (ad.clicks / ad.impressions * 100) : 0).toFixed(2)}%</TableCell>
+                                        <TableCell className="flex gap-1">
+                                            <Button variant="ghost" size="icon" onClick={() => handleToggleStatus(ad.id)} title={ad.status === 'active' ? 'Pause' : 'Activate'}>
+                                                {ad.status === 'active' ? <Pause size={14} /> : <Play size={14} />}
+                                            </Button>
+                                            <Button variant="ghost" size="icon" onClick={() => handleOpenModal(ad)} title="Edit">
+                                                <Edit size={14} />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" onClick={() => handleDeleteAd(ad.id)} className="text-red-500" title="Delete">
+                                                <Trash2 size={14} />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
                 </CardContent>
             </Card>
 
@@ -378,6 +409,23 @@ const EmailMarketing: React.FC = () => {
 
 const AdminMarketing: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'campaigns' | 'ads' | 'coupons' | 'email'>('campaigns');
+    const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
+    const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(true);
+
+    useEffect(() => {
+        const loadCampaigns = async () => {
+            setIsLoadingCampaigns(true);
+            try {
+                const data = await fetchMarketingCampaigns();
+                setCampaigns(data);
+            } catch (error) {
+                console.error("Failed to fetch campaigns", error);
+            } finally {
+                setIsLoadingCampaigns(false);
+            }
+        };
+        loadCampaigns();
+    }, []);
 
     const getCampaignStatusBadge = (status: MarketingCampaign['status']) => {
         switch (status) {
@@ -432,34 +480,40 @@ const AdminMarketing: React.FC = () => {
                         <CardTitle className="flex items-center gap-2"><Megaphone size={18} /> Active Campaigns</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Campaign</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Channel</TableHead>
-                                    <TableHead>Budget</TableHead>
-                                    <TableHead>Spent</TableHead>
-                                    <TableHead>ROI</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {MOCK_CAMPAIGNS.map(c => (
-                                    <TableRow key={c.id}>
-                                        <TableCell className="font-medium">{c.name}</TableCell>
-                                        <TableCell>{getCampaignStatusBadge(c.status)}</TableCell>
-                                        <TableCell>{c.channel}</TableCell>
-                                        <TableCell>₦{c.budget.toLocaleString()}</TableCell>
-                                        <TableCell>₦{c.spent.toLocaleString()}</TableCell>
-                                        <TableCell className={c.roi.startsWith('+') ? 'text-green-600 dark:text-green-400' : 'text-slate-500'}>{c.roi}</TableCell>
-                                        <TableCell>
-                                            <Button variant="ghost" size="sm">Details</Button>
-                                        </TableCell>
+                        {isLoadingCampaigns ? (
+                            <div className="space-y-4">
+                                {[1, 2, 3].map(i => <div key={i} className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>)}
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Campaign</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Channel</TableHead>
+                                        <TableHead>Budget</TableHead>
+                                        <TableHead>Spent</TableHead>
+                                        <TableHead>ROI</TableHead>
+                                        <TableHead>Actions</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {campaigns.map(c => (
+                                        <TableRow key={c.id}>
+                                            <TableCell className="font-medium">{c.name}</TableCell>
+                                            <TableCell>{getCampaignStatusBadge(c.status)}</TableCell>
+                                            <TableCell>{c.channel}</TableCell>
+                                            <TableCell>₦{c.budget.toLocaleString()}</TableCell>
+                                            <TableCell>₦{c.spent.toLocaleString()}</TableCell>
+                                            <TableCell className={c.roi.startsWith('+') ? 'text-green-600 dark:text-green-400' : 'text-slate-500'}>{c.roi}</TableCell>
+                                            <TableCell>
+                                                <Button variant="ghost" size="sm">Details</Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
                     </CardContent>
                 </Card>
             )}

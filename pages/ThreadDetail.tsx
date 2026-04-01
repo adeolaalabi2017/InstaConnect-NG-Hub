@@ -1,10 +1,10 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowBigUp, ArrowBigDown, MessageSquare, Share2, MoreHorizontal, Send, CornerDownRight, ListFilter } from 'lucide-react';
-import { MOCK_COMMUNITY_THREADS } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { CommunityComment } from '../types';
+import { fetchCommunityThreadById } from '../services/api';
 
 // --- Recursive Comment Component ---
 interface CommentNodeProps {
@@ -145,14 +145,51 @@ const ThreadDetail: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     
-    // Find thread from shared constants
-    const initialThread = MOCK_COMMUNITY_THREADS.find(t => t.id === id);
-    const [thread, setThread] = useState(initialThread);
+    const [thread, setThread] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [mainComment, setMainComment] = useState('');
     const [sortBy, setSortBy] = useState<CommentSort>('Newest');
     
     // Pagination State
     const [visibleComments, setVisibleComments] = useState(20);
+
+    useEffect(() => {
+        const loadThread = async () => {
+            if (!id) return;
+            setIsLoading(true);
+            try {
+                const data = await fetchCommunityThreadById(id);
+                setThread(data);
+            } catch (error) {
+                console.error("Failed to load thread:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadThread();
+    }, [id]);
+
+    if (isLoading) {
+        return (
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-6"></div>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div className="lg:col-span-3">
+                        <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl mb-8"></div>
+                        <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl mb-8"></div>
+                        <div className="space-y-4">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="hidden lg:block space-y-6">
+                        <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (!thread) {
         return (

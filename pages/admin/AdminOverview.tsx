@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { analyticsService } from '../../services/analytics';
+import { fetchAdminOverview, fetchAdminCategories } from '../../services/api';
 import { 
   TrendingUp, TrendingDown, CreditCard, MoreHorizontal, 
   ArrowUpRight, ArrowDownRight, Activity, DollarSign 
@@ -75,25 +75,60 @@ const MiniLineChart = ({ data, color }: { data: number[], color: string }) => {
 };
 
 const AdminOverview: React.FC = () => {
-    const { user, isLoading } = useAuth();
+    const { user, isLoading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [stats, setStats] = useState<any>(null);
     const [categories, setCategories] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!isLoading && (!user || user.role !== 'admin')) {
+        if (!authLoading && (!user || user.role !== 'admin')) {
             navigate('/');
             return;
         }
-        try {
-            const overview = analyticsService.getAdminOverview('admin');
-            setStats(overview);
-            const cats = analyticsService.getBusinessCategoryDistribution('admin');
-            setCategories(cats);
-        } catch (err) { console.error(err); }
-    }, [user, isLoading, navigate]);
 
-    if (isLoading || !stats) return <div className="p-10">Loading...</div>;
+        const loadData = async () => {
+            setIsLoading(true);
+            try {
+                const [overview, cats] = await Promise.all([
+                    fetchAdminOverview('admin'),
+                    fetchAdminCategories('admin')
+                ]);
+                setStats(overview);
+                setCategories(cats);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (user && user.role === 'admin') {
+            loadData();
+        }
+    }, [user, authLoading, navigate]);
+
+    if (authLoading || isLoading || !stats) {
+        return (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in pb-10">
+                <div className="space-y-8">
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-40 animate-pulse"></div>
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-40 animate-pulse"></div>
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-[320px] animate-pulse"></div>
+                </div>
+                <div className="space-y-8">
+                    <div className="h-56 bg-white dark:bg-[#151923] rounded-3xl shadow-sm animate-pulse"></div>
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-72 animate-pulse"></div>
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-72 animate-pulse"></div>
+                </div>
+                <div className="space-y-8">
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-64 animate-pulse"></div>
+                    <div className="bg-white dark:bg-[#151923] p-6 rounded-3xl shadow-sm h-48 animate-pulse"></div>
+                </div>
+                <div className="lg:col-span-3 bg-white dark:bg-[#151923] p-8 rounded-3xl shadow-sm h-96 animate-pulse"></div>
+            </div>
+        );
+    }
 
     // --- Chart Data Configs ---
     

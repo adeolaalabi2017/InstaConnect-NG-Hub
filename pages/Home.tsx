@@ -3,10 +3,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import BusinessCard from '../components/BusinessCard';
+import BusinessCardSkeleton from '../components/BusinessCardSkeleton';
 import StoryTray from '../components/StoryTray';
 import AiConcierge from '../components/AiConcierge';
 import ComparisonDrawer from '../components/ComparisonDrawer';
-import { MOCK_BUSINESSES, CATEGORIES } from '../constants';
+import { CATEGORIES } from '../constants';
+import { fetchBusinesses } from '../services/api';
+import { Business } from '../types';
 import * as Icons from 'lucide-react';
 import { TrendingUp, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -82,12 +85,30 @@ const SponsoredCarousel: React.FC<{ businesses: any[] }> = ({ businesses }) => {
 };
 
 const Home: React.FC = () => {
-  const trendingBusinesses = [...MOCK_BUSINESSES]
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchBusinesses();
+        setBusinesses(data);
+      } catch (error) {
+        console.error("Failed to fetch businesses", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const trendingBusinesses = [...businesses]
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, 3);
   
-  const promotedBusinesses = MOCK_BUSINESSES.filter(b => b.isPromoted);
-  const featuredListings = MOCK_BUSINESSES.filter(b => b.rating >= 4.5).slice(0, 6);
+  const promotedBusinesses = businesses.filter(b => b.isPromoted);
+  const featuredListings = businesses.filter(b => b.rating >= 4.5).slice(0, 6);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -106,7 +127,7 @@ const Home: React.FC = () => {
     <>
       <StoryTray />
       <Hero />
-      <SponsoredCarousel businesses={promotedBusinesses} />
+      {!isLoading && <SponsoredCarousel businesses={promotedBusinesses} />}
 
       <section className="py-12 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -127,11 +148,19 @@ const Home: React.FC = () => {
             </div>
 
             <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto pb-8 pt-2 no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
-                {featuredListings.map(business => (
-                    <div key={business.id} className="min-w-[85vw] sm:min-w-[340px] md:min-w-[380px] snap-center">
-                        <BusinessCard business={business} />
-                    </div>
-                ))}
+                {isLoading ? (
+                    [...Array(4)].map((_, i) => (
+                        <div key={i} className="min-w-[85vw] sm:min-w-[340px] md:min-w-[380px] snap-center">
+                            <BusinessCardSkeleton />
+                        </div>
+                    ))
+                ) : (
+                    featuredListings.map(business => (
+                        <div key={business.id} className="min-w-[85vw] sm:min-w-[340px] md:min-w-[380px] snap-center">
+                            <BusinessCard business={business} />
+                        </div>
+                    ))
+                )}
             </div>
         </div>
       </section>
@@ -179,9 +208,15 @@ const Home: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {trendingBusinesses.map((business) => (
-              <BusinessCard key={business.id} business={business} />
-            ))}
+            {isLoading ? (
+                [...Array(3)].map((_, i) => (
+                    <BusinessCardSkeleton key={i} />
+                ))
+            ) : (
+                trendingBusinesses.map((business) => (
+                  <BusinessCard key={business.id} business={business} />
+                ))
+            )}
           </div>
         </div>
       </section>

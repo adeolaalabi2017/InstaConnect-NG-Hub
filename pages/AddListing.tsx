@@ -1,12 +1,14 @@
 
-import React, { useEffect } from 'react';
-import { Upload } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Upload, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const AddListing: React.FC = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -14,23 +16,50 @@ const AddListing: React.FC = () => {
     }
   }, [user, isLoading, navigate]);
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      setTimeout(() => {
+          navigate('/dashboard');
+      }, 2000);
+    }, 1500);
+  };
+
   if (isLoading) return <div className="py-20 text-center dark:text-white">Loading...</div>;
   if (!user) return null;
 
+  if (submitted) {
+      return (
+          <div className="max-w-3xl mx-auto px-4 py-20 text-center animate-fade-in">
+              <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle size={40} />
+              </div>
+              <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Listing Submitted!</h2>
+              <p className="text-slate-500 dark:text-slate-400 mb-8">Your business listing has been submitted for review. You will be notified once it's approved.</p>
+              <p className="text-sm text-slate-400">Redirecting to dashboard...</p>
+          </div>
+      );
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
+    <div className="max-w-3xl mx-auto px-4 py-12 animate-fade-in">
         <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-dark dark:text-white mb-2">Add New Listing</h1>
             <p className="text-graytext dark:text-gray-400">Fill in the details below to list your business.</p>
         </div>
 
         <div className="glass-card p-8 rounded-2xl shadow-xl">
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-dark dark:text-white mb-2">Business Name</label>
-                        <input type="text" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="e.g. Divine Hotels" />
+                        <input required type="text" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="e.g. Divine Hotels" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-dark dark:text-white mb-2">Category</label>
@@ -47,17 +76,17 @@ const AddListing: React.FC = () => {
 
                 <div>
                     <label className="block text-sm font-medium text-dark dark:text-white mb-2">Description</label>
-                    <textarea rows={4} className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="Tell us about your business..."></textarea>
+                    <textarea required rows={4} className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="Tell us about your business..."></textarea>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-dark dark:text-white mb-2">Email Address</label>
-                        <input type="email" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="email@example.com" />
+                        <input required type="email" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="email@example.com" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-dark dark:text-white mb-2">Phone Number</label>
-                        <input type="tel" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="+234 800 000 0000" />
+                        <input required type="tel" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="+234 800 000 0000" />
                     </div>
                 </div>
 
@@ -77,7 +106,7 @@ const AddListing: React.FC = () => {
 
                 <div>
                     <label className="block text-sm font-medium text-dark dark:text-white mb-2">Address</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="Street Address, City, State" />
+                    <input required type="text" className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-0 focus:outline-none transition-colors text-dark dark:text-white placeholder-gray-400" placeholder="Street Address, City, State" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -106,8 +135,8 @@ const AddListing: React.FC = () => {
                 </div>
 
                 <div className="pt-4">
-                    <button type="submit" className="w-full bg-primary hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-500/30 transition-all text-lg">
-                        Submit Listing
+                    <button disabled={isSubmitting} type="submit" className="w-full bg-primary hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-500/30 transition-all text-lg disabled:opacity-50">
+                        {isSubmitting ? 'Submitting...' : 'Submit Listing'}
                     </button>
                 </div>
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { analyticsService } from '../services/analytics';
 import { Users, Store, DollarSign, Activity } from 'lucide-react';
+import { fetchAdminOverview, fetchAdminTimeSeries, fetchAdminCategories } from '../services/api';
 import KpiCard from '../components/KpiCard';
 import LineChart from '../components/LineChart';
 import DoughnutChart from '../components/DoughnutChart';
@@ -16,27 +17,51 @@ const AdminDashboard: React.FC = () => {
   const [timeSeries, setTimeSeries] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
 
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
   useEffect(() => {
-    if (!isLoading) {
-      if (!user || user.role !== 'admin') {
-        navigate('/');
-        return;
+    const loadAdminData = async () => {
+      if (!isLoading) {
+        if (!user || user.role !== 'admin') {
+          navigate('/');
+          return;
+        }
+        
+        setIsDataLoading(true);
+        try {
+          const [overview, ts, cats] = await Promise.all([
+            fetchAdminOverview(user.role),
+            fetchAdminTimeSeries(user.role),
+            fetchAdminCategories(user.role)
+          ]);
+          setStats(overview);
+          setTimeSeries(ts);
+          setCategories(cats);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsDataLoading(false);
+        }
       }
-      
-      try {
-        const overview = analyticsService.getAdminOverview(user.role);
-        setStats(overview);
-        const ts = analyticsService.getNewUsersTimeSeries(user.role);
-        setTimeSeries(ts);
-        const cats = analyticsService.getBusinessCategoryDistribution(user.role);
-        setCategories(cats);
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    };
+    loadAdminData();
   }, [user, isLoading, navigate]);
 
-  if (isLoading || !stats) return <div className="p-10 text-center">Loading Admin Panel...</div>;
+  if (isLoading || isDataLoading || !stats) return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-10"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="lg:col-span-2 h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+        <div className="h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+      </div>
+    </div>
+  );
 
   // Prepare Chart Data
   const lineChartData: ChartData<'line'> = {

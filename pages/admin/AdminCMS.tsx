@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Textarea, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Badge } from '../../components/admin/AdminComponents';
 import { contentService } from '../../services/content';
+import { fetchPages, fetchBlogPosts, fetchFAQs, fetchTestimonials, fetchSubscribers } from '../../services/api';
 import { SiteConfig, HeaderConfig, HeroConfig, FooterConfig, NavLink } from '../../types';
 import { Save, RefreshCw, Layout, Type, Image as ImageIcon, Link as LinkIcon, ToggleLeft, ToggleRight, X, Plus, File, BookOpen, Mail, HelpCircle, MessageSquareQuote, Edit, Trash2, CheckCircle, Send, Layers, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -456,10 +457,48 @@ const ConfigSection: React.FC = () => {
 const AdminCMS: React.FC = () => {
     const { section } = useParams<{ section?: string }>();
     const [activeTab, setActiveTab] = useState(section || 'config');
+    const [pages, setPages] = useState<any[]>([]);
+    const [blogPosts, setBlogPosts] = useState<any[]>([]);
+    const [faqs, setFaqs] = useState<any[]>([]);
+    const [testimonials, setTestimonials] = useState<any[]>([]);
+    const [subscribers, setSubscribers] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setActiveTab(section || 'config');
     }, [section]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            setIsLoading(true);
+            try {
+                if (activeTab === 'pages') {
+                    const data = await fetchPages();
+                    setPages(data);
+                } else if (activeTab === 'blog') {
+                    const data = await fetchBlogPosts();
+                    setBlogPosts(data);
+                } else if (activeTab === 'faq') {
+                    const data = await fetchFAQs();
+                    setFaqs(data);
+                } else if (activeTab === 'testimonials') {
+                    const data = await fetchTestimonials();
+                    setTestimonials(data);
+                } else if (activeTab === 'newsletters') {
+                    const data = await fetchSubscribers();
+                    setSubscribers(data);
+                }
+            } catch (error) {
+                console.error("Failed to load CMS data", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (activeTab !== 'config') {
+            loadData();
+        }
+    }, [activeTab]);
 
     return (
         <div className="animate-fade-in pb-20">
@@ -487,17 +526,29 @@ const AdminCMS: React.FC = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {MOCK_PAGES.map(page => (
-                                    <TableRow key={page.id}>
-                                        <TableCell className="font-medium">{page.title}</TableCell>
-                                        <TableCell>{page.slug}</TableCell>
-                                        <TableCell><Badge variant={page.status === 'published' ? 'success' : 'warning'}>{page.status}</Badge></TableCell>
-                                        <TableCell>{page.lastUpdated}</TableCell>
-                                        <TableCell>
-                                            <Button variant="ghost" size="sm"><Edit size={14}/></Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {isLoading ? (
+                                    Array.from({ length: 4 }).map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-20 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    pages.map(page => (
+                                        <TableRow key={page.id}>
+                                            <TableCell className="font-medium">{page.title}</TableCell>
+                                            <TableCell>{page.slug}</TableCell>
+                                            <TableCell><Badge variant={page.status === 'published' ? 'success' : 'warning'}>{page.status}</Badge></TableCell>
+                                            <TableCell>{page.lastUpdated}</TableCell>
+                                            <TableCell>
+                                                <Button variant="ghost" size="sm"><Edit size={14}/></Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </CardContent>
@@ -522,17 +573,29 @@ const AdminCMS: React.FC = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {MOCK_BLOG_POSTS.map(post => (
-                                    <TableRow key={post.id}>
-                                        <TableCell className="font-medium">{post.title}</TableCell>
-                                        <TableCell>{post.category}</TableCell>
-                                        <TableCell>{post.author}</TableCell>
-                                        <TableCell><Badge variant={post.status === 'published' ? 'success' : 'outline'}>{post.status}</Badge></TableCell>
-                                        <TableCell>
-                                            <Button variant="ghost" size="sm"><Edit size={14}/></Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {isLoading ? (
+                                    Array.from({ length: 3 }).map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-48 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-20 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    blogPosts.map(post => (
+                                        <TableRow key={post.id}>
+                                            <TableCell className="font-medium">{post.title}</TableCell>
+                                            <TableCell>{post.category}</TableCell>
+                                            <TableCell>{post.author}</TableCell>
+                                            <TableCell><Badge variant={post.status === 'published' ? 'success' : 'outline'}>{post.status}</Badge></TableCell>
+                                            <TableCell>
+                                                <Button variant="ghost" size="sm"><Edit size={14}/></Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </CardContent>
@@ -544,15 +607,27 @@ const AdminCMS: React.FC = () => {
                     <CardHeader><CardTitle>FAQs</CardTitle></CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {MOCK_FAQS.map(faq => (
-                                <div key={faq.id} className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <div className="font-bold text-sm mb-1">{faq.question}</div>
-                                        <div className="text-xs text-gray-500">{faq.category}</div>
+                            {isLoading ? (
+                                Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex justify-between items-center">
+                                        <div className="space-y-2 w-full max-w-md">
+                                            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full animate-pulse"></div>
+                                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div>
+                                        </div>
+                                        <div className="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
                                     </div>
-                                    <Button variant="ghost" size="sm"><Edit size={14}/></Button>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                faqs.map(faq => (
+                                    <div key={faq.id} className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex justify-between items-center">
+                                        <div>
+                                            <div className="font-bold text-sm mb-1">{faq.question}</div>
+                                            <div className="text-xs text-gray-500">{faq.category}</div>
+                                        </div>
+                                        <Button variant="ghost" size="sm"><Edit size={14}/></Button>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -563,16 +638,29 @@ const AdminCMS: React.FC = () => {
                     <CardHeader><CardTitle>Testimonials</CardTitle></CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {MOCK_TESTIMONIALS.map(t => (
-                                <div key={t.id} className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <div className="font-bold text-sm">{t.name}</div>
-                                        <div className="text-xs text-gray-500 mb-1">{t.role}</div>
-                                        <div className="text-sm italic">"{t.text}"</div>
+                            {isLoading ? (
+                                Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex justify-between items-center">
+                                        <div className="space-y-2 w-full max-w-md">
+                                            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 animate-pulse"></div>
+                                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div>
+                                            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full animate-pulse"></div>
+                                        </div>
+                                        <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-20 animate-pulse"></div>
                                     </div>
-                                    <Badge variant={t.status === 'approved' ? 'success' : t.status === 'rejected' ? 'danger' : 'warning'}>{t.status}</Badge>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                testimonials.map(t => (
+                                    <div key={t.id} className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex justify-between items-center">
+                                        <div>
+                                            <div className="font-bold text-sm">{t.name}</div>
+                                            <div className="text-xs text-gray-500 mb-1">{t.role}</div>
+                                            <div className="text-sm italic">"{t.text}"</div>
+                                        </div>
+                                        <Badge variant={t.status === 'approved' ? 'success' : t.status === 'rejected' ? 'danger' : 'warning'}>{t.status}</Badge>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -591,13 +679,23 @@ const AdminCMS: React.FC = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {MOCK_SUBSCRIBERS.map(s => (
-                                    <TableRow key={s.id}>
-                                        <TableCell>{s.email}</TableCell>
-                                        <TableCell>{s.joined}</TableCell>
-                                        <TableCell><Badge variant={s.status === 'active' ? 'success' : 'secondary'}>{s.status}</Badge></TableCell>
-                                    </TableRow>
-                                ))}
+                                {isLoading ? (
+                                    Array.from({ length: 3 }).map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-48 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div></TableCell>
+                                            <TableCell><div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-20 animate-pulse"></div></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    subscribers.map(s => (
+                                        <TableRow key={s.id}>
+                                            <TableCell>{s.email}</TableCell>
+                                            <TableCell>{s.joined}</TableCell>
+                                            <TableCell><Badge variant={s.status === 'active' ? 'success' : 'secondary'}>{s.status}</Badge></TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </CardContent>

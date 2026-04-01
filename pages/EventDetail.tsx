@@ -1,18 +1,57 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_EVENTS, MOCK_EVENT_COMMENTS } from '../constants';
 import { Calendar, Clock, MapPin, Share2, Users, MessageSquare, CheckCircle, Send, Flag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { fetchEventById, fetchEventComments } from '../services/api';
+import { Event } from '../types';
 
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [isAttending, setIsAttending] = useState(false);
-  const [comments, setComments] = useState(MOCK_EVENT_COMMENTS.filter(c => c.eventId === id));
+  const [event, setEvent] = useState<Event | undefined>(undefined);
+  const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const event = MOCK_EVENTS.find(e => e.id === id);
+  useEffect(() => {
+    const loadEventData = async () => {
+      if (id) {
+        setIsLoading(true);
+        try {
+          const [eventData, commentsData] = await Promise.all([
+            fetchEventById(id),
+            fetchEventComments(id)
+          ]);
+          setEvent(eventData);
+          setComments(commentsData);
+        } catch (error) {
+          console.error("Failed to load event data", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    loadEventData();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="pb-20 animate-pulse">
+        <div className="h-64 md:h-96 w-full bg-gray-200 dark:bg-gray-700"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+          </div>
+          <div className="space-y-6">
+            <div className="h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!event) {
     return <div className="text-center py-20">Event not found</div>;

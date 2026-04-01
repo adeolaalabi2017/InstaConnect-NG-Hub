@@ -1,16 +1,45 @@
-import React from 'react';
-import { MOCK_USERS_LIST, MOCK_BADGES } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { MOCK_BADGES } from '../constants';
 import { Trophy, Medal, Star, ShieldCheck } from 'lucide-react';
+import { fetchLeaderboardUsers } from '../services/api';
 
 const Leaderboard: React.FC = () => {
+    const [users, setUsers] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadUsers = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchLeaderboardUsers();
+                setUsers(data);
+            } catch (error) {
+                console.error("Failed to load leaderboard users", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadUsers();
+    }, []);
+
     // 1. Sort users by reputation points desc
     // 2. Take only Top 10
-    const topUsers = [...MOCK_USERS_LIST]
+    const topUsers = [...users]
         .sort((a, b) => b.reputationPoints - a.reputationPoints)
         .slice(0, 10);
 
     const podiumUsers = topUsers.slice(0, 3);
     const listUsers = topUsers.slice(3);
+
+    if (isLoading) {
+        return (
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mb-12"></div>
+                <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-3xl"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

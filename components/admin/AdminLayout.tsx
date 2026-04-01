@@ -70,7 +70,8 @@ const AdminLayout: React.FC = () => {
       ]
     }, 
     { name: 'Listings', path: '/admin/listings', icon: List, permission: 'manage_listings' },
-    { name: 'Customers', path: '/admin/marketing', icon: Users, permission: 'manage_users' },
+    { name: 'Marketing', path: '/admin/marketing', icon: Megaphone, permission: 'manage_users' },
+    { name: 'Users', path: '/admin/users', icon: Users, permission: 'manage_users' },
     { name: 'Settings', path: '/admin/settings', icon: Settings, permission: 'manage_settings' },
   ];
 

@@ -1,47 +1,111 @@
 
-import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import React, { useEffect, Suspense, lazy } from 'react';
+import { HashRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 import Layout from './components/Layout';
-import Home from './pages/Home';
-import BusinessDetail from './pages/BusinessDetail';
-import AddListing from './pages/AddListing';
-import Listings from './pages/Listings';
-import TopRated from './pages/TopRated';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import BusinessDashboard from './pages/BusinessDashboard';
-import Events from './pages/Events';
-import EventDetail from './pages/EventDetail';
-import AddEvent from './pages/AddEvent';
-import Community from './pages/Community';
-import ThreadDetail from './pages/ThreadDetail';
-import UserProfile from './pages/UserProfile';
-import Settings from './pages/Settings';
-import Contact from './pages/Contact';
+import PageTransition from './components/PageTransition';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ComparisonProvider } from './components/ComparisonContext';
 import { cronService } from './services/cron';
 
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Lazy load pages
+const Home = lazy(() => import('./pages/Home'));
+const BusinessDetail = lazy(() => import('./pages/BusinessDetail'));
+const AddListing = lazy(() => import('./pages/AddListing'));
+const Listings = lazy(() => import('./pages/Listings'));
+const TopRated = lazy(() => import('./pages/TopRated'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const BusinessDashboard = lazy(() => import('./pages/BusinessDashboard'));
+const Events = lazy(() => import('./pages/Events'));
+const EventDetail = lazy(() => import('./pages/EventDetail'));
+const AddEvent = lazy(() => import('./pages/AddEvent'));
+const Community = lazy(() => import('./pages/Community'));
+const ThreadDetail = lazy(() => import('./pages/ThreadDetail'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Contact = lazy(() => import('./pages/Contact'));
+
 // Admin Imports
-import AdminLayout from './components/admin/AdminLayout';
-import AdminOverview from './pages/admin/AdminOverview';
-import AdminAnalytics from './pages/admin/AdminAnalytics';
-import AdminAnalyticsTraffic from './pages/admin/AdminAnalyticsTraffic';
-import AdminAnalyticsInsights from './pages/admin/AdminAnalyticsInsights';
-import AdminAnalyticsRealtime from './pages/admin/AdminAnalyticsRealtime';
-import AdminAnalyticsCustom from './pages/admin/AdminAnalyticsCustom';
-import AdminMarketing from './pages/admin/AdminMarketing';
-import AdminOrders from './pages/admin/AdminOrders';
-import AdminListings from './pages/admin/AdminListings';
-import AdminCMS from './pages/admin/AdminCMS';
-import AdminSettings from './pages/admin/AdminSettings';
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminOverview = lazy(() => import('./pages/admin/AdminOverview'));
+const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminAnalyticsTraffic = lazy(() => import('./pages/admin/AdminAnalyticsTraffic'));
+const AdminAnalyticsInsights = lazy(() => import('./pages/admin/AdminAnalyticsInsights'));
+const AdminAnalyticsRealtime = lazy(() => import('./pages/admin/AdminAnalyticsRealtime'));
+const AdminAnalyticsCustom = lazy(() => import('./pages/admin/AdminAnalyticsCustom'));
+const AdminMarketing = lazy(() => import('./pages/admin/AdminMarketing'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminListings = lazy(() => import('./pages/admin/AdminListings'));
+const AdminCMS = lazy(() => import('./pages/admin/AdminCMS'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const PublicLayoutWrapper = () => (
   <Layout>
     <Outlet />
   </Layout>
 );
+
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Admin ERP Routes */}
+        <Route path="/admin" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><AdminLayout /></Suspense></ErrorBoundary>}>
+          <Route index element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminOverview /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="analytics" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAnalytics /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="analytics/traffic" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAnalyticsTraffic /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="analytics/insights" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAnalyticsInsights /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="analytics/realtime" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAnalyticsRealtime /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="analytics/custom" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAnalyticsCustom /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="marketing" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminMarketing /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="orders" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminOrders /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="listings" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminListings /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="users" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminUsers /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="content" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminCMS /></Suspense></ErrorBoundary></PageTransition>}>
+            <Route path=":section" element={<AdminCMS />} />
+          </Route>
+          <Route path="cms" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminCMS /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="settings" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSettings /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="*" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AdminOverview /></Suspense></ErrorBoundary></PageTransition>} />
+        </Route>
+
+        {/* Public-facing routes */}
+        <Route element={<PublicLayoutWrapper />}>
+          <Route path="/" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Home /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/listing/:id" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><BusinessDetail /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/listings" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Listings /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/top-rated" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><TopRated /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/add-listing" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AddListing /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/dashboard" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><BusinessDashboard /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/community" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Community /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/community/:id" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><ThreadDetail /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/profile" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><UserProfile /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/settings" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Settings /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/events" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Events /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/event/:id" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><EventDetail /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/add-event" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><AddEvent /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/login" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Login /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/signup" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Signup /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="/contact" element={<PageTransition><ErrorBoundary><Suspense fallback={<PageLoader />}><Contact /></Suspense></ErrorBoundary></PageTransition>} />
+          <Route path="*" element={<PageTransition><div className="py-20 text-center">Page Not Found</div></PageTransition>} />
+        </Route>
+      </Routes>
+    </AnimatePresence>
+  );
+};
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -54,47 +118,7 @@ const App: React.FC = () => {
       <ThemeProvider>
         <ComparisonProvider>
           <Router>
-            <Routes>
-              {/* Admin ERP Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminOverview />} />
-                <Route path="analytics" element={<AdminAnalytics />} />
-                <Route path="analytics/traffic" element={<AdminAnalyticsTraffic />} />
-                <Route path="analytics/insights" element={<AdminAnalyticsInsights />} />
-                <Route path="analytics/realtime" element={<AdminAnalyticsRealtime />} />
-                <Route path="analytics/custom" element={<AdminAnalyticsCustom />} />
-                <Route path="marketing" element={<AdminMarketing />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="listings" element={<AdminListings />} />
-                <Route path="content" element={<AdminCMS />}>
-                  <Route path=":section" element={<AdminCMS />} />
-                </Route>
-                <Route path="cms" element={<AdminCMS />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="*" element={<AdminOverview />} />
-              </Route>
-
-              {/* Public-facing routes */}
-              <Route element={<PublicLayoutWrapper />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/listing/:id" element={<BusinessDetail />} />
-                <Route path="/listings" element={<Listings />} />
-                <Route path="/top-rated" element={<TopRated />} />
-                <Route path="/add-listing" element={<AddListing />} />
-                <Route path="/dashboard" element={<BusinessDashboard />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/community/:id" element={<ThreadDetail />} />
-                <Route path="/profile" element={<UserProfile />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/event/:id" element={<EventDetail />} />
-                <Route path="/add-event" element={<AddEvent />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="*" element={<div className="py-20 text-center">Page Not Found</div>} />
-              </Route>
-            </Routes>
+            <AnimatedRoutes />
           </Router>
         </ComparisonProvider>
       </ThemeProvider>

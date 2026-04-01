@@ -210,6 +210,56 @@ export const MOCK_USERS_LIST: User[] = [MOCK_USER];
 export const MOCK_EVENTS: Event[] = [];
 export const MOCK_COMMUNITY_THREADS: CommunityThread[] = [];
 export const MOCK_TRANSACTIONS: Transaction[] = [];
-export const MOCK_ADS: AdPlacement[] = [];
+export const MOCK_ADS: AdPlacement[] = [
+  {
+    id: 'ad_1',
+    name: 'Summer Sale Banner',
+    status: 'active',
+    location: 'Homepage Banner',
+    imageUrl: 'https://picsum.photos/seed/ad1/800/400',
+    destinationUrl: 'https://example.com/sale',
+    startDate: '2026-06-01',
+    endDate: '2026-08-31',
+    impressions: 15420,
+    clicks: 320,
+    targeting: { category: 'Shopping' }
+  },
+  {
+    id: 'ad_2',
+    name: 'Tech Conference Promo',
+    status: 'paused',
+    location: 'Listing Sidebar',
+    imageUrl: 'https://picsum.photos/seed/ad2/300/600',
+    destinationUrl: 'https://example.com/tech',
+    startDate: '2026-03-15',
+    endDate: '2026-04-15',
+    impressions: 8900,
+    clicks: 145,
+    targeting: {}
+  }
+];
 export const MOCK_EVENT_COMMENTS: EventComment[] = [];
-export const MOCK_CAMPAIGNS: MarketingCampaign[] = [];
+export const MOCK_CAMPAIGNS: MarketingCampaign[] = [
+  {
+    id: 'camp_1',
+    name: 'New Year Boost',
+    status: 'completed',
+    channel: 'Email',
+    budget: 50000,
+    spent: 48500,
+    roi: '+12.5%',
+    startDate: '2026-01-01',
+    endDate: '2026-01-31'
+  },
+  {
+    id: 'camp_2',
+    name: 'Spring Festival',
+    status: 'active',
+    channel: 'Social Media',
+    budget: 120000,
+    spent: 45000,
+    roi: '+8.2%',
+    startDate: '2026-03-01',
+    endDate: '2026-05-31'
+  }
+];

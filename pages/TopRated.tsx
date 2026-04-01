@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_BUSINESSES } from '../constants';
 import BusinessCard from '../components/BusinessCard';
+import BusinessCardSkeleton from '../components/BusinessCardSkeleton';
 import { Star, Edit, X, Search, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Business } from '../types';
+import { fetchBusinesses } from '../services/api';
 
-const WriteReviewModal = ({ onClose }: { onClose: () => void }) => {
+const WriteReviewModal = ({ onClose, businesses }: { onClose: () => void, businesses: Business[] }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
     const [rating, setRating] = useState(0);
@@ -15,8 +16,9 @@ const WriteReviewModal = ({ onClose }: { onClose: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const filteredBusinesses = searchTerm 
-        ? MOCK_BUSINESSES.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        ? businesses.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase()))
         : [];
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -166,9 +168,26 @@ const TopRated: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [showReviewModal, setShowReviewModal] = useState(false);
+    const [businesses, setBusinesses] = useState<Business[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadBusinesses = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchBusinesses();
+                setBusinesses(data);
+            } catch (error) {
+                console.error("Failed to load businesses:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadBusinesses();
+    }, []);
 
     // Sort businesses by rating (descending), then by review count
-    const topBusinesses = [...MOCK_BUSINESSES]
+    const topBusinesses = [...businesses]
         .filter(b => b.rating >= 4.0) // Only show 4.0+
         .sort((a, b) => {
             if (b.rating !== a.rating) return b.rating - a.rating;
@@ -203,24 +222,28 @@ const TopRated: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {topBusinesses.map((business, index) => (
-                    <div key={business.id} className="relative">
-                        {/* Rank Badge */}
-                        <div className="absolute -top-4 -left-4 w-12 h-12 bg-dark text-white rounded-full flex items-center justify-center font-black text-xl shadow-xl z-10 border-4 border-white">
-                            #{index + 1}
+                {isLoading ? (
+                    [...Array(6)].map((_, i) => <BusinessCardSkeleton key={i} />)
+                ) : (
+                    topBusinesses.map((business, index) => (
+                        <div key={business.id} className="relative">
+                            {/* Rank Badge */}
+                            <div className="absolute -top-4 -left-4 w-12 h-12 bg-dark text-white rounded-full flex items-center justify-center font-black text-xl shadow-xl z-10 border-4 border-white">
+                                #{index + 1}
+                            </div>
+                            <BusinessCard business={business} />
                         </div>
-                        <BusinessCard business={business} />
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
 
-            {topBusinesses.length === 0 && (
+            {!isLoading && topBusinesses.length === 0 && (
                 <div className="text-center py-20">
                     <p className="text-gray-400">No top rated businesses found yet.</p>
                 </div>
             )}
 
-            {showReviewModal && <WriteReviewModal onClose={() => setShowReviewModal(false)} />}
+            {showReviewModal && <WriteReviewModal onClose={() => setShowReviewModal(false)} businesses={businesses} />}
         </div>
     );
 };

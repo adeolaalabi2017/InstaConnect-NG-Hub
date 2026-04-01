@@ -1,10 +1,10 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, ArrowBigUp, ArrowBigDown, Share2, MoreHorizontal, PenSquare, X, Bold, Italic, Underline, List, Image as ImageIcon, Heading1, Heading2, Quote } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { MOCK_COMMUNITY_THREADS } from '../constants';
 import { CommunityThread, CommunityComment } from '../types';
+import { fetchCommunityThreads } from '../services/api';
 
 // --- Rich Text Editor Components ---
 
@@ -152,9 +152,25 @@ const CreateThreadModal = ({ onClose, onSubmit }: { onClose: () => void, onSubmi
 const Community: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [threads, setThreads] = useState<CommunityThread[]>(MOCK_COMMUNITY_THREADS);
+    const [threads, setThreads] = useState<CommunityThread[]>([]);
     const [filter, setFilter] = useState('All');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadThreads = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchCommunityThreads();
+                setThreads(data);
+            } catch (error) {
+                console.error("Failed to load community threads", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadThreads();
+    }, []);
 
     const handleVote = (id: string, type: 'up' | 'down') => {
         if (!user) {
@@ -256,69 +272,77 @@ const Community: React.FC = () => {
                         ))}
                     </div>
 
-                    {threads.map(thread => (
-                        <div key={thread.id} className="glass-card rounded-xl overflow-hidden hover:border-primary/30 transition-colors border border-transparent dark:border-gray-800">
-                            <div className="flex">
-                                {/* Vote Column */}
-                                <div className="w-12 bg-gray-50 dark:bg-gray-800/50 flex flex-col items-center py-4 gap-1 border-r border-gray-100 dark:border-gray-700/50">
-                                    <button 
-                                        onClick={() => handleVote(thread.id, 'up')}
-                                        className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${thread.userVote === 'up' ? 'text-primary' : 'text-gray-400'}`}
-                                    >
-                                        <ArrowBigUp size={24} className={thread.userVote === 'up' ? 'fill-current' : ''} />
-                                    </button>
-                                    <span className={`text-sm font-bold ${thread.userVote === 'up' ? 'text-primary' : thread.userVote === 'down' ? 'text-blue-500' : 'text-dark dark:text-white'}`}>
-                                        {thread.upvotes - thread.downvotes}
-                                    </span>
-                                    <button 
-                                        onClick={() => handleVote(thread.id, 'down')}
-                                        className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${thread.userVote === 'down' ? 'text-blue-500' : 'text-gray-400'}`}
-                                    >
-                                        <ArrowBigDown size={24} className={thread.userVote === 'down' ? 'fill-current' : ''} />
-                                    </button>
-                                </div>
-
-                                {/* Content Column */}
-                                <div className="flex-1 p-4">
-                                    {/* Thread Meta */}
-                                    <div className="flex items-center gap-2 mb-2 text-xs text-gray-500 dark:text-gray-400">
-                                        <img src={thread.author.image} alt={thread.author.name} className="w-5 h-5 rounded-full object-cover" />
-                                        <span className="font-bold text-dark dark:text-gray-200 hover:underline cursor-pointer">{thread.author.name}</span>
-                                        <span>•</span>
-                                        <span>{thread.timestamp}</span>
-                                        <span>•</span>
-                                        <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md font-medium text-[10px] uppercase tracking-wide">{thread.category}</span>
+                    {isLoading ? (
+                        <div className="space-y-4 animate-pulse">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="glass-card rounded-xl overflow-hidden h-32 bg-gray-200 dark:bg-gray-700"></div>
+                            ))}
+                        </div>
+                    ) : (
+                        threads.map(thread => (
+                            <div key={thread.id} className="glass-card rounded-xl overflow-hidden hover:border-primary/30 transition-colors border border-transparent dark:border-gray-800">
+                                <div className="flex">
+                                    {/* Vote Column */}
+                                    <div className="w-12 bg-gray-50 dark:bg-gray-800/50 flex flex-col items-center py-4 gap-1 border-r border-gray-100 dark:border-gray-700/50">
+                                        <button 
+                                            onClick={() => handleVote(thread.id, 'up')}
+                                            className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${thread.userVote === 'up' ? 'text-primary' : 'text-gray-400'}`}
+                                        >
+                                            <ArrowBigUp size={24} className={thread.userVote === 'up' ? 'fill-current' : ''} />
+                                        </button>
+                                        <span className={`text-sm font-bold ${thread.userVote === 'up' ? 'text-primary' : thread.userVote === 'down' ? 'text-blue-500' : 'text-dark dark:text-white'}`}>
+                                            {thread.upvotes - thread.downvotes}
+                                        </span>
+                                        <button 
+                                            onClick={() => handleVote(thread.id, 'down')}
+                                            className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${thread.userVote === 'down' ? 'text-blue-500' : 'text-gray-400'}`}
+                                        >
+                                            <ArrowBigDown size={24} className={thread.userVote === 'down' ? 'fill-current' : ''} />
+                                        </button>
                                     </div>
 
-                                    {/* Title & Preview Link */}
-                                    <Link to={`/community/${thread.id}`} className="block group">
-                                        <h3 className="text-lg font-bold text-dark dark:text-white mb-2 leading-tight group-hover:text-primary transition-colors">
-                                            {thread.title}
-                                        </h3>
-                                        <p className="text-sm text-graytext dark:text-gray-300 line-clamp-2 mb-4">
-                                            {stripHtml(thread.content)}
-                                        </p>
-                                    </Link>
+                                    {/* Content Column */}
+                                    <div className="flex-1 p-4">
+                                        {/* Thread Meta */}
+                                        <div className="flex items-center gap-2 mb-2 text-xs text-gray-500 dark:text-gray-400">
+                                            <img src={thread.author.image} alt={thread.author.name} className="w-5 h-5 rounded-full object-cover" />
+                                            <span className="font-bold text-dark dark:text-gray-200 hover:underline cursor-pointer">{thread.author.name}</span>
+                                            <span>•</span>
+                                            <span>{thread.timestamp}</span>
+                                            <span>•</span>
+                                            <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md font-medium text-[10px] uppercase tracking-wide">{thread.category}</span>
+                                        </div>
 
-                                    {/* Action Bar */}
-                                    <div className="flex items-center gap-4">
-                                        <Link 
-                                            to={`/community/${thread.id}`}
-                                            className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors"
-                                        >
-                                            <MessageSquare size={16} /> {thread.commentCount} Comments
+                                        {/* Title & Preview Link */}
+                                        <Link to={`/community/${thread.id}`} className="block group">
+                                            <h3 className="text-lg font-bold text-dark dark:text-white mb-2 leading-tight group-hover:text-primary transition-colors">
+                                                {thread.title}
+                                            </h3>
+                                            <p className="text-sm text-graytext dark:text-gray-300 line-clamp-2 mb-4">
+                                                {stripHtml(thread.content)}
+                                            </p>
                                         </Link>
-                                        <button className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors">
-                                            <Share2 size={16} /> Share
-                                        </button>
-                                        <button className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors ml-auto">
-                                            <MoreHorizontal size={16} />
-                                        </button>
+
+                                        {/* Action Bar */}
+                                        <div className="flex items-center gap-4">
+                                            <Link 
+                                                to={`/community/${thread.id}`}
+                                                className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors"
+                                            >
+                                                <MessageSquare size={16} /> {thread.commentCount} Comments
+                                            </Link>
+                                            <button className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors">
+                                                <Share2 size={16} /> Share
+                                            </button>
+                                            <button className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 rounded-lg transition-colors ml-auto">
+                                                <MoreHorizontal size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
 
                 {/* Sidebar */}

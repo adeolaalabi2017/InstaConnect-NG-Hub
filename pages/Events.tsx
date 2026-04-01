@@ -1,16 +1,34 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Grid, List, Clock, Search, Plus, Users, LayoutGrid } from 'lucide-react';
-import { MOCK_EVENTS } from '../constants';
 import { useAuth } from '../context/AuthContext';
+import { fetchEvents } from '../services/api';
+import { Event } from '../types';
 
 const Events: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredEvents = MOCK_EVENTS.filter(event => 
+  useEffect(() => {
+    const loadEvents = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchEvents();
+        setEvents(data);
+      } catch (error) {
+        console.error("Failed to fetch events", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadEvents();
+  }, []);
+
+  const filteredEvents = events.filter(event => 
     event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -179,14 +197,24 @@ const Events: React.FC = () => {
       </div>
 
       {/* Content */}
-      {viewMode === 'grid' && <GridView />}
-      {viewMode === 'list' && <ListView />}
-      {viewMode === 'calendar' && <CalendarView />}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="glass-card rounded-2xl overflow-hidden h-80 bg-gray-200 dark:bg-gray-700"></div>
+          ))}
+        </div>
+      ) : (
+        <>
+          {viewMode === 'grid' && <GridView />}
+          {viewMode === 'list' && <ListView />}
+          {viewMode === 'calendar' && <CalendarView />}
 
-      {filteredEvents.length === 0 && (
-          <div className="text-center py-20 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-              <p className="text-gray-500 dark:text-gray-400">No events found matching your search.</p>
-          </div>
+          {filteredEvents.length === 0 && (
+              <div className="text-center py-20 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                  <p className="text-gray-500 dark:text-gray-400">No events found matching your search.</p>
+              </div>
+          )}
+        </>
       )}
     </div>
   );

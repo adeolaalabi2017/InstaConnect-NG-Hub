@@ -1,11 +1,20 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../../components/admin/AdminComponents';
 import LineChart from '../../components/LineChart';
 import { ChartData } from 'chart.js';
 import { TrendingUp, MousePointer, ExternalLink, Clock } from 'lucide-react';
 
 const AdminAnalyticsTraffic: React.FC = () => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 800);
+        return () => clearTimeout(timer);
+    }, []);
+
     // Mock Data for Charts
     const visitsData: ChartData<'line'> = {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -49,7 +58,7 @@ const AdminAnalyticsTraffic: React.FC = () => {
                             <span className="text-gray-500 text-sm">Total Page Views</span>
                             <ExternalLink size={16} className="text-blue-500" />
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">145,203</div>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold text-slate-900 dark:text-white">145,203</div>}
                         <div className="text-xs text-green-500 font-bold flex items-center mt-1"><TrendingUp size={12} className="mr-1"/> +12.5%</div>
                     </CardContent>
                 </Card>
@@ -59,7 +68,7 @@ const AdminAnalyticsTraffic: React.FC = () => {
                             <span className="text-gray-500 text-sm">Unique Visitors</span>
                             <MousePointer size={16} className="text-purple-500" />
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">89,405</div>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold text-slate-900 dark:text-white">89,405</div>}
                         <div className="text-xs text-green-500 font-bold flex items-center mt-1"><TrendingUp size={12} className="mr-1"/> +8.2%</div>
                     </CardContent>
                 </Card>
@@ -69,7 +78,7 @@ const AdminAnalyticsTraffic: React.FC = () => {
                             <span className="text-gray-500 text-sm">Avg. Session</span>
                             <Clock size={16} className="text-orange-500" />
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">4m 32s</div>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold text-slate-900 dark:text-white">4m 32s</div>}
                         <div className="text-xs text-red-500 font-bold flex items-center mt-1"><TrendingUp size={12} className="mr-1 rotate-180"/> -1.5%</div>
                     </CardContent>
                 </Card>
@@ -79,7 +88,7 @@ const AdminAnalyticsTraffic: React.FC = () => {
                             <span className="text-gray-500 text-sm">Bounce Rate</span>
                             <Activity size={16} className="text-red-500" />
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">42.8%</div>
+                        {isLoading ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div> : <div className="text-2xl font-bold text-slate-900 dark:text-white">42.8%</div>}
                         <div className="text-xs text-green-500 font-bold flex items-center mt-1"><TrendingUp size={12} className="mr-1 rotate-180"/> -2.1% (Good)</div>
                     </CardContent>
                 </Card>
@@ -90,42 +99,48 @@ const AdminAnalyticsTraffic: React.FC = () => {
                     <CardTitle>Visitor Growth</CardTitle>
                 </CardHeader>
                 <CardContent className="h-80">
-                    <LineChart data={visitsData} />
+                    {isLoading ? <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div> : <LineChart data={visitsData} />}
                 </CardContent>
             </Card>
 
             <Card>
                 <CardHeader><CardTitle>Top Traffic Sources</CardTitle></CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Source</TableHead>
-                                <TableHead>Users</TableHead>
-                                <TableHead>New Users</TableHead>
-                                <TableHead>Sessions</TableHead>
-                                <TableHead>Bounce Rate</TableHead>
-                                <TableHead>Avg. Duration</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {[
-                                { source: 'Google / Organic', users: '45,200', new: '38,000', sessions: '60,100', bounce: '35%', duration: '5m 12s' },
-                                { source: 'Direct', users: '22,100', new: '5,000', sessions: '35,400', bounce: '28%', duration: '6m 45s' },
-                                { source: 'Twitter / Social', users: '12,800', new: '11,500', sessions: '15,200', bounce: '65%', duration: '1m 20s' },
-                                { source: 'Newsletter / Email', users: '8,500', new: '200', sessions: '12,000', bounce: '40%', duration: '3m 30s' },
-                            ].map((row, i) => (
-                                <TableRow key={i}>
-                                    <TableCell className="font-medium text-indigo-600">{row.source}</TableCell>
-                                    <TableCell>{row.users}</TableCell>
-                                    <TableCell>{row.new}</TableCell>
-                                    <TableCell>{row.sessions}</TableCell>
-                                    <TableCell>{row.bounce}</TableCell>
-                                    <TableCell>{row.duration}</TableCell>
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4].map(i => <div key={i} className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>)}
+                        </div>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Source</TableHead>
+                                    <TableHead>Users</TableHead>
+                                    <TableHead>New Users</TableHead>
+                                    <TableHead>Sessions</TableHead>
+                                    <TableHead>Bounce Rate</TableHead>
+                                    <TableHead>Avg. Duration</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {[
+                                    { source: 'Google / Organic', users: '45,200', new: '38,000', sessions: '60,100', bounce: '35%', duration: '5m 12s' },
+                                    { source: 'Direct', users: '22,100', new: '5,000', sessions: '35,400', bounce: '28%', duration: '6m 45s' },
+                                    { source: 'Twitter / Social', users: '12,800', new: '11,500', sessions: '15,200', bounce: '65%', duration: '1m 20s' },
+                                    { source: 'Newsletter / Email', users: '8,500', new: '200', sessions: '12,000', bounce: '40%', duration: '3m 30s' },
+                                ].map((row, i) => (
+                                    <TableRow key={i}>
+                                        <TableCell className="font-medium text-indigo-600">{row.source}</TableCell>
+                                        <TableCell>{row.users}</TableCell>
+                                        <TableCell>{row.new}</TableCell>
+                                        <TableCell>{row.sessions}</TableCell>
+                                        <TableCell>{row.bounce}</TableCell>
+                                        <TableCell>{row.duration}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
                 </CardContent>
             </Card>
         </div>
