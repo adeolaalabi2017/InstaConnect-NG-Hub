@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Plus, User as UserIcon, LogOut, Settings, LayoutDashboard, Shield, Trophy, Moon, Sun, Users } from 'lucide-react';
+import { Menu, X, ChevronDown, Plus, User as UserIcon, LogOut, Settings, LayoutDashboard, Shield, Trophy, Moon, Sun, Users, Home, Search, Calendar, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { contentService } from '../services/content';
@@ -31,8 +31,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => window.removeEventListener('site-config-updated', handleConfigUpdate);
   }, []);
 
-  // Increased font size to text-xl for better readability
-  const isActive = (path: string) => location.pathname === path ? 'text-primary font-semibold text-xl' : 'text-graytext dark:text-gray-300 hover:text-dark dark:hover:text-white text-xl';
+  // High-performance clean uppercase typography with tracking and hover state changes
+  const isActive = (path: string) => location.pathname === path 
+    ? 'text-primary font-bold text-xs uppercase tracking-widest border-b-2 border-primary pb-1' 
+    : 'text-graytext dark:text-gray-300 hover:text-dark dark:hover:text-white text-xs uppercase tracking-widest pb-1 transition-all duration-300';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,7 +54,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden md:flex space-x-6">
+                <nav className="hidden md:flex space-x-6 items-center">
                   {headerConfig.navLinks.map((link) => (
                     <Link key={link.id} to={link.path} className={isActive(link.path)}>{link.label}</Link>
                   ))}
@@ -254,9 +256,90 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
 
       {/* Main Content */}
-      <main className="flex-grow pt-20">
+      <main className="flex-grow pt-20 pb-24 md:pb-0 ambient-bg bg-dot-pattern">
         {children}
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl border-t border-gray-200/50 dark:border-white/10 md:hidden shadow-[0_-8px_35px_rgba(0,0,0,0.06)] dark:shadow-[0_-8px_35px_rgba(0,0,0,0.3)] safe-bottom">
+        <div className="grid grid-cols-5 h-16 items-center">
+          
+          <Link 
+            to="/" 
+            className={`flex flex-col items-center justify-center h-full transition-all duration-300 active:scale-90 ${
+              location.pathname === '/' 
+                ? 'text-primary font-bold' 
+                : 'text-graytext dark:text-gray-400 hover:text-dark dark:hover:text-white'
+            }`}
+          >
+            <Home size={20} className={location.pathname === '/' ? 'scale-110 transition-transform' : ''} />
+            <span className="text-[10px] mt-1 font-bold uppercase tracking-wider">Home</span>
+          </Link>
+
+          <Link 
+            to="/listings" 
+            className={`flex flex-col items-center justify-center h-full transition-all duration-300 active:scale-95 ${
+              location.pathname === '/listings' 
+                ? 'text-primary font-bold' 
+                : 'text-graytext dark:text-gray-400 hover:text-dark dark:hover:text-white'
+            }`}
+          >
+            <Search size={20} className={location.pathname === '/listings' ? 'scale-110 transition-transform' : ''} />
+            <span className="text-[10px] mt-1 font-bold uppercase tracking-wider">Listings</span>
+          </Link>
+
+          <Link 
+            to="/events" 
+            className={`flex flex-col items-center justify-center h-full transition-all duration-300 active:scale-95 ${
+              location.pathname === '/events' 
+                ? 'text-primary font-bold' 
+                : 'text-graytext dark:text-gray-400 hover:text-dark dark:hover:text-white'
+            }`}
+          >
+            <Calendar size={20} className={location.pathname === '/events' ? 'scale-110 transition-transform' : ''} />
+            <span className="text-[10px] mt-1 font-bold uppercase tracking-wider">Events</span>
+          </Link>
+
+          <Link 
+            to="/community" 
+            className={`flex flex-col items-center justify-center h-full transition-all duration-300 active:scale-95 ${
+              location.pathname === '/community' 
+                ? 'text-primary font-bold' 
+                : 'text-graytext dark:text-gray-400 hover:text-dark dark:hover:text-white'
+            }`}
+          >
+            <MessageSquare size={20} className={location.pathname === '/community' ? 'scale-110 transition-transform' : ''} />
+            <span className="text-[10px] mt-1 font-bold uppercase tracking-wider">Forum</span>
+          </Link>
+
+          <Link 
+            to={user ? '/profile' : '/login'} 
+            className={`flex flex-col items-center justify-center h-full transition-all duration-300 active:scale-95 ${
+              location.pathname === '/profile' || location.pathname === '/login'
+                ? 'text-primary font-bold' 
+                : 'text-graytext dark:text-gray-400 hover:text-dark dark:hover:text-white'
+            }`}
+          >
+            {user ? (
+              <img 
+                src={user.image} 
+                alt="" 
+                className={`h-5 w-5 rounded-full object-cover border ${
+                  location.pathname === '/profile' 
+                    ? 'border-primary ring-2 ring-primary/20 scale-110 transition-transform' 
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
+              />
+            ) : (
+              <UserIcon size={20} className={location.pathname === '/login' ? 'scale-110 transition-transform' : ''} />
+            )}
+            <span className="text-[10px] mt-1 font-bold uppercase tracking-wider">
+              {user ? 'Me' : 'Join'}
+            </span>
+          </Link>
+
+        </div>
+      </div>
 
       {/* Footer */}
       {footerConfig.isVisible && (

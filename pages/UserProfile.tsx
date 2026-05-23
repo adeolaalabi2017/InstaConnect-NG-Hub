@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_BADGES } from '../constants';
@@ -9,6 +9,7 @@ import * as Icons from 'lucide-react';
 const UserProfile: React.FC = () => {
     const { user, isLoading, logout } = useAuth();
     const navigate = useNavigate();
+    const [copied, setCopied] = useState(false);
 
     if (isLoading) return <div className="py-20 text-center dark:text-white">Loading Profile...</div>;
     
@@ -29,8 +30,10 @@ const UserProfile: React.FC = () => {
 
     const copyReferral = () => {
         const link = `https://vendorshub.ng/signup?ref=${user.referralCode}`;
-        navigator.clipboard.writeText(link);
-        alert("Referral link copied!");
+        navigator.clipboard.writeText(link).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
+        });
     };
 
     // Leveling Logic (500 XP per level)
@@ -211,6 +214,15 @@ const UserProfile: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {copied && (
+                <div className="fixed bottom-6 right-6 z-[9999] bg-slate-900/95 dark:bg-slate-950/95 text-white text-xs font-semibold px-4 py-3 rounded-2xl flex items-center gap-2.5 shadow-2xl border border-white/10 animate-fade-in-up backdrop-blur-md">
+                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white shrink-0">
+                        <Copy size={10} />
+                    </div>
+                    <span>Referral link copied!</span>
+                </div>
+            )}
         </div>
     );
 };

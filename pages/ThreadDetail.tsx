@@ -153,6 +153,24 @@ const ThreadDetail: React.FC = () => {
     // Pagination State
     const [visibleComments, setVisibleComments] = useState(20);
 
+    // Sort comments based on selected criteria (positioned before early returns to comply with hook rules)
+    const sortedComments = React.useMemo(() => {
+        if (!thread || !thread.comments) return [];
+        const comments = [...thread.comments];
+        switch (sortBy) {
+            case 'Newest':
+                return comments.reverse();
+            case 'Oldest':
+                return comments;
+            case 'Upvoted':
+                return comments.sort((a, b) => b.upvotes - a.upvotes);
+            case 'Controversial':
+                return comments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
+            default:
+                return comments;
+        }
+    }, [thread, sortBy]);
+
     useEffect(() => {
         const loadThread = async () => {
             if (!id) return;
@@ -272,27 +290,8 @@ const ThreadDetail: React.FC = () => {
         });
     };
 
-    // Sort comments based on selected criteria
-    const sortedComments = useMemo(() => {
-        const comments = [...thread.comments];
-        switch (sortBy) {
-            case 'Newest':
-                // Assuming IDs for new comments are higher or they were added later in the array
-                return comments.reverse();
-            case 'Oldest':
-                return comments;
-            case 'Upvoted':
-                return comments.sort((a, b) => b.upvotes - a.upvotes);
-            case 'Controversial':
-                // Defined as comments with the most replies in this mock context
-                return comments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
-            default:
-                return comments;
-        }
-    }, [thread.comments, sortBy]);
-
     const displayedComments = sortedComments.slice(0, visibleComments);
-    const hasMoreComments = thread.comments.length > visibleComments;
+    const hasMoreComments = thread ? thread.comments.length > visibleComments : false;
 
     return (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">

@@ -11,6 +11,49 @@ import {
 import { Button } from './AdminComponents';
 import { Permission } from '../../types';
 
+interface NavItem {
+  name: string;
+  path: string;
+  icon: React.ElementType;
+  permission?: Permission;
+  children?: NavItem[];
+}
+
+const navItems: NavItem[] = [
+  { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { name: 'Wallet', path: '/admin/orders', icon: Wallet, permission: 'manage_orders' },
+  { 
+    name: 'Analytics', 
+    path: '/admin/analytics', 
+    icon: BarChart3,
+    children: [
+      { name: 'Overview', path: '/admin/analytics', icon: LayoutDashboard },
+      { name: 'Traffic Reports', path: '/admin/analytics/traffic', icon: TrendingUp },
+      { name: 'User Insights', path: '/admin/analytics/insights', icon: Users },
+      { name: 'Real-time', path: '/admin/analytics/realtime', icon: Activity },
+      { name: 'Custom Reports', path: '/admin/analytics/custom', icon: FileText },
+    ]
+  },
+  { 
+    name: 'Content', 
+    path: '/admin/content', 
+    icon: FileText, 
+    permission: 'manage_content',
+    children: [
+      { name: 'Site Config', path: '/admin/content/config', icon: Layout },
+      { name: 'CMS Pages', path: '/admin/content/pages', icon: File },
+      { name: 'Blog', path: '/admin/content/blog', icon: BookOpen },
+      { name: 'Newsletters', path: '/admin/content/newsletters', icon: Mail },
+      { name: 'FAQ', path: '/admin/content/faq', icon: HelpCircle },
+      { name: 'Testimonials', path: '/admin/content/testimonials', icon: MessageSquareQuote },
+    ]
+  }, 
+  { name: 'Listings', path: '/admin/listings', icon: List, permission: 'manage_listings' },
+  { name: 'Marketing', path: '/admin/marketing', icon: Megaphone, permission: 'manage_users' },
+  { name: 'Users', path: '/admin/users', icon: Users, permission: 'manage_users' },
+  { name: 'Settings', path: '/admin/settings', icon: Settings, permission: 'manage_settings' },
+];
+
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
@@ -32,54 +75,11 @@ const AdminLayout: React.FC = () => {
     setOpenMenus(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  interface NavItem {
-    name: string;
-    path: string;
-    icon: React.ElementType;
-    permission?: Permission;
-    children?: NavItem[];
-  }
-
-  const navItems: NavItem[] = [
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-    { name: 'Wallet', path: '/admin/orders', icon: Wallet, permission: 'manage_orders' },
-    { 
-      name: 'Analytics', 
-      path: '/admin/analytics', 
-      icon: BarChart3,
-      children: [
-        { name: 'Overview', path: '/admin/analytics', icon: LayoutDashboard },
-        { name: 'Traffic Reports', path: '/admin/analytics/traffic', icon: TrendingUp },
-        { name: 'User Insights', path: '/admin/analytics/insights', icon: Users },
-        { name: 'Real-time', path: '/admin/analytics/realtime', icon: Activity },
-        { name: 'Custom Reports', path: '/admin/analytics/custom', icon: FileText },
-      ]
-    },
-    { 
-      name: 'Content', 
-      path: '/admin/content', 
-      icon: FileText, 
-      permission: 'manage_content',
-      children: [
-        { name: 'Site Config', path: '/admin/content/config', icon: Layout },
-        { name: 'CMS Pages', path: '/admin/content/pages', icon: File },
-        { name: 'Blog', path: '/admin/content/blog', icon: BookOpen },
-        { name: 'Newsletters', path: '/admin/content/newsletters', icon: Mail },
-        { name: 'FAQ', path: '/admin/content/faq', icon: HelpCircle },
-        { name: 'Testimonials', path: '/admin/content/testimonials', icon: MessageSquareQuote },
-      ]
-    }, 
-    { name: 'Listings', path: '/admin/listings', icon: List, permission: 'manage_listings' },
-    { name: 'Marketing', path: '/admin/marketing', icon: Megaphone, permission: 'manage_users' },
-    { name: 'Users', path: '/admin/users', icon: Users, permission: 'manage_users' },
-    { name: 'Settings', path: '/admin/settings', icon: Settings, permission: 'manage_settings' },
-  ];
-
   // Auto-expand menu if child is active
   useEffect(() => {
     const activeParent = navItems.find(item => item.children?.some(child => location.pathname === child.path));
-    if (activeParent && !openMenus[activeParent.name]) {
-        setOpenMenus(prev => ({ ...prev, [activeParent.name]: true }));
+    if (activeParent) {
+        setOpenMenus(prev => prev[activeParent.name] ? prev : ({ ...prev, [activeParent.name]: true }));
     }
   }, [location.pathname]);
 

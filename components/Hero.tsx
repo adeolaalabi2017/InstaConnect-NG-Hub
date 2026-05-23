@@ -33,16 +33,23 @@ const Hero: React.FC = () => {
     return () => window.removeEventListener('site-config-updated', handleConfigUpdate);
   }, []);
 
-  // Close suggestions on click outside
+  // Close suggestions on click outside or Escape key
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (locationWrapperRef.current && !locationWrapperRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setShowSuggestions(false);
+      }
+    }
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [locationWrapperRef]);
 

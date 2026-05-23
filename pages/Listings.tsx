@@ -52,16 +52,23 @@ const Listings: React.FC = () => {
     if (sort) setSortBy(sort);
   }, [searchParams]);
 
-  // Click outside to close suggestions
+  // Click outside or Escape to close suggestions
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (locationWrapperRef.current && !locationWrapperRef.current.contains(event.target as Node)) {
         setShowLocationSuggestions(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setShowLocationSuggestions(false);
+      }
+    }
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [locationWrapperRef]);
 

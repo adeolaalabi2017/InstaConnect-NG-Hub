@@ -175,12 +175,17 @@ const Home: React.FC = () => {
               const IconComponent = (Icons as any)[cat.icon] || Icons.HelpCircle;
               return (
                 <div key={cat.id} className="group cursor-pointer">
-                  <div className="glass-card rounded-[2rem] p-8 shadow-xl shadow-gray-200/60 dark:shadow-none border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center hover:shadow-2xl hover:border-primary transition-all duration-300">
-                    <div className="w-14 h-14 bg-red-50 dark:bg-red-900/20 text-primary rounded-2xl flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                      <IconComponent size={28} />
+                  <div className="glass-card rounded-2xl p-6 shadow-md hover:shadow-xl border border-gray-100/80 dark:border-white/5 flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 relative overflow-hidden bg-white/70 dark:bg-slate-800/70">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="w-12 h-12 bg-red-50 dark:bg-slate-700/50 text-primary group-hover:text-white rounded-xl flex items-center justify-center mb-3 group-hover:bg-primary transition-all duration-300 transform group-hover:scale-110 shadow-sm">
+                      <IconComponent size={22} />
                     </div>
-                    <h4 className="font-bold text-dark dark:text-white text-sm mb-1 uppercase tracking-tight">{cat.name}</h4>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{cat.count} Listings</span>
+                    <h4 className="font-extrabold text-dark dark:text-white text-sm mb-1 uppercase tracking-wider text-center transition-colors group-hover:text-primary">
+                      {cat.name}
+                    </h4>
+                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      {cat.count} Listings
+                    </span>
                   </div>
                 </div>
               );

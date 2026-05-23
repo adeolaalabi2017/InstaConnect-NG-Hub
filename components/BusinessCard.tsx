@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, MapPin, Share2, Zap, ShieldCheck, Layers } from 'lucide-react';
 import { Business } from '../types';
@@ -12,6 +12,7 @@ interface BusinessCardProps {
 const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
   const { addToCompare, selectedBusinesses } = useComparison();
   const isSelectedForCompare = selectedBusinesses.some(b => b.id === business.id);
+  const [copied, setCopied] = useState(false);
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,8 +27,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
     if (navigator.share) {
         navigator.share(shareData).catch((err) => console.log('Error sharing', err));
     } else {
-        navigator.clipboard.writeText(shareData.url);
-        alert('Link copied to clipboard!');
+        navigator.clipboard.writeText(shareData.url).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
+        });
     }
   };
 
@@ -118,6 +121,15 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
            </Link>
         </div>
       </div>
+
+      {copied && (
+        <div className="fixed bottom-6 right-6 z-[9999] bg-slate-900/95 dark:bg-slate-950/95 text-white text-xs font-semibold px-4 py-3 rounded-2xl flex items-center gap-2.5 shadow-2xl border border-white/10 animate-fade-in-up backdrop-blur-md">
+          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white shrink-0">
+            <Zap size={10} fill="currentColor" />
+          </div>
+          <span>"{business.name}" link copied!</span>
+        </div>
+      )}
     </div>
   );
 };

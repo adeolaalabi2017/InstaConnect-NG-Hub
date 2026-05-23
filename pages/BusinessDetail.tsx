@@ -184,6 +184,21 @@ const BusinessDetail: React.FC = () => {
       loadData();
   }, [id, user]);
 
+  // Handle Escape key to close product modal
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsProductModalOpen(false);
+      }
+    }
+    if (isProductModalOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isProductModalOpen]);
+
   if (isLoading) {
       return <BusinessDetailSkeleton />;
   }
@@ -425,7 +440,14 @@ const BusinessDetail: React.FC = () => {
 
       {/* PRODUCT MANAGEMENT MODAL (Only for Owners) */}
       {isProductModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md animate-fade-in">
+          <div 
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md animate-fade-in"
+              onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                      setIsProductModalOpen(false);
+                  }
+              }}
+          >
               <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-white/20">
                   <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">
                       <h3 className="font-bold text-xl text-dark dark:text-white flex items-center gap-2">
