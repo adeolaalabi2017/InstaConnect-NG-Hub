@@ -1,5 +1,6 @@
 {
   "name": "Vendors Hub - Business Directory",
   "description": "A modern, glassmorphic PWA business directory for finding local gems, hotels, and services.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,5 +1,5 @@
 
-import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement, Role, Permission, CommunityThread, Story } from './types';
+import { Business, Category, Review, User, Event, EventComment, Badge, Transaction, Promotion, MarketingCampaign, AdPlacement, Role, Permission, CommunityThread } from './types';
 
 export const CATEGORIES: Category[] = [
   { id: '1', name: 'Hotels', icon: 'Hotel', count: 12 },
@@ -140,36 +140,6 @@ export const MOCK_BUSINESSES: Business[] = [
     verificationLevel: 'gold',
     status: 'active'
   }
-];
-
-export const MOCK_STORIES: Story[] = [
-    {
-        id: 's1',
-        businessId: '1',
-        businessName: 'Divine Hotels',
-        businessLogo: 'https://ui-avatars.com/api/?name=Divine+Hotels&background=EE1C47&color=fff',
-        image: 'https://picsum.photos/seed/promo1/600/1000',
-        caption: '50% off all Deluxe Suites this weekend only! 🥂',
-        timestamp: '1h ago'
-    },
-    {
-        id: 's2',
-        businessId: '2',
-        businessName: 'Mama Nkechi',
-        businessLogo: 'https://ui-avatars.com/api/?name=Mama+Nkechi&background=FF823A&color=fff',
-        image: 'https://picsum.photos/seed/promo2/600/1000',
-        caption: 'New Jollof Recipe just dropped! Come taste the magic. 🔥',
-        timestamp: '3h ago'
-    },
-    {
-        id: 's3',
-        businessId: '3',
-        businessName: 'Eko Resort',
-        businessLogo: 'https://ui-avatars.com/api/?name=Eko+Atlantic&background=09153D&color=fff',
-        image: 'https://picsum.photos/seed/promo3/600/1000',
-        caption: 'Sunset yoga starts at 6 PM. Join us on the beach! 🧘‍♀️',
-        timestamp: '5h ago'
-    }
 ];
 
 export const MOCK_REVIEWS: Review[] = [

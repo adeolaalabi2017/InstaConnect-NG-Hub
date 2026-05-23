@@ -23,17 +23,6 @@ export interface Badge {
   description: string;
 }
 
-export interface Story {
-  id: string;
-  businessId: string;
-  businessName: string;
-  businessLogo: string;
-  image: string;
-  caption: string;
-  timestamp: string;
-  isViewed?: boolean;
-}
-
 export interface Product {
   id: string;
   name: string;

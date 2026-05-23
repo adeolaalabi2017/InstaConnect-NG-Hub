@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import BusinessCard from '../components/BusinessCard';
 import BusinessCardSkeleton from '../components/BusinessCardSkeleton';
-import StoryTray from '../components/StoryTray';
 import AiConcierge from '../components/AiConcierge';
 import ComparisonDrawer from '../components/ComparisonDrawer';
 import { CATEGORIES } from '../constants';
@@ -125,7 +124,6 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <StoryTray />
       <Hero />
       {!isLoading && <SponsoredCarousel businesses={promotedBusinesses} />}
 
